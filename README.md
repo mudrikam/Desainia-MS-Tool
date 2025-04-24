@@ -1,9 +1,9 @@
 # Desainia Microstock Tool
 
-[![License](https://img.shields.io/github/license/your-username/Desainia-MS-Tool)](LICENSE)
-[![Issues](https://img.shields.io/github/issues/your-username/Desainia-MS-Tool)](https://github.com/your-username/Desainia-MS-Tool/issues)
-[![Stars](https://img.shields.io/github/stars/your-username/Desainia-MS-Tool)](https://github.com/your-username/Desainia-MS-Tool/stargazers)
-[![Last Commit](https://img.shields.io/github/last-commit/your-username/Desainia-MS-Tool)](https://github.com/your-username/Desainia-MS-Tool/commits/main)
+[![Downloads](https://img.shields.io/pypi/dm/rembg.svg)](https://img.shields.io/pypi/dm/rembg.svg)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://img.shields.io/badge/License-MIT-blue.svg)
+[![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/KenjieDec/RemBG)
+[![Streamlit App](https://img.shields.io/badge/🎈%20Streamlit%20Community-Cloud-blue)](https://bgremoval.streamlit.app/)
 
 > A powerful tool for managing and uploading content to multiple microstock platforms
 
