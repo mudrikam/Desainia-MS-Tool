@@ -5,8 +5,11 @@ OS="$(uname -s)"
 case "${OS}" in
     Linux*)
         PYTHON_DIR="Python/Linux"
-        # Pre-load XCB libraries
-        export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}"
+        # Set Linux-specific vars
+        export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+        export QT_QPA_PLATFORM=xcb
+        # System libraries path
+        export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:/usr/lib:${LD_LIBRARY_PATH}"
         ;;
     Darwin*)
         PYTHON_DIR="Python/MacOS"
@@ -17,7 +20,7 @@ case "${OS}" in
         ;;
 esac
 
-# Check if Python exists
+# Check Python installation
 if [ ! -f "${PYTHON_DIR}/python/bin/python3" ]; then
     echo "Python not found. Running installer..."
     chmod +x Install.sh
@@ -28,21 +31,16 @@ if [ ! -f "${PYTHON_DIR}/python/bin/python3" ]; then
     fi
 fi
 
-# Set complete environment
+# Set Python environment
 PYTHON_ROOT="${PWD}/${PYTHON_DIR}/python"
-SITE_PACKAGES="${PYTHON_ROOT}/lib/python3.12/site-packages"
-
 export PYTHONHOME="${PYTHON_ROOT}"
-export PYTHONPATH="${SITE_PACKAGES}:${PYTHON_ROOT}/lib"
-export LD_LIBRARY_PATH="${PYTHON_ROOT}/lib:${SITE_PACKAGES}/PyQt6/Qt6/lib:${LD_LIBRARY_PATH}"
+export PYTHONPATH="${PYTHON_ROOT}/lib/python3.12/site-packages:${PYTHON_ROOT}/lib"
 export PATH="${PYTHON_ROOT}/bin:${PATH}"
 
-# Set complete Qt environment
-export QT_DEBUG_PLUGINS=1
-export QT_QPA_PLATFORM=xcb
-export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-export QT_PLUGIN_PATH="${SITE_PACKAGES}/PyQt6/Qt6/plugins"
+# Set Qt environment without debug
+unset QT_DEBUG_PLUGINS
+export QT_PLUGIN_PATH="${PYTHON_ROOT}/lib/python3.12/site-packages/PyQt6/Qt6/plugins"
 export QT_QPA_PLATFORM_PLUGIN_PATH="${QT_PLUGIN_PATH}/platforms"
 
-# Run with proper environment
-"${PYTHON_ROOT}/bin/python3" Launcher.py
+# Run application
+exec "${PYTHON_ROOT}/bin/python3" Launcher.py 2>/dev/null
