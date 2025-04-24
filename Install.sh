@@ -8,7 +8,8 @@ RELEASE_TAG="20250409"
 case "${OS}" in
     Linux*)
         INSTALL_DIR="Python/Linux"
-        PYTHON_URL="https://github.com/astral-sh/python-build-standalone/releases/download/${RELEASE_TAG}/cpython-${PYTHON_VERSION}+${RELEASE_TAG}-aarch64-unknown-linux-gnu-install_only.tar.gz"
+        # Changed from aarch64 to x86_64 for standard Linux systems
+        PYTHON_URL="https://github.com/astral-sh/python-build-standalone/releases/download/${RELEASE_TAG}/cpython-${PYTHON_VERSION}+${RELEASE_TAG}-x86_64-unknown-linux-gnu-install_only.tar.gz"
         echo "Installing on Linux..."
         ;;
     Darwin*)
