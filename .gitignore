@@ -1,0 +1,36 @@
+# Python directories and files
+Python/
+__pycache__/
+*.py[cod]
+*.so
+*.dylib
+*.dll
+*.pyd
+
+# Build directories
+build/
+dist/
+*.egg-info/
+_build/
+_custom_build/
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Platform specific
+.Python
+*.msi
+*.exe
+*.dll
+.vs/
+.vscode/
+
+# Virtual environment
+venv/
+env/
+.env/
