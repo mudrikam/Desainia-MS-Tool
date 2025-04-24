@@ -5,6 +5,8 @@ OS="$(uname -s)"
 case "${OS}" in
     Linux*)
         PYTHON_DIR="Python/Linux"
+        # Pre-load XCB libraries
+        export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}"
         ;;
     Darwin*)
         PYTHON_DIR="Python/MacOS"
@@ -26,17 +28,21 @@ if [ ! -f "${PYTHON_DIR}/python/bin/python3" ]; then
     fi
 fi
 
-# Set Python paths properly
-PYTHON_BIN="${PYTHON_DIR}/python/bin"
-export PYTHONHOME="${PYTHON_DIR}/python"
-export PYTHONPATH="${PYTHON_DIR}/python/lib:${PYTHON_DIR}/python/lib/site-packages"
-export LD_LIBRARY_PATH="${PYTHON_DIR}/python/lib:${LD_LIBRARY_PATH}"
-export PATH="${PYTHON_BIN}:${PATH}"
+# Set complete environment
+PYTHON_ROOT="${PWD}/${PYTHON_DIR}/python"
+SITE_PACKAGES="${PYTHON_ROOT}/lib/python3.12/site-packages"
 
-# Set Qt paths properly
-export QT_PLUGIN_PATH="${PYTHON_DIR}/python/lib/site-packages/PyQt6/Qt6/plugins"
-export QT_QPA_PLATFORM_PLUGIN_PATH="${QT_PLUGIN_PATH}/platforms"
+export PYTHONHOME="${PYTHON_ROOT}"
+export PYTHONPATH="${SITE_PACKAGES}:${PYTHON_ROOT}/lib"
+export LD_LIBRARY_PATH="${PYTHON_ROOT}/lib:${SITE_PACKAGES}/PyQt6/Qt6/lib:${LD_LIBRARY_PATH}"
+export PATH="${PYTHON_ROOT}/bin:${PATH}"
+
+# Set complete Qt environment
+export QT_DEBUG_PLUGINS=1
 export QT_QPA_PLATFORM=xcb
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export QT_PLUGIN_PATH="${SITE_PACKAGES}/PyQt6/Qt6/plugins"
+export QT_QPA_PLATFORM_PLUGIN_PATH="${QT_PLUGIN_PATH}/platforms"
 
-# Run the launcher with proper path
-"${PYTHON_BIN}/python3" Launcher.py
+# Run with proper environment
+"${PYTHON_ROOT}/bin/python3" Launcher.py

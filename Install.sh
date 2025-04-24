@@ -8,11 +8,9 @@ RELEASE_TAG="20250409"
 case "${OS}" in
     Linux*)
         INSTALL_DIR="Python/Linux"
-        # Install Qt dependencies first
-        echo "Installing Qt dependencies..."
+        # Full Qt/XCB dependencies
         if command -v apt-get &> /dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y \
+            sudo apt-get update && sudo apt-get install -y \
                 libxcb1 \
                 libxcb-cursor0 \
                 libxcb-xinerama0 \
@@ -23,7 +21,15 @@ case "${OS}" in
                 libxcb-image0 \
                 libxcb-keysyms1 \
                 libxcb-render-util0 \
-                libxkbcommon-x11-0
+                libxkbcommon-x11-0 \
+                x11-utils \
+                '^libxcb.*-dev' \
+                libx11-xcb-dev \
+                libglu1-mesa-dev \
+                libxrender-dev \
+                libxi-dev \
+                libxkbcommon-dev \
+                libxkbcommon-x11-dev
         elif command -v dnf &> /dev/null; then
             sudo dnf install -y libxcb xcb-util-cursor xcb-util-xrm libxkbcommon-x11
         elif command -v pacman &> /dev/null; then
