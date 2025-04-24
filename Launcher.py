@@ -44,55 +44,28 @@
 # This launcher initializes and runs the Desainia-MS-Tool application
 # by creating an instance of MainWindow class from App.window module
 
-import os
 import sys
-import platform
+import os
 
-def verify_python_installation():
-    """Verify Python installation exists for current platform"""
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+# Use os.path.join for cross-platform path handling
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import Qt
+from App.gui.window import MainWindow
+
+if __name__ == '__main__':
+    # Enable High DPI scaling
+    if hasattr(Qt, 'AA_EnableHighDpiScaling'):
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     
-    if platform.system() == "Windows":
-        python_exe = os.path.join(base_dir, "Python", "Windows", "python.exe")
-        if not os.path.exists(python_exe):
-            raise RuntimeError("Python installation not found. Please run Install.bat")
-    else:  # Linux/MacOS
-        venv_dir = os.path.join(
-            base_dir, 
-            "Python",
-            "Linux" if platform.system() == "Linux" else "MacOS",
-            "venv"
-        )
-        if not os.path.exists(venv_dir):
-            raise RuntimeError("Python virtual environment not found. Please run Install.sh")
-
-def setup_python_path():
-    """Configure Python path based on platform"""
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    app = QApplication(sys.argv)
     
-    # Add application root directory to path
-    if base_dir not in sys.path:
-        sys.path.insert(0, base_dir)
+    window = MainWindow()
+    window.show()
     
-    if platform.system() == "Windows":
-        python_dir = os.path.join(base_dir, "Python", "Windows")
-        lib_dir = os.path.join(python_dir, "Lib", "site-packages")
-    else:  # Linux/MacOS
-        platform_dir = "Linux" if platform.system() == "Linux" else "MacOS"
-        python_dir = os.path.join(base_dir, "Python", platform_dir, "venv")
-        lib_dir = os.path.join(python_dir, "lib", "python3.14", "site-packages")
-
-    if python_dir not in sys.path:
-        sys.path.insert(0, python_dir)
-    if lib_dir not in sys.path:
-        sys.path.insert(0, lib_dir)
-
-# Verify and setup Python before importing application modules
-verify_python_installation()
-setup_python_path()
-
-from App.window import MainWindow
-
-if __name__ == "__main__":
-    app = MainWindow()
-    app.run()
+    sys.exit(app.exec())
