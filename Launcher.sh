@@ -15,9 +15,9 @@ case "${OS}" in
         ;;
 esac
 
-# Check if Python venv exists
-if [ ! -d "${PYTHON_DIR}/venv" ]; then
-    echo "Python environment not found. Running installer..."
+# Check if Python exists
+if [ ! -f "${PYTHON_DIR}/python/bin/python3" ]; then
+    echo "Python not found. Running installer..."
     chmod +x Install.sh
     ./Install.sh
     if [ $? -ne 0 ]; then
@@ -26,6 +26,13 @@ if [ ! -d "${PYTHON_DIR}/venv" ]; then
     fi
 fi
 
-# Activate virtual environment and run
-source "${PYTHON_DIR}/venv/bin/activate"
-python3 Launcher.py
+# Set Python paths
+export PYTHONPATH="${PYTHON_DIR}/python/lib:${PYTHON_DIR}/lib/site-packages"
+export PATH="${PYTHON_DIR}/python/bin:${PATH}"
+
+# Set Qt paths
+export QT_PLUGIN_PATH="${PYTHON_DIR}/python/lib/site-packages/PyQt6/Qt6/plugins"
+export QT_QPA_PLATFORM_PLUGIN_PATH="${PYTHON_DIR}/python/lib/site-packages/PyQt6/Qt6/plugins/platforms"
+
+# Run the launcher
+./${PYTHON_DIR}/python/bin/python3 Launcher.py
