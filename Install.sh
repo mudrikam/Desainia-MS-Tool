@@ -8,7 +8,18 @@ RELEASE_TAG="20250409"
 case "${OS}" in
     Linux*)
         INSTALL_DIR="Python/Linux"
-        # Changed from aarch64 to x86_64 for standard Linux systems
+        # Check and install required Qt dependencies
+        echo "Checking Qt dependencies..."
+        if command -v apt-get &> /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y libxcb-cursor0 libxcb-xinerama0 libxcb-randr0 libxcb-xtest0 libxcb-shape0 libxcb-cursor0
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y libxcb xcb-util-cursor
+        elif command -v pacman &> /dev/null; then
+            sudo pacman -Sy --noconfirm xcb-util-cursor
+        else
+            echo "Warning: Could not install Qt dependencies automatically. Please install xcb-cursor0 manually."
+        fi
         PYTHON_URL="https://github.com/astral-sh/python-build-standalone/releases/download/${RELEASE_TAG}/cpython-${PYTHON_VERSION}+${RELEASE_TAG}-x86_64-unknown-linux-gnu-install_only.tar.gz"
         echo "Installing on Linux..."
         ;;
