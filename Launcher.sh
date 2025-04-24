@@ -26,13 +26,17 @@ if [ ! -f "${PYTHON_DIR}/python/bin/python3" ]; then
     fi
 fi
 
-# Set Python paths
-export PYTHONPATH="${PYTHON_DIR}/python/lib:${PYTHON_DIR}/lib/site-packages"
-export PATH="${PYTHON_DIR}/python/bin:${PATH}"
+# Set Python paths properly
+PYTHON_BIN="${PYTHON_DIR}/python/bin"
+export PYTHONHOME="${PYTHON_DIR}/python"
+export PYTHONPATH="${PYTHON_DIR}/python/lib:${PYTHON_DIR}/python/lib/site-packages"
+export LD_LIBRARY_PATH="${PYTHON_DIR}/python/lib:${LD_LIBRARY_PATH}"
+export PATH="${PYTHON_BIN}:${PATH}"
 
-# Set Qt paths
+# Set Qt paths properly
 export QT_PLUGIN_PATH="${PYTHON_DIR}/python/lib/site-packages/PyQt6/Qt6/plugins"
-export QT_QPA_PLATFORM_PLUGIN_PATH="${PYTHON_DIR}/python/lib/site-packages/PyQt6/Qt6/plugins/platforms"
+export QT_QPA_PLATFORM_PLUGIN_PATH="${QT_PLUGIN_PATH}/platforms"
+export QT_QPA_PLATFORM=xcb
 
-# Run the launcher
-./${PYTHON_DIR}/python/bin/python3 Launcher.py
+# Run the launcher with proper path
+"${PYTHON_BIN}/python3" Launcher.py
