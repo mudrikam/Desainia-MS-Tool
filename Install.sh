@@ -39,14 +39,14 @@ rm python.tar.gz
 mkdir -p lib/site-packages
 
 # Set up environment
-export PATH="${PWD}/install/bin:${PATH}"  # Updated path
-export PYTHONPATH="${PWD}/install/lib:${PWD}/lib/site-packages"  # Updated path
+export PATH="${PWD}/python/bin:${PATH}"  # Fixed path to match actual structure
+export PYTHONPATH="${PWD}/python/lib:${PWD}/lib/site-packages"
 
 # Install requirements
 echo "Installing requirements..."
 cd ../..  # Back to project root
 if [ -f "requirements.txt" ]; then
-    ./Python/${OS}/install/bin/python3 -m pip install --no-warn-script-location -r requirements.txt
+    ./Python/${OS}/python/bin/python3 -m pip install --no-warn-script-location -r requirements.txt
     if [ $? -ne 0 ]; then
         echo "Error installing requirements. Please check your internet connection."
         exit 1
@@ -56,8 +56,8 @@ else
     exit 1
 fi
 
-# Set up Qt paths
-export QT_PLUGIN_PATH="${INSTALL_DIR}/lib/site-packages/PyQt6/Qt6/plugins"
-export QT_QPA_PLATFORM_PLUGIN_PATH="${INSTALL_DIR}/lib/site-packages/PyQt6/Qt6/plugins/platforms"
+# Set up Qt paths - updated to match actual structure
+export QT_PLUGIN_PATH="${INSTALL_DIR}/python/lib/site-packages/PyQt6/Qt6/plugins"
+export QT_QPA_PLATFORM_PLUGIN_PATH="${INSTALL_DIR}/python/lib/site-packages/PyQt6/Qt6/plugins/platforms"
 
 echo "Installation completed successfully!"
