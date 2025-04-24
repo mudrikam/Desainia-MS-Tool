@@ -1,40 +1,19 @@
 #!/bin/bash
 
-# Determine OS
+# Determine OS and Python version
 OS="$(uname -s)"
-PYTHON_VERSION="3.14.0"
+PYTHON_VERSION="3.12.1"
 
 case "${OS}" in
     Linux*)
         INSTALL_DIR="Python/Linux"
+        PYTHON_URL="https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz"
         echo "Installing on Linux..."
-        mkdir -p "${INSTALL_DIR}"
-        # Check for package manager
-        if command -v apt-get >/dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y python3.14 python3-pip
-        elif command -v dnf >/dev/null; then
-            sudo dnf install -y python3.14 python3-pip
-        elif command -v pacman >/dev/null; then
-            sudo pacman -Sy python314 python-pip
-        else
-            echo "Unsupported package manager. Please install Python 3.14+ manually."
-            exit 1
-        fi
-        python3 -m venv "${INSTALL_DIR}/venv"
-        source "${INSTALL_DIR}/venv/bin/activate"
         ;;
     Darwin*)
         INSTALL_DIR="Python/MacOS"
+        PYTHON_URL="https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}-macos11.pkg"
         echo "Installing on macOS..."
-        mkdir -p "${INSTALL_DIR}"
-        # Check if Homebrew is installed
-        if ! command -v brew >/dev/null; then
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        fi
-        brew install python@3.14
-        python3 -m venv "${INSTALL_DIR}/venv"
-        source "${INSTALL_DIR}/venv/bin/activate"
         ;;
     *)
         echo "Unsupported operating system"
@@ -42,13 +21,37 @@ case "${OS}" in
         ;;
 esac
 
-# Upgrade pip
-pip install --upgrade pip
+# Create directory
+mkdir -p "${INSTALL_DIR}"
+cd "${INSTALL_DIR}"
+
+# Download Python
+echo "Downloading Python ${PYTHON_VERSION}..."
+curl -o python.tgz "${PYTHON_URL}"
+
+# Extract Python
+echo "Extracting Python..."
+tar xzf python.tgz
+rm python.tgz
+
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Set up pip
+echo "Installing pip..."
+curl -o get-pip.py https://bootstrap.pypa.io/get-pip.py
+python get-pip.py --no-warn-script-location
+rm get-pip.py
+
+# Install wheel
+pip install --no-warn-script-location wheel
 
 # Install requirements
 echo "Installing requirements..."
+cd ../..  # Back to project root
 if [ -f "requirements.txt" ]; then
-    pip install --no-warn-script-location -r requirements.txt
+    pip install --no-warn-script-location --only-binary :all: -r requirements.txt
     if [ $? -ne 0 ]; then
         echo "Error installing requirements. Please check your internet connection."
         exit 1
@@ -57,5 +60,9 @@ else
     echo "Error: requirements.txt not found."
     exit 1
 fi
+
+# Set up Qt paths
+export QT_PLUGIN_PATH="${INSTALL_DIR}/venv/lib/python3.12/site-packages/PyQt6/Qt6/plugins"
+export QT_QPA_PLATFORM_PLUGIN_PATH="${INSTALL_DIR}/venv/lib/python3.12/site-packages/PyQt6/Qt6/plugins/platforms"
 
 echo "Installation completed successfully!"
