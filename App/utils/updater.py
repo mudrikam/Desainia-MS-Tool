@@ -4,6 +4,7 @@ import tempfile
 import os
 import shutil
 import subprocess
+import json
 from PyQt6.QtCore import QThread, pyqtSignal
 from PyQt6.QtWidgets import QApplication, QMessageBox
 from ..gui.widgets.dialogs.update_dialog import UpdateDialog
@@ -86,6 +87,16 @@ del "%~f0"
                 f.write(update_script)
             
             dialog.progress.setValue(75)
+            dialog.status_label.setText("Updating version info...")
+            
+            # Update version in config.json
+            config_path = os.path.join(os.getcwd(), 'App', 'config', 'config.json')
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+                config['application']['version'] = new_version
+            with open(config_path, 'w') as f:
+                json.dump(config, f, indent=4)
+            
             dialog.status_label.setText("Installing update...")
             
             # Run update script
