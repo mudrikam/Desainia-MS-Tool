@@ -1,0 +1,56 @@
+Main Developer
+-------------------------------------------------------
+M. Mudrikul Hikam <kyutkitten@gmail.com>
+
+Development Assistance
+-------------------------------------------------------
+- GitHub Copilot Pro (AI Pair Programming)  
+  Major contributor to code implementation and 
+  problem-solving.
+
+Special Thanks
+-------------------------------------------------------
+- Family & Friends - For endless support and 
+  encouragement.  
+- PyQt Team - For the amazing GUI framework.  
+- Qt Company - For the underlying Qt framework.  
+- Font Awesome - For the comprehensive icon set.  
+- GitHub - For hosting and development tools.  
+- Python Community - For the excellent ecosystem.  
+- Open Source Community - For libraries and tools 
+  used in this project.  
+- All users who provided valuable feedback.
+
+-------------------------------------------------------
+Note:  
+This tool was developed with major assistance from 
+GitHub Copilot, an AI pair programming tool. We 
+believe in transparency about AI usage while 
+acknowledging the human oversight and direction 
+in the development process.
+-------------------------------------------------------
+
+Want to be listed here?  
+Contribute to:  
+https://github.com/mudrikam/Desainia-MS-Tool
+
+Contributors & Feature Requests
+-------------------------------------------------------
+1. Yoga Binhar S. Ars - Provided sample CSV files 
+   for microstock platforms.
+
+Note:  
+To be listed as a contributor, please submit your 
+suggestions, bug reports, or improvements through 
+GitHub Issues or Pull Requests.
+
+Donors & Supporters
+-------------------------------------------------------
+1. Anonymous Donors - Financial support for 
+   development.  
+2. Anonymous Donors - Various contributions.
+
+Note:  
+We respect our donors' privacy. Some prefer to 
+remain anonymous while supporting this project's 
+development. Your support is greatly appreciated.

@@ -16,30 +16,63 @@ class UpdateChecker(QThread):
     def __init__(self, current_version):
         super().__init__()
         self.current_version = current_version
+        self.app = QApplication.instance()
+        
+        # Load config
+        self.config_path = self.app.BASE_DIR.get_path('App', 'config', 'config.json')
+        with open(self.config_path, 'r') as f:
+            self.config = json.load(f)
+            
+        # Skip check if versions match
+        self.last_github_version = self.config.get('git', {}).get('last_github_version', '0.0.0')
+        if self.last_github_version == self.current_version:
+            print(f"Skipping update check - Local version {self.current_version} matches last GitHub version")
+            return
+            
         self.api_url = "https://api.github.com/repos/mudrikam/Desainia-MS-Tool/releases/latest"
         self.commit_url = "https://api.github.com/repos/mudrikam/Desainia-MS-Tool/commits/"
+        
+        # GitHub token from environment or config
+        self.github_token = os.environ.get('GITHUB_TOKEN', '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')
+        
+        # Update headers with token if available
         self.headers = {
             'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': f'Desainia-MS-Tool/{current_version}'  # Menggunakan versi aplikasi di User-Agent
+            'User-Agent': f'Desainia-MS-Tool/{current_version}'
         }
+        if self.github_token:
+            self.headers['Authorization'] = f'token {self.github_token}'
+        
         self.latest_version = None
         self.release_notes = None
         self.commit_hash = None
     
     def run(self):
+        # Skip if versions match
+        if self.last_github_version == self.current_version:
+            print(f"Skipping GitHub API call - Using cached version {self.last_github_version}")
+            return
+            
         try:
-            # Add error handling for rate limiting
             response = requests.get(self.api_url, headers=self.headers, timeout=5)
-            print(f"GitHub API Response: {response.status_code}")
+            remaining = response.headers.get('X-RateLimit-Remaining', '0')
+            reset_time = response.headers.get('X-RateLimit-Reset', '0')
+            limit = response.headers.get('X-RateLimit-Limit', '0')
+            print(f"GitHub API Rate Limit: {remaining}/{limit} remaining. Resets at: {reset_time}")
             
             if response.status_code == 403:
-                print("Rate limit exceeded, waiting before retry...")
+                print(f"Rate limit exceeded. Resets at: {reset_time}")
                 return
                 
             if response.status_code == 200:
                 latest = response.json()
                 self.latest_version = latest['tag_name'].replace('v', '')  # Remove v prefix for semver compare
                 self.release_notes = latest.get('body', 'No release notes available.')
+                
+                # Update last GitHub version in config
+                self.config['git']['last_github_version'] = self.latest_version
+                with open(self.config_path, 'w') as f:
+                    json.dump(self.config, f, indent=4)
                 
                 # Get commit hash for current tag
                 tag_commit_url = f"https://api.github.com/repos/mudrikam/Desainia-MS-Tool/git/refs/tags/v{self.current_version}"
@@ -50,8 +83,7 @@ class UpdateChecker(QThread):
                     
                     # Update config with commit hash
                     try:
-                        app = QApplication.instance()
-                        config_path = app.BASE_DIR.get_path('App', 'config', 'config.json')
+                        config_path = self.app.BASE_DIR.get_path('App', 'config', 'config.json')
                         with open(config_path, 'r+') as f:
                             config = json.load(f)
                             if 'git' not in config:
@@ -64,6 +96,7 @@ class UpdateChecker(QThread):
                     except Exception as e:
                         print(f"Error updating config with commit hash: {str(e)}")
                 
+                # Continue only if new version available
                 if semver.compare(self.latest_version, self.current_version) > 0:
                     print(f"Update available: {self.latest_version}")
                     self.update_available.emit(self.latest_version, self.release_notes)

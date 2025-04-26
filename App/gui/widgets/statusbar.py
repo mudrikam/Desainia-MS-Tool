@@ -4,6 +4,7 @@ from PyQt6.QtGui import QDesktopServices, QColor
 from PyQt6.QtCore import QUrl
 from ...utils.updater import UpdateChecker
 import qtawesome as qta
+from .dialogs.donate_dialog import DonateDialog
 
 class StatusBar(QStatusBar):
     def __init__(self, config, parent=None):
@@ -86,6 +87,34 @@ class StatusBar(QStatusBar):
         
         coffee_layout.addWidget(self.coffee_icon)
         
+        # Create WhatsApp icon
+        self.wa_container = QWidget()
+        wa_layout = QHBoxLayout(self.wa_container)
+        wa_layout.setContentsMargins(0, 0, 0, 0)
+        wa_layout.setSpacing(2)
+        
+        self.wa_icon = QLabel()
+        wa_icon_pixmap = qta.icon('fa5b.whatsapp').pixmap(14, 14)
+        self.wa_icon.setPixmap(wa_icon_pixmap)
+        self.wa_container.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.wa_container.mousePressEvent = self.open_whatsapp
+        
+        wa_layout.addWidget(self.wa_icon)
+        
+        # Create heart icon
+        self.heart_container = QWidget()
+        heart_layout = QHBoxLayout(self.heart_container)
+        heart_layout.setContentsMargins(0, 0, 0, 0)
+        heart_layout.setSpacing(2)
+        
+        self.heart_icon = QLabel()
+        heart_icon_pixmap = qta.icon('fa5s.heart', color='#FF335F').pixmap(14, 14)
+        self.heart_icon.setPixmap(heart_icon_pixmap)
+        self.heart_container.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.heart_container.mousePressEvent = self.show_donate
+        
+        heart_layout.addWidget(self.heart_icon)
+        
         # Add permanent widgets to right side
         self.addPermanentWidget(python_version)
         self.addPermanentWidget(self.update_container)
@@ -93,6 +122,8 @@ class StatusBar(QStatusBar):
         self.addPermanentWidget(self.commit_container)
         self.addPermanentWidget(self.github_container)
         self.addPermanentWidget(self.coffee_container)
+        self.addPermanentWidget(self.heart_container)
+        self.addPermanentWidget(self.wa_container)
         
         # Start update checker
         self.checker = UpdateChecker(config['application']['version'])
@@ -119,3 +150,10 @@ class StatusBar(QStatusBar):
         commit_hash = self.commit_text.text()
         if commit_hash:
             QDesktopServices.openUrl(QUrl(f"https://github.com/mudrikam/Desainia-MS-Tool/commit/{commit_hash}"))
+    
+    def open_whatsapp(self, event):
+        QDesktopServices.openUrl(QUrl("https://chat.whatsapp.com/CMQvDxpCfP647kBBA6dRn3"))
+    
+    def show_donate(self, event):
+        dialog = DonateDialog(self)
+        dialog.exec()

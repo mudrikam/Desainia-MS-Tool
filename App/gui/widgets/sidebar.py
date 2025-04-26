@@ -14,6 +14,7 @@ class SideBar(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("SideBar")
+        self.active_button = None  # Track active button
         
         self.setFixedWidth(60)
         
@@ -42,6 +43,9 @@ class SideBar(QFrame):
                 margin: 2px;
                 background: transparent;
             }}
+            QPushButton[active="true"] {{
+                background: {palette.alternateBase().color().name()};
+            }}
             QPushButton:hover {{
                 background: {palette.alternateBase().color().name()};
             }}
@@ -67,18 +71,48 @@ class SideBar(QFrame):
         self.content_layout.addWidget(self.bottom_section)
         
         # Add top icons
-        home = self.addItem("fa5s.th", "Home", top_layout)  # Changed from fa5s.home to fa5s.th
-        home.clicked.connect(self.home_clicked)
+        self.home_btn = self.addItem("fa5s.th", "Home", top_layout)
+        self.home_btn.clicked.connect(self._on_home_clicked)
         
-        analytics = self.addItem("fa5s.chart-bar", "Analytics", top_layout)
-        analytics.clicked.connect(self.analytics_clicked)
+        self.analytics_btn = self.addItem("fa5s.chart-bar", "Analytics", top_layout)
+        self.analytics_btn.clicked.connect(self._on_analytics_clicked)
         
-        files = self.addItem("fa5s.folder", "Files", top_layout)
-        files.clicked.connect(self.files_clicked)
+        self.files_btn = self.addItem("fa5s.folder", "Files", top_layout)
+        self.files_btn.clicked.connect(self._on_files_clicked)
         
         # Add settings to bottom
-        settings = self.addItem("fa5s.cog", "Settings", bottom_layout)
-        settings.clicked.connect(self.settings_clicked)
+        self.settings_btn = self.addItem("fa5s.cog", "Settings", bottom_layout)
+        self.settings_btn.clicked.connect(self._on_settings_clicked)
+        
+        # Set home as default active
+        self._set_active(self.home_btn)
+
+    def _set_active(self, button):
+        """Set active state for button"""
+        if self.active_button:
+            self.active_button.setProperty("active", False)
+            self.active_button.style().unpolish(self.active_button)
+            self.active_button.style().polish(self.active_button)
+        self.active_button = button
+        button.setProperty("active", True)
+        button.style().unpolish(button)
+        button.style().polish(button)
+
+    def _on_home_clicked(self):
+        self._set_active(self.home_btn)
+        self.home_clicked.emit()
+        
+    def _on_analytics_clicked(self):
+        self._set_active(self.analytics_btn)
+        self.analytics_clicked.emit()
+        
+    def _on_files_clicked(self):
+        self._set_active(self.files_btn)
+        self.files_clicked.emit()
+        
+    def _on_settings_clicked(self):
+        self._set_active(self.settings_btn)
+        self.settings_clicked.emit()
         
     def addItem(self, icon_name, tooltip="", parent_layout=None):
         """Add an icon button"""
@@ -89,9 +123,10 @@ class SideBar(QFrame):
         
         btn = QPushButton()
         icon = qta.icon(icon_name, color=QApplication.palette().text().color().name())
+
         btn.setIcon(icon)
-        btn.setIconSize(btn.sizeHint() * 0.8)  # Make icon 80% of original size
-        btn.setToolTip(tooltip)  # Add tooltip to button instead
+        btn.setIconSize(btn.sizeHint() * 0.8)
+        btn.setToolTip(tooltip)
         
         layout.addWidget(btn, 0, Qt.AlignmentFlag.AlignHCenter)
         

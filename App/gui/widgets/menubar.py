@@ -1,7 +1,9 @@
 from PyQt6.QtWidgets import QMenuBar, QMenu, QApplication
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QKeySequence, QAction
+from PyQt6.QtCore import Qt, QUrl
+from PyQt6.QtGui import QKeySequence, QAction, QPalette, QDesktopServices
 from .dialogs.about_dialog import AboutDialog
+from .dialogs.license_dialog import LicenseDialog
+from .dialogs.donate_dialog import DonateDialog
 import qtawesome as qta
 import platform
 
@@ -10,6 +12,7 @@ class MenuBar(QMenuBar):
         super().__init__(parent)
         self.config = config  # Store config reference
         self.is_macos = platform.system() == "Darwin"
+        self.setup_style()
         
         # Set application details
         QApplication.setApplicationName("Desainia MS Tool")
@@ -90,9 +93,24 @@ class MenuBar(QMenuBar):
         # Help menu
         help_menu = QMenu("Help", self)
         help_menu.addAction(qta.icon('fa5s.question-circle'), "Documentation").setShortcut("F1")
-        # Only add About to help menu if not macOS
+        
+        help_menu.addSeparator()
+        join_action = help_menu.addAction(qta.icon('fa5b.whatsapp', color='#25D366'), "Join Our Group")
+        join_action.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://chat.whatsapp.com/CMQvDxpCfP647kBBA6dRn3")))
+        
+        issue_action = help_menu.addAction(qta.icon('fa5s.bug',color='#F05400'), "Found a Bug?")
+        issue_action.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/mudrikam/Desainia-MS-Tool/issues")))
+        
+        help_menu.addSeparator()
+        donate_action = help_menu.addAction(qta.icon('fa5s.heart', color='#FF335F'), "Donate")
+        donate_action.triggered.connect(self.show_donate)
+        
+        license_action = help_menu.addAction(qta.icon('fa5s.file-contract'), "License")
+        license_action.triggered.connect(self.show_license)
+        
+        help_menu.addSeparator()
         if not self.is_macos:
-            about_action = help_menu.addAction(qta.icon('fa5s.info-circle'), "About")
+            about_action = help_menu.addAction(qta.icon('fa5s.info-circle', color='#0366d6'), "About")
             about_action.triggered.connect(self.show_about)
         
         # Add menus to menubar
@@ -101,7 +119,33 @@ class MenuBar(QMenuBar):
         self.addMenu(view_menu)
         self.addMenu(help_menu)
     
+    def setup_style(self):
+        """Setup menubar style with system border color"""
+        palette = self.palette()
+        border_color = palette.color(QPalette.ColorRole.Mid).name()
+        self.setStyleSheet(f"""
+            QMenuBar {{
+                border-bottom: 1px solid {border_color};
+                background: transparent;
+            }}
+        """)
+
     def show_about(self):
         """Show about dialog"""
-        dialog = AboutDialog(self.config, self)
+        app = QApplication.instance()
+        config_path = app.BASE_DIR.get_path('App', 'config', 'config.json')
+        with open(config_path, 'r') as f:
+            import json
+            config = json.load(f)
+        dialog = AboutDialog(config, self)
+        dialog.exec()
+
+    def show_license(self):
+        """Show license dialog"""
+        dialog = LicenseDialog(self)
+        dialog.exec()
+
+    def show_donate(self):
+        """Show donate dialog"""
+        dialog = DonateDialog(self)
         dialog.exec()
