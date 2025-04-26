@@ -119,6 +119,14 @@ class UpdateChecker(QThread):
             extracted_dir = os.path.join(temp_dir, f"Desainia-MS-Tool-{new_version}")
             config_path = os.path.join(os.getcwd(), "App", "config", "config.json")
             
+            # Get new commit hash
+            tag_commit_url = f"https://api.github.com/repos/mudrikam/Desainia-MS-Tool/git/refs/tags/v{new_version}"
+            commit_response = requests.get(tag_commit_url, headers=self.headers, timeout=5)
+            new_commit_hash = ""
+            if commit_response.status_code == 200:
+                commit_data = commit_response.json()
+                new_commit_hash = commit_data['object']['sha'][:7]
+            
             # Create platform-specific update script
             if platform.system() == "Windows":
                 update_script = f"""
@@ -126,7 +134,7 @@ class UpdateChecker(QThread):
 timeout /t 1 /nobreak >nul
 robocopy "{extracted_dir}" "{os.getcwd()}" /E /IS /IT /IM
 if exist "{config_path.replace('/', '\\')}" (
-    python -c "import json;fp='{config_path.replace('\\', '\\\\')}';f=open(fp,'r');d=json.load(f);f.close();d['application']['version']='{new_version}';f=open(fp,'w');json.dump(d,f,indent=4);f.close()"
+    python -c "import json;fp='{config_path.replace('\\', '\\\\')}';f=open(fp,'r');d=json.load(f);f.close();d['application']['version']='{new_version}';d['git']={{'commit_hash':'{new_commit_hash}','tag':'v{new_version}'}};f=open(fp,'w');json.dump(d,f,indent=4);f.close()"
     if errorlevel 1 (
         exit /b 1
     )
@@ -142,7 +150,7 @@ exit
 cp -R "{extracted_dir}/"* "{os.getcwd()}/"
 
 if [ -f "{config_path}" ]; then
-    python3 -c 'import json;fp="{config_path}";f=open(fp,"r");d=json.load(f);f.close();d["application"]["version"]="{new_version}";f=open(fp,"w");json.dump(d,f,indent=4);f.close()'
+    python3 -c 'import json;fp="{config_path}";f=open(fp,"r");d=json.load(f);f.close();d["application"]["version"]="{new_version}";d["git"]={{"commit_hash":"{new_commit_hash}","tag":"v{new_version}"}};f=open(fp,"w");json.dump(d,f,indent=4);f.close()'
 fi
 
 if [ -f "{os.getcwd()}/Launcher.sh" ]; then
