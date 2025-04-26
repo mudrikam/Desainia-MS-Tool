@@ -21,7 +21,7 @@ class StatusBar(QStatusBar):
         """)
         
         # Create version labels
-        self.app_version = QLabel(f"App v{config['application']['version']}")
+        self.app_version = QLabel(f"v{config['application']['version']}")
         
         # Create update label with container
         self.update_container = QWidget()
