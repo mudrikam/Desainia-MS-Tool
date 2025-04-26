@@ -82,7 +82,6 @@ robocopy "{extracted_dir}" "{os.getcwd()}" /E /IS /IT /IM
 if exist "{config_path.replace('/', '\\')}" (
     python -c "import json;fp='{config_path.replace('\\', '\\\\')}';f=open(fp,'r');d=json.load(f);f.close();d['application']['version']='{new_version}';f=open(fp,'w');json.dump(d,f,indent=4);f.close()"
     if errorlevel 1 (
-        echo Failed to update version in config.json
         exit /b 1
     )
 )
