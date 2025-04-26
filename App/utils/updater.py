@@ -78,6 +78,10 @@ class UpdateChecker(QThread):
 @echo off
 timeout /t 1 /nobreak >nul
 robocopy "{extracted_dir}" "{os.getcwd()}" /E /IS /IT /IM
+if exist "{os.getcwd()}\\App\\config\\config.json" (
+    echo {{\"application\": {{\"version\": \"{new_version}\"}}, \"runtime\": {{\"python_version\": \"3.12.1\", \"qt_version\": \"6.6.1\"}}}} > "{os.getcwd()}\\App\\config\\config.json.new"
+    move /Y "{os.getcwd()}\\App\\config\\config.json.new" "{os.getcwd()}\\App\\config\\config.json"
+)
 start "" "{os.getcwd()}\\Launcher.bat"
 rmdir /S /Q "{temp_dir}"
 del "%~f0"
@@ -87,16 +91,6 @@ del "%~f0"
                 f.write(update_script)
             
             dialog.progress.setValue(75)
-            dialog.status_label.setText("Updating version info...")
-            
-            # Update version in config.json
-            config_path = os.path.join(os.getcwd(), 'App', 'config', 'config.json')
-            with open(config_path, 'r') as f:
-                config = json.load(f)
-                config['application']['version'] = new_version
-            with open(config_path, 'w') as f:
-                json.dump(config, f, indent=4)
-            
             dialog.status_label.setText("Installing update...")
             
             # Run update script
