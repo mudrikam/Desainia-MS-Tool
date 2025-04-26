@@ -98,10 +98,22 @@ exit
             else:  # Linux and MacOS
                 if platform.system() == "Darwin":  # macOS
                     launch_cmd = f'open "{os.getcwd()}/Launcher.command"'
+                    mac_launcher = f"""#!/bin/bash
+cp -R "{extracted_dir}/"* "{os.getcwd()}/"
+if [ -f "{config_path}" ]; then
+    python3 -c 'import json;fp="{config_path}";f=open(fp,"r");d=json.load(f);f.close();d["application"]["version"]="{new_version}";f=open(fp,"w");json.dump(d,f,indent=4);f.close()'
+fi
+rm -rf "{temp_dir}"
+if [ -f "{os.getcwd()}/Launcher.command" ]; then
+    chmod +x "{os.getcwd()}/Launcher.command"
+    {launch_cmd}
+fi
+rm -- "$0"
+"""
+                    update_script = mac_launcher
                 else:  # Linux
                     launch_cmd = f'nohup "{os.getcwd()}/Launcher.sh" >/dev/null 2>&1 &'
-                
-                update_script = f"""#!/bin/bash
+                    update_script = f"""#!/bin/bash
 cp -R "{extracted_dir}/"* "{os.getcwd()}/"
 if [ -f "{config_path}" ]; then
     python3 -c 'import json;fp="{config_path}";f=open(fp,"r");d=json.load(f);f.close();d["application"]["version"]="{new_version}";f=open(fp,"w");json.dump(d,f,indent=4);f.close()'
