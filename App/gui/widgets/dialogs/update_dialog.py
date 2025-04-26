@@ -1,13 +1,13 @@
 from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QPushButton, 
-                            QProgressBar, QWidget, QHBoxLayout)
+                            QProgressBar, QWidget, QHBoxLayout, QTextEdit)
 from PyQt6.QtCore import Qt
 import qtawesome as qta
 
 class UpdateDialog(QDialog):
-    def __init__(self, current_version, new_version, parent=None):
+    def __init__(self, current_version, new_version, release_notes, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Update Available")
-        self.setFixedSize(400, 200)
+        self.setMinimumWidth(500)
         
         layout = QVBoxLayout(self)
         
@@ -34,21 +34,31 @@ class UpdateDialog(QDialog):
         )
         info.setWordWrap(True)
         
-        # Progress bar (hidden initially)
-        self.progress = QProgressBar()
-        self.progress.hide()
+        # Release notes
+        notes_label = QLabel("Release Notes:")
+        notes_label.setStyleSheet("font-weight: bold; margin-top: 10px;")
+        self.notes = QTextEdit()
+        self.notes.setReadOnly(True)
+        self.notes.setMinimumHeight(150)
+        self.notes.setMaximumHeight(300)
+        if release_notes and release_notes.strip():
+            self.notes.setPlainText(release_notes.strip())
+        else:
+            self.notes.setPlainText("No release notes available.")
+        self.notes.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
         
-        # Add status label above progress bar
+        # Status label
         self.status_label = QLabel()
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.status_label)
-        layout.addWidget(self.progress)
+        
+        # Progress bar
+        self.progress = QProgressBar()
+        self.progress.hide()
         
         # Buttons
         buttons = QWidget()
         button_layout = QHBoxLayout(buttons)
         self.update_btn = QPushButton("Update Now")
-        self.update_btn.setStyleSheet("background-color: #0366d6; color: white; padding: 8px 16px;")
         cancel_btn = QPushButton("Cancel")
         button_layout.addStretch()
         button_layout.addWidget(cancel_btn)
@@ -57,6 +67,10 @@ class UpdateDialog(QDialog):
         # Add widgets to layout
         layout.addWidget(header)
         layout.addWidget(info)
+        layout.addWidget(notes_label)
+        layout.addWidget(self.notes)
+        layout.addWidget(self.status_label)
+        layout.addWidget(self.progress)
         layout.addWidget(buttons)
         
         # Connect buttons

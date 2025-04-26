@@ -11,28 +11,37 @@ from PyQt6.QtWidgets import QApplication, QMessageBox
 from ..gui.widgets.dialogs.update_dialog import UpdateDialog
 
 class UpdateChecker(QThread):
-    update_available = pyqtSignal(str)
-    download_progress = pyqtSignal(int)
+    update_available = pyqtSignal(str, str)
     
     def __init__(self, current_version):
         super().__init__()
         self.current_version = current_version
         self.api_url = "https://api.github.com/repos/mudrikam/Desainia-MS-Tool/releases/latest"
+        self.headers = {'Accept': 'application/vnd.github.v3+json'}
+        self.latest_version = None
+        self.release_notes = None
     
     def run(self):
         try:
-            response = requests.get(self.api_url, timeout=5)
+            response = requests.get(self.api_url, headers=self.headers, timeout=5)
+            print(f"GitHub API Response: {response.status_code}")
             if response.status_code == 200:
                 latest = response.json()
-                latest_version = latest['tag_name'].replace('v', '')  # Remove v prefix for semver compare
+                self.latest_version = latest['tag_name'].replace('v', '')  # Remove v prefix for semver compare
+                self.release_notes = latest.get('body', 'No release notes available.')
+                print(f"Release Notes: {self.release_notes}")
                 
-                if semver.compare(latest_version, self.current_version) > 0:
-                    self.update_available.emit(latest_version)
-        except:
-            pass  # Silently fail on connection issues
-    
+                if semver.compare(self.latest_version, self.current_version) > 0:
+                    print(f"Update available: {self.latest_version}")
+                    self.update_available.emit(self.latest_version, self.release_notes)
+        except Exception as e:
+            print(f"Update check error: {str(e)}")
+            pass
+
     def download_and_install(self, new_version):
-        dialog = UpdateDialog(self.current_version, new_version)
+        if not self.release_notes:  # Fallback if release notes not available
+            self.release_notes = 'No release notes available.'
+        dialog = UpdateDialog(self.current_version, new_version, self.release_notes)
         dialog.update_btn.clicked.connect(lambda: self._perform_update(dialog, new_version))
         return dialog.exec()
     
