@@ -1,12 +1,14 @@
 from PyQt6.QtWidgets import QMenuBar, QMenu, QApplication
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QAction
+from .dialogs.about_dialog import AboutDialog
 import qtawesome as qta
 import platform
 
 class MenuBar(QMenuBar):
-    def __init__(self, parent=None):
+    def __init__(self, config, parent=None):
         super().__init__(parent)
+        self.config = config  # Store config reference
         self.is_macos = platform.system() == "Darwin"
         
         # Set application details
@@ -90,10 +92,16 @@ class MenuBar(QMenuBar):
         help_menu.addAction(qta.icon('fa5s.question-circle'), "Documentation").setShortcut("F1")
         # Only add About to help menu if not macOS
         if not self.is_macos:
-            help_menu.addAction(qta.icon('fa5s.info-circle'), "About")
+            about_action = help_menu.addAction(qta.icon('fa5s.info-circle'), "About")
+            about_action.triggered.connect(self.show_about)
         
         # Add menus to menubar
         self.addMenu(file_menu)
         self.addMenu(edit_menu)
         self.addMenu(view_menu)
         self.addMenu(help_menu)
+    
+    def show_about(self):
+        """Show about dialog"""
+        dialog = AboutDialog(self.config, self)
+        dialog.exec()

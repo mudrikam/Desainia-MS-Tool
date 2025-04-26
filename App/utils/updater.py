@@ -17,19 +17,52 @@ class UpdateChecker(QThread):
         super().__init__()
         self.current_version = current_version
         self.api_url = "https://api.github.com/repos/mudrikam/Desainia-MS-Tool/releases/latest"
-        self.headers = {'Accept': 'application/vnd.github.v3+json'}
+        self.commit_url = "https://api.github.com/repos/mudrikam/Desainia-MS-Tool/commits/"
+        self.headers = {
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': f'Desainia-MS-Tool/{current_version}'  # Menggunakan versi aplikasi di User-Agent
+        }
         self.latest_version = None
         self.release_notes = None
+        self.commit_hash = None
     
     def run(self):
         try:
+            # Add error handling for rate limiting
             response = requests.get(self.api_url, headers=self.headers, timeout=5)
             print(f"GitHub API Response: {response.status_code}")
+            
+            if response.status_code == 403:
+                print("Rate limit exceeded, waiting before retry...")
+                return
+                
             if response.status_code == 200:
                 latest = response.json()
                 self.latest_version = latest['tag_name'].replace('v', '')  # Remove v prefix for semver compare
                 self.release_notes = latest.get('body', 'No release notes available.')
-                # print(f"Release Notes: {self.release_notes}")
+                
+                # Get commit hash for current tag
+                tag_commit_url = f"https://api.github.com/repos/mudrikam/Desainia-MS-Tool/git/refs/tags/v{self.current_version}"
+                commit_response = requests.get(tag_commit_url, headers=self.headers, timeout=5)
+                if commit_response.status_code == 200:
+                    commit_data = commit_response.json()
+                    self.commit_hash = commit_data['object']['sha'][:7]  # Get short hash
+                    
+                    # Update config with commit hash
+                    try:
+                        app = QApplication.instance()
+                        config_path = app.BASE_DIR.get_path('App', 'config', 'config.json')
+                        with open(config_path, 'r+') as f:
+                            config = json.load(f)
+                            if 'git' not in config:
+                                config['git'] = {}
+                            config['git']['commit_hash'] = self.commit_hash
+                            config['git']['tag'] = f"v{self.current_version}"
+                            f.seek(0)
+                            json.dump(config, f, indent=4)
+                            f.truncate()
+                    except Exception as e:
+                        print(f"Error updating config with commit hash: {str(e)}")
                 
                 if semver.compare(self.latest_version, self.current_version) > 0:
                     print(f"Update available: {self.latest_version}")

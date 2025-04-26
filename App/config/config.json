@@ -1,12 +1,16 @@
 {
     "application": {
         "name": "Desainia-MS-Tool",
-        "version": "1.0.1",
+        "version": "1.0.14",
         "description": "A powerful tool for managing and uploading content to multiple microstock platforms"
     },
     "runtime": {
         "python_version": "3.12.1",
         "qt_version": "6.6.1"
+    },
+    "git": {
+        "commit_hash": "f693d29",
+        "tag": "v1.0.14"
     },
     "window": {
         "title": "Desainia MS Tool",
@@ -19,7 +23,7 @@
         "icon": "App/resources/proprietary/img/icon/dsnamstool.ico"
     },
     "theme": {
-        "use_system_theme": true,
-        "default_theme": "light"
+        "use_system_theme": false,
+        "default_theme": "dark"
     }
 }

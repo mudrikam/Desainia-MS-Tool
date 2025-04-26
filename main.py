@@ -81,6 +81,7 @@ if __name__ == '__main__':
     app.setApplicationDisplayName("Desainia MS Tool")
     app.BASE_DIR = BASE_DIR  # Make available to entire application
     
+    
     window = MainWindow()
     window.show()
     
