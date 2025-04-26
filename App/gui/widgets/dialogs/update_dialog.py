@@ -38,6 +38,12 @@ class UpdateDialog(QDialog):
         self.progress = QProgressBar()
         self.progress.hide()
         
+        # Add status label above progress bar
+        self.status_label = QLabel()
+        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.status_label)
+        layout.addWidget(self.progress)
+        
         # Buttons
         buttons = QWidget()
         button_layout = QHBoxLayout(buttons)
@@ -51,7 +57,6 @@ class UpdateDialog(QDialog):
         # Add widgets to layout
         layout.addWidget(header)
         layout.addWidget(info)
-        layout.addWidget(self.progress)
         layout.addWidget(buttons)
         
         # Connect buttons
