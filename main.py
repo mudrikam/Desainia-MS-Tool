@@ -76,6 +76,9 @@ if __name__ == '__main__':
         QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     
     app = QApplication(sys.argv)
+    app.setApplicationName("Desainia MS Tool")
+    app.setOrganizationName("Desainia")
+    app.setApplicationDisplayName("Desainia MS Tool")
     app.BASE_DIR = BASE_DIR  # Make available to entire application
     
     window = MainWindow()

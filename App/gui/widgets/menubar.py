@@ -1,12 +1,38 @@
-from PyQt6.QtWidgets import QMenuBar, QMenu
+from PyQt6.QtWidgets import QMenuBar, QMenu, QApplication
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QAction
 import qtawesome as qta
+import platform
 
 class MenuBar(QMenuBar):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.is_macos = platform.system() == "Darwin"
         
+        # Set application details
+        QApplication.setApplicationName("Desainia MS Tool")
+        QApplication.setOrganizationName("Mudrika")
+        QApplication.setApplicationDisplayName("Desainia MS Tool")
+        
+        # Application menu (macOS)
+        if self.is_macos:
+            # Create actions with roles first
+            about_action = QAction("About Desainia MS Tool", self)
+            about_action.setMenuRole(QAction.MenuRole.AboutRole)
+            
+            preferences_action = QAction("Preferences...", self)
+            preferences_action.setMenuRole(QAction.MenuRole.PreferencesRole)
+            preferences_action.setShortcut(QKeySequence.StandardKey.Preferences)
+            
+            quit_action = QAction("Quit Desainia MS Tool", self)
+            quit_action.setMenuRole(QAction.MenuRole.QuitRole)
+            quit_action.setShortcut(QKeySequence.StandardKey.Quit)
+            
+            # Add actions to menubar
+            self.addAction(about_action)
+            self.addAction(preferences_action)
+            self.addAction(quit_action)
+
         # File menu
         file_menu = QMenu("File", self)
         new_action = file_menu.addAction(qta.icon('fa5s.file'), "New")
@@ -18,9 +44,11 @@ class MenuBar(QMenuBar):
         save_action = file_menu.addAction(qta.icon('fa5s.save'), "Save")
         save_action.setShortcut(QKeySequence.StandardKey.Save)
         
-        file_menu.addSeparator()
-        exit_action = file_menu.addAction(qta.icon('fa5s.power-off'), "Exit")
-        exit_action.setShortcut(QKeySequence.StandardKey.Quit)
+        # Only add Exit to file menu if not macOS
+        if not self.is_macos:
+            file_menu.addSeparator()
+            exit_action = file_menu.addAction(qta.icon('fa5s.power-off'), "Exit")
+            exit_action.setShortcut(QKeySequence.StandardKey.Quit)
         
         # Edit menu
         edit_menu = QMenu("Edit", self)
@@ -40,9 +68,11 @@ class MenuBar(QMenuBar):
         paste_action = edit_menu.addAction(qta.icon('fa5s.paste'), "Paste")
         paste_action.setShortcut(QKeySequence.StandardKey.Paste)
         
-        edit_menu.addSeparator()
-        preferences_action = edit_menu.addAction(qta.icon('fa5s.cog'), "Preferences")
-        preferences_action.setShortcut("Ctrl+,")
+        # Add preferences to Edit menu if not macOS
+        if not self.is_macos:
+            edit_menu.addSeparator()
+            preferences_action = edit_menu.addAction(qta.icon('fa5s.cog'), "Preferences")
+            preferences_action.setShortcut("Ctrl+,")
         
         # View menu
         view_menu = QMenu("View", self)
@@ -58,7 +88,9 @@ class MenuBar(QMenuBar):
         # Help menu
         help_menu = QMenu("Help", self)
         help_menu.addAction(qta.icon('fa5s.question-circle'), "Documentation").setShortcut("F1")
-        help_menu.addAction(qta.icon('fa5s.info-circle'), "About")
+        # Only add About to help menu if not macOS
+        if not self.is_macos:
+            help_menu.addAction(qta.icon('fa5s.info-circle'), "About")
         
         # Add menus to menubar
         self.addMenu(file_menu)
