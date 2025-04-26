@@ -97,16 +97,16 @@ exit
                 script_path = os.path.join(temp_dir, "update.bat")
             else:  # Linux and MacOS
                 if platform.system() == "Darwin":  # macOS
-                    launch_cmd = f'open "{os.getcwd()}/Launcher.command"'
+                    launch_cmd = f'bash "{os.getcwd()}/Launcher.sh"'
                     mac_launcher = f"""#!/bin/bash
 cp -R "{extracted_dir}/"* "{os.getcwd()}/"
 if [ -f "{config_path}" ]; then
     python3 -c 'import json;fp="{config_path}";f=open(fp,"r");d=json.load(f);f.close();d["application"]["version"]="{new_version}";f=open(fp,"w");json.dump(d,f,indent=4);f.close()'
 fi
 rm -rf "{temp_dir}"
-if [ -f "{os.getcwd()}/Launcher.command" ]; then
-    chmod +x "{os.getcwd()}/Launcher.command"
-    {launch_cmd}
+if [ -f "{os.getcwd()}/Launcher.sh" ]; then
+    chmod +x "{os.getcwd()}/Launcher.sh"
+    nohup bash "{os.getcwd()}/Launcher.sh" > /dev/null 2>&1 &
 fi
 rm -- "$0"
 """
