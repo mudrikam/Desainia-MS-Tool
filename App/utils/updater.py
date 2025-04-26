@@ -74,15 +74,20 @@ class UpdateChecker(QThread):
             # Prepare update
             dialog.status_label.setText("Preparing to install...")
             extracted_dir = os.path.join(temp_dir, f"Desainia-MS-Tool-{new_version}")
+            config_path = os.path.join(os.getcwd(), "App", "config", "config.json")
             update_script = f"""
 @echo off
 timeout /t 1 /nobreak >nul
 robocopy "{extracted_dir}" "{os.getcwd()}" /E /IS /IT /IM
-if exist "{os.getcwd()}\\App\\config\\config.json" (
-    powershell -Command "$config = Get-Content '{os.getcwd()}\\App\\config\\config.json' | ConvertFrom-Json; $config.application.version = '{new_version}'; $config | ConvertTo-Json -Depth 10 | Set-Content '{os.getcwd()}\\App\\config\\config.json'"
+if exist "{config_path.replace('/', '\\')}" (
+    python -c "import json;fp='{config_path.replace('\\', '\\\\')}';f=open(fp,'r');d=json.load(f);f.close();d['application']['version']='{new_version}';f=open(fp,'w');json.dump(d,f,indent=4);f.close()"
+    if errorlevel 1 (
+        echo Failed to update version in config.json
+        exit /b 1
+    )
 )
-start "" "{os.getcwd()}\\Launcher.bat"
-rmdir /S /Q "{temp_dir}"
+start "" "{os.getcwd().replace('/', '\\\\')}\\\\Launcher.bat"
+rmdir /S /Q "{temp_dir.replace('/', '\\')}"
 del "%~f0"
 """
             script_path = os.path.join(temp_dir, "update.bat")
