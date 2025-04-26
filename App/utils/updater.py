@@ -29,7 +29,7 @@ class UpdateChecker(QThread):
                 latest = response.json()
                 self.latest_version = latest['tag_name'].replace('v', '')  # Remove v prefix for semver compare
                 self.release_notes = latest.get('body', 'No release notes available.')
-                print(f"Release Notes: {self.release_notes}")
+                # print(f"Release Notes: {self.release_notes}")
                 
                 if semver.compare(self.latest_version, self.current_version) > 0:
                     print(f"Update available: {self.latest_version}")
@@ -105,33 +105,19 @@ exit
 """
                 script_path = os.path.join(temp_dir, "update.bat")
             else:  # Linux and MacOS
-                if platform.system() == "Darwin":  # macOS
-                    launch_cmd = f'bash "{os.getcwd()}/Launcher.sh"'
-                    mac_launcher = f"""#!/bin/bash
+                update_script = f"""#!/bin/bash
 cp -R "{extracted_dir}/"* "{os.getcwd()}/"
+
 if [ -f "{config_path}" ]; then
     python3 -c 'import json;fp="{config_path}";f=open(fp,"r");d=json.load(f);f.close();d["application"]["version"]="{new_version}";f=open(fp,"w");json.dump(d,f,indent=4);f.close()'
 fi
-rm -rf "{temp_dir}"
+
 if [ -f "{os.getcwd()}/Launcher.sh" ]; then
     chmod +x "{os.getcwd()}/Launcher.sh"
     nohup bash "{os.getcwd()}/Launcher.sh" > /dev/null 2>&1 &
 fi
-rm -- "$0"
-"""
-                    update_script = mac_launcher
-                else:  # Linux
-                    launch_cmd = f'nohup "{os.getcwd()}/Launcher.sh" >/dev/null 2>&1 &'
-                    update_script = f"""#!/bin/bash
-cp -R "{extracted_dir}/"* "{os.getcwd()}/"
-if [ -f "{config_path}" ]; then
-    python3 -c 'import json;fp="{config_path}";f=open(fp,"r");d=json.load(f);f.close();d["application"]["version"]="{new_version}";f=open(fp,"w");json.dump(d,f,indent=4);f.close()'
-fi
+
 rm -rf "{temp_dir}"
-if [ -f "{os.getcwd()}/Launcher.sh" ]; then
-    chmod +x "{os.getcwd()}/Launcher.sh"
-    {launch_cmd}
-fi
 rm -- "$0"
 """
                 script_path = os.path.join(temp_dir, "update.sh")
