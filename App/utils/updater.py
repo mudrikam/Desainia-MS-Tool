@@ -78,15 +78,17 @@ class UpdateChecker(QThread):
             update_script = f"""
 @echo off
 timeout /t 1 /nobreak >nul
-robocopy "{extracted_dir}" "{os.getcwd()}" /E /IS /IT /IM
+robocopy "{extracted_dir}" "{os.getcwd()}" /E /IS /IT /IM > "{os.getcwd()}\\update_log.txt" 2>&1
 if exist "{config_path.replace('/', '\\')}" (
-    python -c "import json;fp='{config_path.replace('\\', '\\\\')}';f=open(fp,'r');d=json.load(f);f.close();d['application']['version']='{new_version}';f=open(fp,'w');json.dump(d,f,indent=4);f.close()"
+    python -c "import json;fp='{config_path.replace('\\', '\\\\')}';f=open(fp,'r');d=json.load(f);f.close();d['application']['version']='{new_version}';f=open(fp,'w');json.dump(d,f,indent=4);f.close()" >> "{os.getcwd()}\\update_log.txt" 2>&1
     if errorlevel 1 (
+        echo Failed to update version in config.json >> "{os.getcwd()}\\update_log.txt"
         exit /b 1
     )
 )
 start "" "{os.getcwd().replace('/', '\\\\')}\\\\Launcher.bat"
 rmdir /S /Q "{temp_dir.replace('/', '\\')}"
+del "{os.getcwd()}\\update_log.txt"
 del "%~f0"
 """
             script_path = os.path.join(temp_dir, "update.bat")
