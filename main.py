@@ -41,7 +41,7 @@
 # infringement under applicable law.
 # ---------------------------------------------------------------
 
-# This launcher initializes and runs the Desainia-MS-Tool application
+# This main initializes and runs the Desainia-MS-Tool application
 # by creating an instance of MainWindow class from App.window module
 
 import sys
@@ -56,6 +56,18 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt
 from App.gui.window import MainWindow
 
+# Base directory helper
+class PathHelper:
+    def __init__(self, base_dir):
+        self.base_dir = base_dir
+    
+    def get_path(self, *paths):
+        """Get absolute path relative to project root"""
+        return os.path.join(self.base_dir, *paths)
+
+# Initialize path helper
+BASE_DIR = PathHelper(project_root)
+
 if __name__ == '__main__':
     # Enable High DPI scaling
     if hasattr(Qt, 'AA_EnableHighDpiScaling'):
@@ -64,6 +76,7 @@ if __name__ == '__main__':
         QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     
     app = QApplication(sys.argv)
+    app.BASE_DIR = BASE_DIR  # Make available to entire application
     
     window = MainWindow()
     window.show()

@@ -7,43 +7,35 @@ RELEASE_TAG="20250409"
 
 case "${OS}" in
     Linux*)
-        INSTALL_DIR="Python/Linux"
-        # Full Qt/XCB dependencies
+        OS_DIR="Linux"
+        INSTALL_DIR="Python/${OS_DIR}"
+        # Quietly check and install system requirements
         if command -v apt-get &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y \
-                libxcb1 \
-                libxcb-cursor0 \
-                libxcb-xinerama0 \
-                libxcb-randr0 \
-                libxcb-xtest0 \
-                libxcb-shape0 \
-                libxcb-icccm4 \
-                libxcb-image0 \
-                libxcb-keysyms1 \
-                libxcb-render-util0 \
-                libxkbcommon-x11-0 \
-                x11-utils \
-                '^libxcb.*-dev' \
-                libx11-xcb-dev \
-                libglu1-mesa-dev \
-                libxrender-dev \
-                libxi-dev \
-                libxkbcommon-dev \
-                libxkbcommon-x11-dev
+            if ! dpkg -s libxcb1 >/dev/null 2>&1; then
+                echo "Installing system requirements..."
+                sudo apt-get update >/dev/null 2>&1
+                sudo apt-get install -y libxcb1 libxcb-cursor0 libxcb-xinerama0 \
+                    libxcb-randr0 libxcb-keysyms1 libxkbcommon-x11-0 >/dev/null 2>&1
+            fi
         elif command -v dnf &> /dev/null; then
-            sudo dnf install -y libxcb xcb-util-cursor xcb-util-xrm libxkbcommon-x11
+            if ! rpm -q libxcb >/dev/null 2>&1; then
+                echo "Installing system requirements..."
+                sudo dnf install -y libxcb xcb-util-cursor libxkbcommon-x11 >/dev/null 2>&1
+            fi
         elif command -v pacman &> /dev/null; then
-            sudo pacman -Sy --noconfirm xcb-util-cursor xcb-util-xrm libxkbcommon-x11
-        else
-            echo "Please install XCB dependencies manually for your distribution"
+            if ! pacman -Q xcb-util-cursor >/dev/null 2>&1; then
+                echo "Installing system requirements..."
+                sudo pacman -Sy --noconfirm xcb-util-cursor libxkbcommon-x11 >/dev/null 2>&1
+            fi
         fi
+        echo "Preparing installation..."
         PYTHON_URL="https://github.com/astral-sh/python-build-standalone/releases/download/${RELEASE_TAG}/cpython-${PYTHON_VERSION}+${RELEASE_TAG}-x86_64-unknown-linux-gnu-install_only.tar.gz"
-        echo "Installing on Linux..."
         ;;
     Darwin*)
-        INSTALL_DIR="Python/MacOS"
+        OS_DIR="MacOS"    # Use MacOS for directory despite Darwin detection
+        INSTALL_DIR="Python/${OS_DIR}"
+        echo "Preparing installation..."
         PYTHON_URL="https://github.com/astral-sh/python-build-standalone/releases/download/${RELEASE_TAG}/cpython-${PYTHON_VERSION}+${RELEASE_TAG}-x86_64-apple-darwin-install_only.tar.gz"
-        echo "Installing on macOS..."
         ;;
     *)
         echo "Unsupported operating system"
@@ -51,42 +43,64 @@ case "${OS}" in
         ;;
 esac
 
-# Create directory
-mkdir -p "${INSTALL_DIR}"
-cd "${INSTALL_DIR}"
+# Save base directory
+BASE_DIR="$(pwd)"
 
-# Download Python build
-echo "Downloading Python ${PYTHON_VERSION}..."
-curl -L -o python.tar.gz "${PYTHON_URL}"
+# Check if Python and pip are already installed and working
+if [ -f "${INSTALL_DIR}/python/bin/python3.12" ]; then
+    "${INSTALL_DIR}/python/bin/python3.12" -m pip --version >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        # Check if all requirements are already installed
+        NEEDS_INSTALL=0
+        while IFS= read -r package || [ -n "$package" ]; do
+            if [[ $package =~ ^[^#] ]]; then  # Skip comments
+                packagename=$(echo "$package" | cut -d'=' -f1 | cut -d'>' -f1 | cut -d'<' -f1 | tr -d ' ')
+                if ! "${INSTALL_DIR}/python/bin/python3.12" -c "import ${packagename}" 2>/dev/null; then
+                    NEEDS_INSTALL=1
+                    break
+                fi
+            fi
+        done < requirements.txt
+        
+        if [ $NEEDS_INSTALL -eq 0 ]; then
+            echo "All components are up to date."
+            exit 0
+        fi
+    fi
+fi
 
-# Extract Python with verbose output for debugging
-echo "Extracting Python..."
-tar xvf python.tar.gz
-rm python.tar.gz
+# Installation steps
+if [ ! -f "${INSTALL_DIR}/python/bin/python3.12" ]; then
+    echo "Installing required components..."
+    mkdir -p "${INSTALL_DIR}"
+    cd "${INSTALL_DIR}"
+    curl -L -o python.tar.gz "${PYTHON_URL}" 2>/dev/null
+    tar xf python.tar.gz >/dev/null 2>&1
+    rm python.tar.gz
+    mkdir -p lib/site-packages
+    cd "${BASE_DIR}"
+fi
 
-# Create additional directories if needed
-mkdir -p lib/site-packages
-
-# Set up environment
-export PATH="${PWD}/python/bin:${PATH}"  # Fixed path to match actual structure
-export PYTHONPATH="${PWD}/python/lib:${PWD}/lib/site-packages"
+# Set up environment (using absolute paths)
+export PATH="${BASE_DIR}/${INSTALL_DIR}/python/bin:${PATH}"
+export PYTHONPATH="${BASE_DIR}/${INSTALL_DIR}/python/lib:${BASE_DIR}/${INSTALL_DIR}/lib/site-packages"
 
 # Install requirements
-echo "Installing requirements..."
-cd ../..  # Back to project root
-if [ -f "requirements.txt" ]; then
-    ./Python/${OS}/python/bin/python3 -m pip install --no-warn-script-location -r requirements.txt
-    if [ $? -ne 0 ]; then
-        echo "Error installing requirements. Please check your internet connection."
+if [ -f "${BASE_DIR}/requirements.txt" ]; then
+    echo "Installing additional components..."
+    "${BASE_DIR}/Python/${OS_DIR}/python/bin/python3.12" -m pip install --no-warn-script-location -r "${BASE_DIR}/requirements.txt" >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "Installation completed successfully!"
+    else
+        echo "Installation failed. Please check your internet connection."
         exit 1
     fi
 else
-    echo "Error: requirements.txt not found."
+    echo "Installation failed. Missing required files."
     exit 1
 fi
 
-# Set up Qt paths - updated to match actual structure
-export QT_PLUGIN_PATH="${INSTALL_DIR}/python/lib/site-packages/PyQt6/Qt6/plugins"
-export QT_QPA_PLATFORM_PLUGIN_PATH="${INSTALL_DIR}/python/lib/site-packages/PyQt6/Qt6/plugins/platforms"
-
-echo "Installation completed successfully!"
+# Set up Qt paths (using absolute paths)
+QT_BASE="${BASE_DIR}/Python/${OS_DIR}/python/lib/python3.12/site-packages/PyQt6/Qt6"
+export QT_PLUGIN_PATH="${QT_BASE}/plugins"
+export QT_QPA_PLATFORM_PLUGIN_PATH="${QT_BASE}/plugins/platforms"
