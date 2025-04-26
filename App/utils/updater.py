@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import json
+import platform
 from PyQt6.QtCore import QThread, pyqtSignal
 from PyQt6.QtWidgets import QApplication, QMessageBox
 from ..gui.widgets.dialogs.update_dialog import UpdateDialog
@@ -75,31 +76,61 @@ class UpdateChecker(QThread):
             dialog.status_label.setText("Preparing to install...")
             extracted_dir = os.path.join(temp_dir, f"Desainia-MS-Tool-{new_version}")
             config_path = os.path.join(os.getcwd(), "App", "config", "config.json")
-            update_script = f"""
+            
+            # Create platform-specific update script
+            if platform.system() == "Windows":
+                update_script = f"""
 @echo off
 timeout /t 1 /nobreak >nul
-robocopy "{extracted_dir}" "{os.getcwd()}" /E /IS /IT /IM > "{os.getcwd()}\\update_log.txt" 2>&1
+robocopy "{extracted_dir}" "{os.getcwd()}" /E /IS /IT /IM
 if exist "{config_path.replace('/', '\\')}" (
-    python -c "import json;fp='{config_path.replace('\\', '\\\\')}';f=open(fp,'r');d=json.load(f);f.close();d['application']['version']='{new_version}';f=open(fp,'w');json.dump(d,f,indent=4);f.close()" >> "{os.getcwd()}\\update_log.txt" 2>&1
+    python -c "import json;fp='{config_path.replace('\\', '\\\\')}';f=open(fp,'r');d=json.load(f);f.close();d['application']['version']='{new_version}';f=open(fp,'w');json.dump(d,f,indent=4);f.close()"
     if errorlevel 1 (
-        echo Failed to update version in config.json >> "{os.getcwd()}\\update_log.txt"
         exit /b 1
     )
 )
 start "" "{os.getcwd().replace('/', '\\\\')}\\\\Launcher.bat"
 rmdir /S /Q "{temp_dir.replace('/', '\\')}"
-del "{os.getcwd()}\\update_log.txt"
 del "%~f0"
+exit
 """
-            script_path = os.path.join(temp_dir, "update.bat")
-            with open(script_path, 'w') as f:
+                script_path = os.path.join(temp_dir, "update.bat")
+            else:  # Linux and MacOS
+                if platform.system() == "Darwin":  # macOS
+                    launch_cmd = f'open "{os.getcwd()}/Launcher.command"'
+                else:  # Linux
+                    launch_cmd = f'nohup "{os.getcwd()}/Launcher.sh" >/dev/null 2>&1 &'
+                
+                update_script = f"""#!/bin/bash
+cp -R "{extracted_dir}/"* "{os.getcwd()}/"
+if [ -f "{config_path}" ]; then
+    python3 -c 'import json;fp="{config_path}";f=open(fp,"r");d=json.load(f);f.close();d["application"]["version"]="{new_version}";f=open(fp,"w");json.dump(d,f,indent=4);f.close()'
+fi
+rm -rf "{temp_dir}"
+if [ -f "{os.getcwd()}/Launcher.sh" ]; then
+    chmod +x "{os.getcwd()}/Launcher.sh"
+    {launch_cmd}
+fi
+rm -- "$0"
+"""
+                script_path = os.path.join(temp_dir, "update.sh")
+            
+            # Write and execute update script
+            with open(script_path, 'w', newline='\n') as f:
                 f.write(update_script)
+            
+            if platform.system() != "Windows":
+                os.chmod(script_path, 0o755)  # Make script executable on Unix
             
             dialog.progress.setValue(75)
             dialog.status_label.setText("Installing update...")
             
             # Run update script
-            subprocess.Popen([script_path], shell=True)
+            if platform.system() == "Windows":
+                subprocess.Popen([script_path], shell=True)
+            else:
+                subprocess.Popen([script_path], shell=True)
+            
             dialog.progress.setValue(100)
             dialog.status_label.setText("Update complete! Restarting...")
             
