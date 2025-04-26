@@ -1,7 +1,7 @@
 {
     "application": {
         "name": "Desainia-MS-Tool",
-        "version": "1.0.14",
+        "version": "1.0.16",
         "description": "A powerful tool for managing and uploading content to multiple microstock platforms"
     },
     "runtime": {
@@ -9,8 +9,8 @@
         "qt_version": "6.6.1"
     },
     "git": {
-        "commit_hash": "f693d29",
-        "tag": "v1.0.14"
+        "commit_hash": "8d47a5e",
+        "tag": "v1.0.16"
     },
     "window": {
         "title": "Desainia MS Tool",

@@ -5,6 +5,7 @@ from PyQt6.QtGui import QScreen, QIcon
 from .widgets.sidebar import SideBar
 from .widgets.menubar import MenuBar
 from .widgets.statusbar import StatusBar
+from .widgets.content import ContentWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -67,9 +68,14 @@ class MainWindow(QMainWindow):
     
     def _setup_content(self):
         """Setup main content area"""
-        self.content = QWidget()
-        self.content_layout = QVBoxLayout(self.content)
+        self.content = ContentWidget()
         self.main_layout.addWidget(self.content)
+        
+        # Connect sidebar signals to content
+        self.sidebar.home_clicked.connect(lambda: self.content.show_page('home'))
+        self.sidebar.analytics_clicked.connect(lambda: self.content.show_page('analytics'))
+        self.sidebar.files_clicked.connect(lambda: self.content.show_page('files'))
+        self.sidebar.settings_clicked.connect(lambda: self.content.show_page('settings'))
     
     def _center_window(self):
         """Center window on screen"""

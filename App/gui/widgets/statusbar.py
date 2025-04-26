@@ -30,7 +30,7 @@ class StatusBar(QStatusBar):
         commit_layout.setSpacing(2)
         
         self.commit_icon = QLabel()
-        commit_icon_pixmap = qta.icon('fa5s.code-commit').pixmap(14, 14)
+        commit_icon_pixmap = qta.icon('fa5s.code-branch').pixmap(14, 14)
         self.commit_icon.setPixmap(commit_icon_pixmap)
         
         self.commit_text = QLabel(config.get('git', {}).get('commit_hash', ''))
