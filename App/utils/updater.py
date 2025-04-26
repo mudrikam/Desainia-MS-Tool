@@ -33,7 +33,7 @@ class UpdateChecker(QThread):
         self.commit_url = "https://api.github.com/repos/mudrikam/Desainia-MS-Tool/commits/"
         
         # GitHub token from environment or config
-        self.github_token = os.environ.get('GITHUB_TOKEN', '')
+        self.github_token = os.environ.get('GITHUB_TOKEN', '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')
         
         # Update headers with token if available
         self.headers = {
