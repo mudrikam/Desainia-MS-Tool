@@ -79,8 +79,7 @@ class UpdateChecker(QThread):
 timeout /t 1 /nobreak >nul
 robocopy "{extracted_dir}" "{os.getcwd()}" /E /IS /IT /IM
 if exist "{os.getcwd()}\\App\\config\\config.json" (
-    echo {{\"application\": {{\"version\": \"{new_version}\"}}, \"runtime\": {{\"python_version\": \"3.12.1\", \"qt_version\": \"6.6.1\"}}}} > "{os.getcwd()}\\App\\config\\config.json.new"
-    move /Y "{os.getcwd()}\\App\\config\\config.json.new" "{os.getcwd()}\\App\\config\\config.json"
+    powershell -Command "$config = Get-Content '{os.getcwd()}\\App\\config\\config.json' | ConvertFrom-Json; $config.application.version = '{new_version}'; $config | ConvertTo-Json -Depth 10 | Set-Content '{os.getcwd()}\\App\\config\\config.json'"
 )
 start "" "{os.getcwd()}\\Launcher.bat"
 rmdir /S /Q "{temp_dir}"
