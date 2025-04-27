@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QLabel
 from PyQt6.QtCore import Qt
 from .pages.settings_page import SettingsPage
+from .pages.home_page import HomePage
 from .header import PageHeaderWidget
 
 class ContentWidget(QWidget):
@@ -26,9 +27,9 @@ class ContentWidget(QWidget):
     def _add_default_pages(self):
         """Add default pages to the stack"""
         pages = {
-            'home': self._create_page("Home Page", "Welcome to Desainia MS Tool"),
+            'home': HomePage(),
             'analytics': self._create_page("Analytics", "Analytics Dashboard"),
-            'settings': SettingsPage(),  # Use the new SettingsPage
+            'settings': SettingsPage(),
             'files': self._create_page("Files", "File Management")
         }
         
@@ -55,16 +56,3 @@ class ContentWidget(QWidget):
         """Switch to specified page"""
         if name in self.pages:
             self.stack.setCurrentIndex(self.pages[name])
-            # Update header based on page
-            if name == 'home':
-                self.header.set_title("Home")
-                self.header.set_description("Welcome to Desainia MS Tool")
-            elif name == 'analytics':
-                self.header.set_title("Analytics Dashboard")
-                self.header.set_description("View and analyze your data metrics")
-            elif name == 'settings':
-                self.header.set_title("Settings")
-                self.header.set_description("Configure application settings")
-            elif name == 'files':
-                self.header.set_title("File Management")
-                self.header.set_description("Manage your files and assets")

@@ -35,7 +35,7 @@ class StatusBar(QStatusBar):
         commit_layout.setSpacing(2)
         
         self.commit_icon = QLabel()
-        commit_icon_pixmap = qta.icon('fa5s.code-branch').pixmap(14, 14)
+        commit_icon_pixmap = qta.icon('fa6s.code-commit').pixmap(14, 14)
         self.commit_icon.setPixmap(commit_icon_pixmap)
         
         self.commit_text = QLabel(config.get('git', {}).get('commit_hash', ''))
@@ -70,7 +70,7 @@ class StatusBar(QStatusBar):
         github_layout.setSpacing(2)
         
         self.github_icon = QLabel()
-        github_icon_pixmap = qta.icon('fa5b.github').pixmap(14, 14)
+        github_icon_pixmap = qta.icon('fa6b.github').pixmap(14, 14)
         self.github_icon.setPixmap(github_icon_pixmap)
         self.github_container.setCursor(Qt.CursorShape.PointingHandCursor)
         self.github_container.mousePressEvent = self.open_github_repo
@@ -84,7 +84,7 @@ class StatusBar(QStatusBar):
         coffee_layout.setSpacing(2)
         
         self.coffee_icon = QLabel()
-        coffee_icon_pixmap = qta.icon('fa5s.mug-hot').pixmap(14, 14)
+        coffee_icon_pixmap = qta.icon('fa6s.mug-hot').pixmap(14, 14)
         self.coffee_icon.setPixmap(coffee_icon_pixmap)
         self.coffee_container.setCursor(Qt.CursorShape.PointingHandCursor)
         self.coffee_container.mousePressEvent = self.open_coffee
@@ -98,7 +98,7 @@ class StatusBar(QStatusBar):
         wa_layout.setSpacing(2)
         
         self.wa_icon = QLabel()
-        wa_icon_pixmap = qta.icon('fa5b.whatsapp').pixmap(14, 14)
+        wa_icon_pixmap = qta.icon('fa6b.whatsapp').pixmap(14, 14)
         self.wa_icon.setPixmap(wa_icon_pixmap)
         self.wa_container.setCursor(Qt.CursorShape.PointingHandCursor)
         self.wa_container.mousePressEvent = self.open_whatsapp
@@ -112,7 +112,7 @@ class StatusBar(QStatusBar):
         heart_layout.setSpacing(2)
         
         self.heart_icon = QLabel()
-        heart_icon_pixmap = qta.icon('fa5s.heart', color='#FF335F').pixmap(14, 14)
+        heart_icon_pixmap = qta.icon('fa6s.heart', color='#FF335F').pixmap(14, 14)
         self.heart_icon.setPixmap(heart_icon_pixmap)
         self.heart_container.setCursor(Qt.CursorShape.PointingHandCursor)
         self.heart_container.mousePressEvent = self.show_donate
@@ -151,7 +151,7 @@ class StatusBar(QStatusBar):
         self.checker.start()
     
     def show_update(self, new_version):
-        bell_icon = qta.icon('fa5s.bell', color='#0095FF').pixmap(12, 12)
+        bell_icon = qta.icon('fa6s.bell', color='#0095FF').pixmap(12, 12)
         self.update_icon.setPixmap(bell_icon)
         self.update_text.setText(f"Update to v{new_version}")
         self.update_container.setVisible(True)

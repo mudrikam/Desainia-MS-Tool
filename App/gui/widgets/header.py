@@ -73,7 +73,7 @@ class WhatsAppFrame(HeaderFrame):
         
         # Join button with translation
         join_button = QPushButton(f" {tr('header', 'whatsapp', 'join')}")
-        join_button.setIcon(qta.icon('fa5b.whatsapp', color='#FFFFFF'))
+        join_button.setIcon(qta.icon('fa6b.whatsapp', color='#FFFFFF'))
         join_button.setStyleSheet("""
             QPushButton {
                 background-color: #128c7e;
@@ -197,7 +197,7 @@ class DonateFrame(HeaderFrame):
         
         # Donate button with translation 
         donate_button = QPushButton(f" {tr('header', 'donate', 'button')}")
-        donate_button.setIcon(qta.icon('fa5s.heart', color='#FF335F'))
+        donate_button.setIcon(qta.icon('fa6s.heart', color='#FF335F'))
         donate_button.setStyleSheet("""
             QPushButton {
                 background-color: rgba(255, 255, 255, 0.3);
@@ -232,7 +232,7 @@ class PageHeaderWidget(QFrame):
         # Main horizontal layout for frames
         layout = QHBoxLayout(self)
         layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(5)
+        layout.setSpacing(10)  # Changed from 5 to 10 for spacing between frames
         
         # Add frames with adjusted sizes
         app_info = AppInfoFrame()

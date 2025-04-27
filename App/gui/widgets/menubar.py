@@ -18,75 +18,78 @@ class MenuBar(QMenuBar):
 
         # File menu with translations
         file_menu = QMenu(self.tr('menu', 'file', 'title'), self)
-        new_action = file_menu.addAction(qta.icon('fa5s.file'), self.tr('menu', 'file', 'new'))
+        new_action = file_menu.addAction(qta.icon('fa6s.file'), self.tr('menu', 'file', 'new'))
         new_action.setShortcut(QKeySequence.StandardKey.New)
         
-        open_action = file_menu.addAction(qta.icon('fa5s.folder-open'), self.tr('menu', 'file', 'open'))
+        open_action = file_menu.addAction(qta.icon('fa6s.folder-open'), self.tr('menu', 'file', 'open'))
         open_action.setShortcut(QKeySequence.StandardKey.Open)
         
-        save_action = file_menu.addAction(qta.icon('fa5s.save'), self.tr('menu', 'file', 'save'))
+        save_action = file_menu.addAction(qta.icon('fa6s.floppy-disk'), self.tr('menu', 'file', 'save'))
         save_action.setShortcut(QKeySequence.StandardKey.Save)
         
         if not self.is_macos:
             file_menu.addSeparator()
-            exit_action = file_menu.addAction(qta.icon('fa5s.power-off'), self.tr('menu', 'file', 'exit'))
+            exit_action = file_menu.addAction(qta.icon('fa6s.power-off'), self.tr('menu', 'file', 'exit'))
             exit_action.setShortcut(QKeySequence.StandardKey.Quit)
 
         # Edit menu with translations
         edit_menu = QMenu(self.tr('menu', 'edit', 'title'), self)
-        undo_action = edit_menu.addAction(qta.icon('fa5s.undo'), self.tr('menu', 'edit', 'undo'))
+        undo_action = edit_menu.addAction(qta.icon('fa6s.rotate-left'), self.tr('menu', 'edit', 'undo'))
         undo_action.setShortcut(QKeySequence.StandardKey.Undo)
         
-        redo_action = edit_menu.addAction(qta.icon('fa5s.redo'), self.tr('menu', 'edit', 'redo'))
+        redo_action = edit_menu.addAction(qta.icon('fa6s.rotate-right'), self.tr('menu', 'edit', 'redo'))
         redo_action.setShortcut(QKeySequence.StandardKey.Redo)
         
         edit_menu.addSeparator()
-        cut_action = edit_menu.addAction(qta.icon('fa5s.cut'), self.tr('menu', 'edit', 'cut'))
+        cut_action = edit_menu.addAction(qta.icon('fa6s.scissors'), self.tr('menu', 'edit', 'cut'))
         cut_action.setShortcut(QKeySequence.StandardKey.Cut)
         
-        copy_action = edit_menu.addAction(qta.icon('fa5s.copy'), self.tr('menu', 'edit', 'copy'))
+        copy_action = edit_menu.addAction(qta.icon('fa6s.copy'), self.tr('menu', 'edit', 'copy'))
         copy_action.setShortcut(QKeySequence.StandardKey.Copy)
         
-        paste_action = edit_menu.addAction(qta.icon('fa5s.paste'), self.tr('menu', 'edit', 'paste'))
+        paste_action = edit_menu.addAction(qta.icon('fa6s.paste'), self.tr('menu', 'edit', 'paste'))
         paste_action.setShortcut(QKeySequence.StandardKey.Paste)
         
         if not self.is_macos:
             edit_menu.addSeparator()
-            preferences_action = edit_menu.addAction(qta.icon('fa5s.cog'), self.tr('menu', 'edit', 'preferences'))
+            preferences_action = edit_menu.addAction(qta.icon('fa6s.gear'), self.tr('menu', 'edit', 'preferences'))
             preferences_action.setShortcut("Ctrl+,")
 
         # View menu with translations
         view_menu = QMenu(self.tr('menu', 'view', 'title'), self)
-        zoom_in = view_menu.addAction(qta.icon('fa5s.search-plus'), self.tr('menu', 'view', 'zoom_in'))
+        zoom_in = view_menu.addAction(qta.icon('fa6s.magnifying-glass-plus'), self.tr('menu', 'view', 'zoom_in'))
         zoom_in.setShortcut(QKeySequence.StandardKey.ZoomIn)
         
-        zoom_out = view_menu.addAction(qta.icon('fa5s.search-minus'), self.tr('menu', 'view', 'zoom_out'))
+        zoom_out = view_menu.addAction(qta.icon('fa6s.magnifying-glass-minus'), self.tr('menu', 'view', 'zoom_out'))
         zoom_out.setShortcut(QKeySequence.StandardKey.ZoomOut)
         
-        reset_zoom = view_menu.addAction(qta.icon('fa5s.compress-arrows-alt'), self.tr('menu', 'view', 'reset_zoom'))
+        reset_zoom = view_menu.addAction(qta.icon('fa6s.compress'), self.tr('menu', 'view', 'reset_zoom'))
         reset_zoom.setShortcut("Ctrl+0")
 
         # Help menu with translations
         help_menu = QMenu(self.tr('menu', 'help', 'title'), self)
-        help_menu.addAction(qta.icon('fa5s.question-circle'), self.tr('menu', 'help', 'documentation')).setShortcut("F1")
+        doc_action = help_menu.addAction(qta.icon('fa6s.circle-question'), self.tr('menu', 'help', 'documentation'))
+        doc_action.setShortcut("F1")
+        doc_action.triggered.connect(lambda: QDesktopServices.openUrl(
+            QUrl("https://github.com/mudrikam/Desainia-MS-Tool/tree/master/Documentation")))
         
         help_menu.addSeparator()
-        join_action = help_menu.addAction(qta.icon('fa5b.whatsapp', color='#25D366'), self.tr('menu', 'help', 'join_group'))
+        join_action = help_menu.addAction(qta.icon('fa6b.whatsapp', color='#25D366'), self.tr('menu', 'help', 'join_group'))
         join_action.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://chat.whatsapp.com/CMQvDxpCfP647kBBA6dRn3")))
         
-        issue_action = help_menu.addAction(qta.icon('fa5s.bug', color='#F05400'), self.tr('menu', 'help', 'report_bug'))
+        issue_action = help_menu.addAction(qta.icon('fa6s.bug', color='#F05400'), self.tr('menu', 'help', 'report_bug'))
         issue_action.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/mudrikam/Desainia-MS-Tool/issues")))
         
         help_menu.addSeparator()
-        donate_action = help_menu.addAction(qta.icon('fa5s.heart', color='#FF335F'), self.tr('menu', 'help', 'donate'))
+        donate_action = help_menu.addAction(qta.icon('fa6s.heart', color='#FF335F'), self.tr('menu', 'help', 'donate'))
         donate_action.triggered.connect(self.show_donate)
         
-        license_action = help_menu.addAction(qta.icon('fa5s.file-contract'), self.tr('menu', 'help', 'license'))
+        license_action = help_menu.addAction(qta.icon('fa6s.file-lines'), self.tr('menu', 'help', 'license'))
         license_action.triggered.connect(self.show_license)
         
         help_menu.addSeparator()
         if not self.is_macos:
-            about_action = help_menu.addAction(qta.icon('fa5s.info-circle', color='#0366d6'), self.tr('menu', 'help', 'about'))
+            about_action = help_menu.addAction(qta.icon('fa6s.circle-info', color='#0366d6'), self.tr('menu', 'help', 'about'))
             about_action.triggered.connect(self.show_about)
 
         # Add menus to menubar

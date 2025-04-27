@@ -8,15 +8,15 @@ from .about_details_dialog import AboutDetailsDialog
 class AboutDialog(QDialog):
     def __init__(self, config, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("About Desainia MS Tool")
+        self.setWindowTitle(f"About {config['application']['name']}")
         self.setMinimumWidth(400)
         self.setFixedHeight(380)  # Increased height for requirements
         
         layout = QVBoxLayout(self)
         layout.setSpacing(20)
         
-        # Title only (removed icon)
-        title = QLabel("Desainia MS Tool")
+        # Title from config
+        title = QLabel(config['application']['name'])
         title.setStyleSheet("font-size: 24px; font-weight: bold;")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
@@ -30,8 +30,8 @@ class AboutDialog(QDialog):
         )
         version_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        # Copyright
-        copyright_label = QLabel("© 2025 Desainia Studio\nAll rights reserved.")
+        # Copyright with organization from config
+        copyright_label = QLabel(f"© 2025 {config['application']['author']}\nAll rights reserved.")
         copyright_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         # License
@@ -42,7 +42,7 @@ class AboutDialog(QDialog):
         button_container = QWidget()
         button_layout = QHBoxLayout(button_container)
         thanks_btn = QPushButton(" Thanks to")  # Added space for icon
-        thanks_btn.setIcon(qta.icon('fa5s.heart', color='#FF335F'))
+        thanks_btn.setIcon(qta.icon('fa6s.heart', color='#FF335F'))
         details_btn = QPushButton("Details")
         thanks_btn.setFixedWidth(100)
         details_btn.setFixedWidth(100)

@@ -15,7 +15,7 @@ class UpdateDialog(QDialog):
         header = QWidget()
         header_layout = QHBoxLayout(header)
         icon_label = QLabel()
-        icon_label.setPixmap(qta.icon('fa5s.sync-alt', color='#0366d6').pixmap(32, 32))
+        icon_label.setPixmap(qta.icon('fa6s.sync-alt', color='#0366d6').pixmap(32, 32))
         title = QLabel(f"Update Available: v{new_version}")
         title.setStyleSheet("font-size: 16px; font-weight: bold;")
         header_layout.addWidget(icon_label)

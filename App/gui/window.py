@@ -58,24 +58,21 @@ class MainWindow(QMainWindow):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
         
-        self._setup_sidebar()
-        self._setup_content()
-    
-    def _setup_sidebar(self):
-        """Setup sidebar widget"""
-        self.sidebar = SideBar()
-        self.main_layout.addWidget(self.sidebar)
+        self._setup_content()  # Only call _setup_content()
     
     def _setup_content(self):
         """Setup main content area"""
-        self.content = ContentWidget()
-        self.main_layout.addWidget(self.content)
+        # Create sidebar and content
+        self.sidebar = SideBar(self)
+        self.content = ContentWidget(self)
         
-        # Connect sidebar signals to content
+        # Connect sidebar signals
         self.sidebar.home_clicked.connect(lambda: self.content.show_page('home'))
-        self.sidebar.analytics_clicked.connect(lambda: self.content.show_page('analytics'))
-        self.sidebar.files_clicked.connect(lambda: self.content.show_page('files'))
         self.sidebar.settings_clicked.connect(lambda: self.content.show_page('settings'))
+        
+        # Add to layout
+        self.main_layout.addWidget(self.sidebar)
+        self.main_layout.addWidget(self.content)
     
     def _center_window(self):
         """Center window on screen"""

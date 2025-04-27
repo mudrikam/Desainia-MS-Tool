@@ -21,7 +21,7 @@ class DonateDialog(QDialog):
         title_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         icon_label = QLabel()
-        icon_label.setPixmap(qta.icon('fa5s.heart', color='#FF335F').pixmap(32, 32))
+        icon_label.setPixmap(qta.icon('fa6s.heart', color='#FF335F').pixmap(32, 32))
         icon_label.setStyleSheet("background: transparent;")
         title = QLabel(self.tr('dialog', 'donate', 'header'))
         title.setStyleSheet("font-size: 24px; font-weight: bold; background: transparent;")

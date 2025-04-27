@@ -46,6 +46,7 @@
 
 import sys
 import os
+import json
 
 # Use os.path.join for cross-platform path handling
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -69,14 +70,12 @@ class PathHelper:
     
     def _load_config(self):
         """Load main configuration"""
-        import json
         config_path = self.get_path('App', 'config', 'config.json')
         with open(config_path, 'r', encoding='utf-8') as f:
             self.config = json.load(f)
             
     def _load_translations(self):
         """Load language translations"""
-        import json
         translation_path = self.get_path('App', 'config', 'translation.json')
         with open(translation_path, 'r', encoding='utf-8') as f:
             self.translations = json.load(f)
@@ -92,6 +91,23 @@ class PathHelper:
 BASE_DIR = PathHelper(project_root)
 
 if __name__ == '__main__':
+    # Initialize user data
+    user_data_dir = BASE_DIR.get_path('UserData')
+    # Create user data directory if it doesn't exist
+    if not os.path.exists(user_data_dir):
+        os.makedirs(user_data_dir)
+    
+    preferences_path = os.path.join(user_data_dir, 'user_preferences.json')
+    if not os.path.exists(preferences_path):
+        default_preferences = {
+            "favorite_tools": [],
+            "recent_files": [],
+            "theme": "system",
+            "window_state": {}
+        }
+        with open(preferences_path, 'w') as f:
+            json.dump(default_preferences, f, indent=4)
+    
     # Enable High DPI scaling
     if hasattr(Qt, 'AA_EnableHighDpiScaling'):
         QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
@@ -99,11 +115,10 @@ if __name__ == '__main__':
         QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     
     app = QApplication(sys.argv)
-    app.setApplicationName("Desainia MS Tool")
-    app.setOrganizationName("Desainia")
-    app.setApplicationDisplayName("Desainia MS Tool")
+    app.setApplicationName(BASE_DIR.config['application']['name'])
+    app.setOrganizationName(BASE_DIR.config['application']['author'])
+    app.setApplicationDisplayName(BASE_DIR.config['application']['name'])
     app.BASE_DIR = BASE_DIR  # Make available to entire application
-    
     
     window = MainWindow()
     window.show()

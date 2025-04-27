@@ -3,13 +3,15 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QFrame, QPushButton,
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QIcon
 import qtawesome as qta
+import os
+import webbrowser
+import platform
+import subprocess
 
 class SideBar(QFrame):
-    # Add signals
+    # Update signals - remove analytics_clicked
     home_clicked = pyqtSignal()
-    analytics_clicked = pyqtSignal()
     settings_clicked = pyqtSignal()
-    files_clicked = pyqtSignal()
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -71,17 +73,17 @@ class SideBar(QFrame):
         self.content_layout.addWidget(self.bottom_section)
         
         # Add top icons
-        self.home_btn = self.addItem("fa5s.th", "Home", top_layout)
+        self.home_btn = self.addItem("fa6s.house", "Home", top_layout)
         self.home_btn.clicked.connect(self._on_home_clicked)
         
-        self.analytics_btn = self.addItem("fa5s.chart-bar", "Analytics", top_layout)
-        self.analytics_btn.clicked.connect(self._on_analytics_clicked)
+        self.github_btn = self.addItem("fa6b.github", "Visit GitHub", top_layout)
+        self.github_btn.clicked.connect(self._on_github_clicked)
         
-        self.files_btn = self.addItem("fa5s.folder", "Files", top_layout)
+        self.files_btn = self.addItem("fa6s.folder", "Open App Folder", top_layout)
         self.files_btn.clicked.connect(self._on_files_clicked)
         
         # Add settings to bottom
-        self.settings_btn = self.addItem("fa5s.cog", "Settings", bottom_layout)
+        self.settings_btn = self.addItem("fa6s.gear", "Settings", bottom_layout)
         self.settings_btn.clicked.connect(self._on_settings_clicked)
         
         # Set home as default active
@@ -102,17 +104,29 @@ class SideBar(QFrame):
         self._set_active(self.home_btn)
         self.home_clicked.emit()
         
-    def _on_analytics_clicked(self):
-        self._set_active(self.analytics_btn)
-        self.analytics_clicked.emit()
-        
     def _on_files_clicked(self):
-        self._set_active(self.files_btn)
-        self.files_clicked.emit()
+        """Open base directory in system file explorer"""
+        app = QApplication.instance()
+        base_dir = app.BASE_DIR.get_path()
+        system = platform.system()
+
+        try:
+            if system == 'Windows':
+                os.startfile(base_dir)
+            elif system == 'Darwin':  # macOS
+                subprocess.run(['open', base_dir])
+            else:  # Linux and others
+                subprocess.run(['xdg-open', base_dir])
+        except Exception as e:
+            print(f"Error opening folder: {str(e)}")
         
     def _on_settings_clicked(self):
         self._set_active(self.settings_btn)
         self.settings_clicked.emit()
+        
+    def _on_github_clicked(self):
+        """Open GitHub repository"""
+        webbrowser.open('https://github.com/mudrikam/Desainia-MS-Tool')
         
     def addItem(self, icon_name, tooltip="", parent_layout=None):
         """Add an icon button"""
