@@ -12,6 +12,7 @@ from ..gui.widgets.dialogs.update_dialog import UpdateDialog
 
 class UpdateChecker(QThread):
     update_available = pyqtSignal(str, str)
+    show_update_dialog = pyqtSignal(str, str, str)  # Add new signal
     
     def __init__(self, current_version):
         try:
@@ -27,89 +28,74 @@ class UpdateChecker(QThread):
             # Get GitHub config and setup API
             github_config = self.config['repository']['github']
             self.api_url = f"{github_config['releases']}/latest"
-            self.github_token = github_config['token']
+            self.github_token = github_config.get('token', '')
             
-            print("\nUpdateChecker Setup:")
-            print(f"API URL: {self.api_url}")
-            print(f"Current version: v{self.current_version}")
-            
-            # Setup headers with proper token format
+            # Setup headers - token optional
             self.headers = {
                 'Accept': 'application/vnd.github.v3+json',
-                'User-Agent': 'Desainia-MS-Tool',
-                'X-GitHub-Api-Version': '2022-11-28',
-                'Authorization': f'Bearer {self.github_token}'  # Changed to Bearer format
+                'User-Agent': self.config['application']['name'].replace(' ', '-')
             }
-            
-            print("Headers configured with Bearer token")
+            if self.github_token:
+                self.headers['Authorization'] = f'Bearer {self.github_token}'
             
             self.latest_version = None
             self.release_notes = None
             self.commit_hash = None
 
+            self.show_update_dialog.connect(self._show_dialog)
+            
         except Exception as e:
             print(f"Error in UpdateChecker initialization: {str(e)}")
             raise
 
+    def _show_dialog(self, current_version, new_version, release_notes):
+        dialog = UpdateDialog(current_version, new_version, release_notes)
+        dialog.update_btn.clicked.connect(lambda: self._perform_update(dialog, new_version))
+        dialog.show()
+
     def run(self):
         try:
-            print("\nMaking GitHub API request...")
-            print(f"Request URL: {self.api_url}")
-            print(f"Headers: {json.dumps({k:v for k,v in self.headers.items() if k != 'Authorization'}, indent=2)}")
-            
             response = requests.get(self.api_url, headers=self.headers, timeout=5)
-            print(f"Response status: {response.status_code}")
             
             if response.status_code != 200:
-                print(f"Error response: {response.text}")
-                if response.status_code == 401:
-                    print("Authentication failed - Please check your GitHub token")
-                return
+                if response.status_code in [401, 403]:
+                    # Try without token if auth fails
+                    self.headers.pop('Authorization', None)
+                    response = requests.get(self.api_url, headers=self.headers, timeout=5)
+                
+                if response.status_code != 200:  # Still failed
+                    print(f"Update check failed with status {response.status_code}")
+                    return
             
             if response.status_code == 200:
                 latest = response.json()
                 if not latest:
-                    print("Error: Empty response from GitHub API")
                     return
                     
-                print("\nGitHub Response:")
-                print(f"Latest release: {latest.get('name')}")
-                print(f"Tag: {latest.get('tag_name')}")
-                print(f"Created: {latest.get('created_at')}")
-                
                 self.latest_version = latest['tag_name'].replace('v', '').strip()
                 self.release_notes = latest.get('body', 'No release notes available.')
                 
-                # Update config immediately after getting version
+                # Update config
                 if 'git' not in self.config:
                     self.config['git'] = {}
                 self.config['git']['last_github_version'] = self.latest_version
                 with open(self.config_path, 'w') as f:
                     json.dump(self.config, f, indent=4)
-                    
-                print(f"\nVersion Check:")
-                print(f"Current: v{self.current_version}")
-                print(f"Latest: v{self.latest_version}")
                 
                 try:
                     if semver.compare(self.latest_version, self.current_version) > 0:
-                        print("Update available!")
                         self.update_available.emit(self.latest_version, self.release_notes)
+                        self.show_update_dialog.emit(self.current_version, self.latest_version, self.release_notes)
                 except Exception as ve:
                     print(f"Version comparison error: {str(ve)}")
 
-            remaining = response.headers.get('X-RateLimit-Remaining', '0')
-            reset_time = response.headers.get('X-RateLimit-Reset', '0')
-            limit = response.headers.get('X-RateLimit-Limit', '0')
-            print(f"GitHub API Rate Limit: {remaining}/{limit} remaining. Resets at: {reset_time}")
-            
-            if response.status_code == 403:
-                print(f"Rate limit exceeded. Resets at: {reset_time}")
-                return
-                
-            # Get commit hash using proper API URL
+            # Get commit hash with retry without token if needed
             tag_commit_url = f"{self.api_url}/git/refs/tags/v{self.current_version}"
             commit_response = requests.get(tag_commit_url, headers=self.headers, timeout=5)
+            if commit_response.status_code == 401:
+                self.headers.pop('Authorization', None)
+                commit_response = requests.get(tag_commit_url, headers=self.headers, timeout=5)
+                
             if commit_response.status_code == 200:
                 commit_data = commit_response.json()
                 self.commit_hash = commit_data['object']['sha'][:7]

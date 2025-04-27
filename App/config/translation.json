@@ -86,7 +86,18 @@
                 "release_notes": "Release Notes:",
                 "no_notes": "No release notes available.",
                 "update_now": "Update Now",
-                "cancel": "Cancel"
+                "cancel": "Cancel",
+                "countdown_color": "#dc2626",
+                "countdown_done_color": "#059669",
+                "countdown_done": "You can now cancel the update."
+            }
+        },
+        "page": {
+            "home": {
+                "favorites": "Favorites",
+                "file_management": "File Management",
+                "image_processing": "Image Processing",
+                "video_processing": "Video Processing"
             }
         }
     },
@@ -177,7 +188,18 @@
                 "release_notes": "Catatan Rilis:",
                 "no_notes": "Tidak ada catatan rilis.",
                 "update_now": "Perbarui Sekarang",
-                "cancel": "Batal"
+                "cancel": "Batal",
+                "countdown_color": "#dc2626",
+                "countdown_done_color": "#059669", 
+                "countdown_done": "Anda sekarang dapat membatalkan pembaruan."
+            }
+        },
+        "page": {
+            "home": {
+                "favorites": "Favorit",
+                "file_management": "Manajemen Berkas",
+                "image_processing": "Pengolahan Gambar",
+                "video_processing": "Pengolahan Video"
             }
         }
     }

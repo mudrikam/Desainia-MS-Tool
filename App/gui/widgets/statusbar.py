@@ -169,7 +169,7 @@ class StatusBar(QStatusBar):
             self.new_version = new_version
             self.release_notes = release_notes
             # Changed icon to arrow-up from fa6s
-            bell_icon = qta.icon('fa6s.arrow-up', color='#0095FF').pixmap(12, 12)
+            bell_icon = qta.icon('fa6s.bell', color='#0095FF').pixmap(12, 12)
             self.update_icon.setPixmap(bell_icon)
             self.update_text.setText(f"Update to v{new_version}")
             self.update_container.setVisible(True)

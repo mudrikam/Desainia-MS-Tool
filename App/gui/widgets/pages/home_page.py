@@ -21,7 +21,7 @@ STYLES = {
         QWidget#tool_container:hover {
             background-color: palette(light);
             border-radius: 10px;
-            border: 1px solid palette(mid);
+            border: 1px solid rgba(127, 127, 127, 0.5);
         }
     """,
     
@@ -46,7 +46,8 @@ STYLES = {
             padding: 5px 15px;
         }
         QPushButton:hover {
-            background-color: palette(light);
+            background-color: #0366d6;
+            color: #FFFFFF;
         }
     """,
     
@@ -202,6 +203,7 @@ class HomePage(QWidget):
         
         # Load user preferences using BASE_DIR
         self.app = QApplication.instance()
+        self.tr = self.app.BASE_DIR.get_translation  # Translation helper
         self.user_prefs_path = os.path.join(self.app.BASE_DIR.get_path('UserData'), 'user_preferences.json')
         self.load_preferences()
         
@@ -222,8 +224,8 @@ class HomePage(QWidget):
         layout = QVBoxLayout(content)
         layout.setSpacing(20)
         
-        # Add Favorites section
-        favorites_title = QLabel("Favorites")
+        # Add Favorites section with translation
+        favorites_title = QLabel(self.tr('page', 'home', 'favorites'))
         favorites_title.setStyleSheet(STYLES['title'])
         favorites_title.setAlignment(Qt.AlignmentFlag.AlignLeft)
         layout.addWidget(favorites_title)
@@ -235,8 +237,8 @@ class HomePage(QWidget):
         # Update favorites display
         self.refresh_favorites()
         
-        # Change Tools title to File Management
-        title = QLabel("File Management")
+        # File Management section with translation
+        title = QLabel(self.tr('page', 'home', 'file_management'))
         title.setStyleSheet(STYLES['title'])
         title.setAlignment(Qt.AlignmentFlag.AlignLeft)
         layout.addWidget(title)
@@ -254,8 +256,8 @@ class HomePage(QWidget):
         
         layout.addLayout(grid_layout)
         
-        # Add Image Processing section
-        image_title = QLabel("Image Processing")
+        # Image Processing section with translation
+        image_title = QLabel(self.tr('page', 'home', 'image_processing'))
         image_title.setStyleSheet(STYLES['title'])
         image_title.setAlignment(Qt.AlignmentFlag.AlignLeft)
         layout.addWidget(image_title)
@@ -278,8 +280,8 @@ class HomePage(QWidget):
         
         layout.addLayout(image_grid)
         
-        # Add Video Processing section
-        video_title = QLabel("Video Processing")
+        # Video Processing section with translation
+        video_title = QLabel(self.tr('page', 'home', 'video_processing'))
         video_title.setStyleSheet(STYLES['title'])
         video_title.setAlignment(Qt.AlignmentFlag.AlignLeft)
         layout.addWidget(video_title)

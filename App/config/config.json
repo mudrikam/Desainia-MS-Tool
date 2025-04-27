@@ -1,7 +1,7 @@
 {
     "application": {
         "name": "Desainia Rak Arsip",
-        "version": "1.0.12",
+        "version": "1.0.19",
         "language": "en",
         "author": "Desainia",
         "description": "A powerful tool for managing and uploading content to multiple microstock platforms"
@@ -12,7 +12,7 @@
         "github": {
             "api_base": "https://api.github.com/repos/mudrikam/Desainia-Rak-Arsip",
             "releases": "https://api.github.com/repos/mudrikam/Desainia-Rak-Arsip/releases",
-            "token": "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"
+            "token": ""
         }
     },
     "runtime": {
