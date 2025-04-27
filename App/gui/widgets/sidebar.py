@@ -7,6 +7,8 @@ import os
 import webbrowser
 import platform
 import subprocess
+import json
+from .dialogs.about_dialog import AboutDialog  # Add this import
 
 class SideBar(QFrame):
     # Update signals - remove analytics_clicked
@@ -15,6 +17,13 @@ class SideBar(QFrame):
     
     def __init__(self, parent=None):
         super().__init__(parent)
+        
+        # Load config
+        app = QApplication.instance()
+        config_path = app.BASE_DIR.get_path('App', 'config', 'config.json')
+        with open(config_path) as f:
+            self.config = json.load(f)
+        
         self.setObjectName("SideBar")
         self.active_button = None  # Track active button
         
@@ -79,10 +88,16 @@ class SideBar(QFrame):
         self.github_btn = self.addItem("fa6b.github", "Visit GitHub", top_layout)
         self.github_btn.clicked.connect(self._on_github_clicked)
         
+        self.bug_btn = self.addItem("fa6s.bug", "Report Bug", top_layout)
+        self.bug_btn.clicked.connect(self._on_bug_clicked)
+        
         self.files_btn = self.addItem("fa6s.folder", "Open App Folder", top_layout)
         self.files_btn.clicked.connect(self._on_files_clicked)
         
-        # Add settings to bottom
+        # Add settings and about to bottom
+        self.about_btn = self.addItem("fa6s.circle-info", "About", bottom_layout)
+        self.about_btn.clicked.connect(self._on_about_clicked)
+        
         self.settings_btn = self.addItem("fa6s.gear", "Settings", bottom_layout)
         self.settings_btn.clicked.connect(self._on_settings_clicked)
         
@@ -126,8 +141,17 @@ class SideBar(QFrame):
         
     def _on_github_clicked(self):
         """Open GitHub repository"""
-        webbrowser.open('https://github.com/mudrikam/Desainia-MS-Tool')
+        webbrowser.open('https://github.com/mudrikam/Desainia-Rak-Arsip')
         
+    def _on_bug_clicked(self):
+        """Open GitHub issues page"""
+        webbrowser.open('https://github.com/mudrikam/Desainia-Rak-Arsip/issues')
+    
+    def _on_about_clicked(self):
+        """Show about dialog"""
+        dialog = AboutDialog(self.config, self)
+        dialog.exec()
+
     def addItem(self, icon_name, tooltip="", parent_layout=None):
         """Add an icon button"""
         container = QWidget()
@@ -141,6 +165,7 @@ class SideBar(QFrame):
         btn.setIcon(icon)
         btn.setIconSize(btn.sizeHint() * 0.8)
         btn.setToolTip(tooltip)
+        btn.setCursor(Qt.CursorShape.PointingHandCursor)
         
         layout.addWidget(btn, 0, Qt.AlignmentFlag.AlignHCenter)
         

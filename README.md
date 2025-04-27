@@ -1,38 +1,37 @@
-# Desainia Microstock Tool
+# Desainia Rak Arsip
 
-[![License](https://img.shields.io/github/license/mudrikam/Desainia-MS-Tool)](LICENSE)
+[![License](https://img.shields.io/github/license/mudrikam/Desainia-Rak-Arsip)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/)
-[![Code Size](https://img.shields.io/github/languages/code-size/mudrikam/Desainia-MS-Tool)](https://github.com/mudrikam/Desainia-MS-Tool)
-[![Release](https://img.shields.io/github/v/release/mudrikam/Desainia-MS-Tool?include_prereleases)](https://github.com/mudrikam/Desainia-MS-Tool/releases)
-[![Issues](https://img.shields.io/github/issues/mudrikam/Desainia-MS-Tool)](https://github.com/mudrikam/Desainia-MS-Tool/issues)
+[![Code Size](https://img.shields.io/github/languages/code-size/mudrikam/Desainia-Rak-Arsip)](https://github.com/mudrikam/Desainia-Rak-Arsip)
+[![Release](https://img.shields.io/github/v/release/mudrikam/Desainia-Rak-Arsip?include_prereleases)](https://github.com/mudrikam/Desainia-Rak-Arsip/releases)
+[![Issues](https://img.shields.io/github/issues/mudrikam/Desainia-Rak-Arsip)](https://github.com/mudrikam/Desainia-Rak-Arsip/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Downloads](https://img.shields.io/github/downloads/mudrikam/Desainia-MS-Tool/total)](https://github.com/mudrikam/Desainia-MS-Tool/releases)
-[![Last Commit](https://img.shields.io/github/last-commit/mudrikam/Desainia-MS-Tool)](https://github.com/mudrikam/Desainia-MS-Tool/commits/main)
+[![Downloads](https://img.shields.io/github/downloads/mudrikam/Desainia-Rak-Arsip/total)](https://github.com/mudrikam/Desainia-Rak-Arsip/releases)
+[![Last Commit](https://img.shields.io/github/last-commit/mudrikam/Desainia-Rak-Arsip)](https://github.com/mudrikam/Desainia-Rak-Arsip/commits/main)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue)](#)
-[![Stars](https://img.shields.io/github/stars/mudrikam/Desainia-MS-Tool)](https://github.com/mudrikam/Desainia-MS-Tool/stargazers)
+[![Stars](https://img.shields.io/github/stars/mudrikam/Desainia-Rak-Arsip)](https://github.com/mudrikam/Desainia-Rak-Arsip/stargazers)
 
 
-> A powerful tool for managing and uploading content to multiple microstock platforms
-
-## 🎯 About
+# I Built This Tool, So You Don't Have To
 
 Desainia Microstock Tool was born from the daily challenges at Desainia Studio. As content creators, we faced the time-consuming task of managing and uploading content across multiple microstock platforms. What started as an internal solution to streamline our workflow has evolved into a tool we're proud to share with the community.
 
-### Why This Tool?
+### If You're Wondering Why?
 
-- **Time Saver**: Automates bulk uploads across multiple platforms
-- **Workflow Optimizer**: Streamlines content management and metadata handling
-- **Studio Tested**: Daily used and refined at Desainia Studio
-- **Community Driven**: Now available for all creators, shaped by real needs
+- **Time Saver**: Built to automate the boring stuff — bulk uploads across multiple platforms, done in a flash.
+- **Workflow Optimizer**: Helps you manage your files and metadata without losing your mind (or your deadlines).
+- **Studio Tested**: Battle-tested daily at Desainia Studio, refined with real-world chaos in mind.
+- **Community Driven**: Born from actual creator struggles, now shared freely with everyone who needs a little less pain in their process.
 
-> **Disclaimer**: While this tool is freely available for public use, it comes with no warranty. Use at your own discretion.
+> **Disclaimer**: This tool is free for everyone, but comes with no warranty. Use it wisely, tweak it if you must — you're in charge.
+
 
 ## Getting Started
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/mudrikam/Desainia-MS-Tool.git
-cd Desainia-MS-Tool
+git clone https://github.com/mudrikam/Desainia-Rak-Arsip.git
+cd Desainia-Rak-Arsip
 ```
 
 2. Install dependencies:
@@ -44,13 +43,17 @@ Launcher.bat
 ./Launcher.sh
 ```
 
-Need a detailed walkthrough? Ask your AI assistant for guidance:
-- [ChatGPT](https://chatgpt.com/) | [Gemini](https://gemini.google.com/) Say something like:
+## Need Help Installing Desainia MS Tool?
+
+Don't worry, we've got you covered! If you're not familiar with Git or don’t have it installed, you can still easily download and install **Desainia MS Tool**.
+
+### Just ask your friendly AI assistant:
+[ChatGPT](https://chatgpt.com/) | [Gemini](https://gemini.google.com/) | [Grok](https://grok.com/) | [Sonnet](https://sonnet.ai/) | [DeepSeek](https://deepseek.com/)
+
+You can just copy this prompt:
+
 ```bash
-I want to install Desainia MS Tool from https://github.com/mudrikam/Desainia-MS-Tool. Can you guide me through the process step by step?
-```
-```bash
-Help me install and run Desainia MS Tool. The GitHub repository is https://github.com/mudrikam/Desainia-MS-Tool
+I want to install Desainia MS Tool from the repository at https://github.com/mudrikam/Desainia-Rak-Arsip. Can you guide me step-by-step to install it directly from this GitHub link? I don't know how to use Git or have it installed, so please guide me through using the Launcher.bat (for Windows) or Launcher.sh (for Linux/Mac) files that are included in this repository. Please do not search for anything online, just help me with the installation from the files in the provided GitHub link.
 ```
 
 ## 📋 Requirements
@@ -88,32 +91,17 @@ Help me install and run Desainia MS Tool. The GitHub repository is https://githu
 
 ## 🤝 Contributing
 
-We welcome contributors of all skill levels! Here's how you can participate:
+Contributing isn’t just about writing code. It’s about making a difference in any way you can! Whether you spot a bug, suggesting a feature, or simply sharing the tool, you’re giving back. Think of it as a form of **sadaqah jariyah**. Helping the community grow, one small act at a time.
 
-### Core Team Members
+
+### Contributors on Github
 <table>
   <tr>
     <td align="center">
       <a href="https://github.com/mudrikam">
-        <img src="https://github.com/mudrikam.png" width="100px;">
-        <br>
-        <sub><b>Mudrikul Hikam</b></sub>
-      </a>
-      <br>
-      <sub>Project Lead</sub>
-    </td>
-    <!-- Add more core team members here -->
-  </tr>
-</table>
-
-### Contributors Hall of Fame
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/contributor1">
-        <img src="https://github.com/contributor1.png" width="75px;">
-        <br>
-        <sub><b>Contributor 1</b></sub>
+        <img src="https://github.com/mudrikam.png" width="50px;" style="border-radius: 50%;">
+          <br>
+          <sub><b>Could be you!</b></sub>
       </a>
       <br>
       <sub>Feature Development</sub>
@@ -162,14 +150,23 @@ Want to contribute? Check our [CONTRIBUTING.md](CONTRIBUTING.md) guide!
 
 ## 📝 License
 
-Copyright (C) 2025 M. Mudrikul Hikam
+### All source code is licensed under the [GNU General Public License v3.0](./LICENSE.txt)
 
-Licensed under [GPL v3 License](./LICENSE.txt)
+## Key Points:
+
+- **Free to Use**: You can use this software for any purpose, personal or commercial, without restrictions.
+- **Free to Modify**: You can modify the source code to fit your needs.
+- **Free to Share**: You can share the software with others, as long as you provide the same rights.
+- **Free to Distribute Modifications**: You can distribute your modified version, but it must also be under the GPL license.
+
+
+Please note that logos, mascots, and other branding elements are protected by copyright and are not covered under this license.
 
 ## 📞 Support
 
-- Create an [Issue](https://github.com/your-username/Desainia-MS-Tool/issues)
+- Create an [Issue](https://github.com/your-username/Desainia-Rak-Arsip/issues)
 - Email: kyutkitten@gmail.com
+- WhatsApp Group: [Join Chat](https://chat.whatsapp.com/CMQvDxpCfP647kBBA6dRn3)
 
 ## 💰 Donation
 
@@ -190,7 +187,7 @@ Support this project by becoming a financial contributor:
   </tr>
   <tr>
     <td>QRIS</td>
-    <td><a href="https://github.com/mudrikam/Desainia-MS-Tool/blob/main/assets/qris.png">View QRIS Code</a></td>
+    <td><a href="https://github.com/mudrikam/Desainia-Rak-Arsip/blob/master/App/resources/proprietary/img/qris.jpeg">View QRIS Code</a></td>
   </tr>
 </table>
 

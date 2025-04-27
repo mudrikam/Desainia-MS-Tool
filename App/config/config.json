@@ -1,10 +1,19 @@
 {
     "application": {
-        "name": "Desainia MS Tool",
-        "version": "1.0.18",
+        "name": "Desainia Rak Arsip",
+        "version": "1.0.12",
         "language": "en",
         "author": "Desainia",
         "description": "A powerful tool for managing and uploading content to multiple microstock platforms"
+    },
+    "repository": {
+        "url": "https://github.com/mudrikam/Desainia-Rak-Arsip",
+        "whatsapp_url": "https://chat.whatsapp.com/CMQvDxpCfP647kBBA6dRn3",
+        "github": {
+            "api_base": "https://api.github.com/repos/mudrikam/Desainia-Rak-Arsip",
+            "releases": "https://api.github.com/repos/mudrikam/Desainia-Rak-Arsip/releases",
+            "token": "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"
+        }
     },
     "runtime": {
         "python_version": "3.12.1",
@@ -12,11 +21,11 @@
     },
     "git": {
         "commit_hash": "b1db01a",
-        "tag": "v1.0.17",
-        "last_github_version": "1.0.18"
+        "tag": "v1.0.12",
+        "last_github_version": "1.0.19"
     },
     "window": {
-        "title": "Desainia MS Tool",
+        "title": "Desainia Rak Arsip",
         "width": 1024,
         "height": 768,
         "min_width": 800,

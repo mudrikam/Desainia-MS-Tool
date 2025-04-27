@@ -14,47 +14,90 @@ class UpdateChecker(QThread):
     update_available = pyqtSignal(str, str)
     
     def __init__(self, current_version):
-        super().__init__()
-        self.current_version = current_version
-        self.app = QApplication.instance()
-        
-        # Load config
-        self.config_path = self.app.BASE_DIR.get_path('App', 'config', 'config.json')
-        with open(self.config_path, 'r') as f:
-            self.config = json.load(f)
-            
-        # Skip check if versions match
-        self.last_github_version = self.config.get('git', {}).get('last_github_version', '0.0.0')
-        if self.last_github_version == self.current_version:
-            print(f"Skipping update check - Local version {self.current_version} matches last GitHub version")
-            return
-            
-        self.api_url = "https://api.github.com/repos/mudrikam/Desainia-MS-Tool/releases/latest"
-        self.commit_url = "https://api.github.com/repos/mudrikam/Desainia-MS-Tool/commits/"
-        
-        # GitHub token from environment or config
-        self.github_token = os.environ.get('GITHUB_TOKEN', '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')
-        
-        # Update headers with token if available
-        self.headers = {
-            'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': f'Desainia-MS-Tool/{current_version}'
-        }
-        if self.github_token:
-            self.headers['Authorization'] = f'token {self.github_token}'
-        
-        self.latest_version = None
-        self.release_notes = None
-        self.commit_hash = None
-    
-    def run(self):
-        # Skip if versions match
-        if self.last_github_version == self.current_version:
-            print(f"Skipping GitHub API call - Using cached version {self.last_github_version}")
-            return
-            
         try:
+            super().__init__()
+            self.current_version = current_version.strip()
+            self.app = QApplication.instance()
+            
+            # Load config
+            self.config_path = self.app.BASE_DIR.get_path('App', 'config', 'config.json')
+            with open(self.config_path, 'r') as f:
+                self.config = json.load(f)
+            
+            # Get GitHub config and setup API
+            github_config = self.config['repository']['github']
+            self.api_url = f"{github_config['releases']}/latest"
+            self.github_token = github_config['token']
+            
+            print("\nUpdateChecker Setup:")
+            print(f"API URL: {self.api_url}")
+            print(f"Current version: v{self.current_version}")
+            
+            # Setup headers with proper token format
+            self.headers = {
+                'Accept': 'application/vnd.github.v3+json',
+                'User-Agent': 'Desainia-MS-Tool',
+                'X-GitHub-Api-Version': '2022-11-28',
+                'Authorization': f'Bearer {self.github_token}'  # Changed to Bearer format
+            }
+            
+            print("Headers configured with Bearer token")
+            
+            self.latest_version = None
+            self.release_notes = None
+            self.commit_hash = None
+
+        except Exception as e:
+            print(f"Error in UpdateChecker initialization: {str(e)}")
+            raise
+
+    def run(self):
+        try:
+            print("\nMaking GitHub API request...")
+            print(f"Request URL: {self.api_url}")
+            print(f"Headers: {json.dumps({k:v for k,v in self.headers.items() if k != 'Authorization'}, indent=2)}")
+            
             response = requests.get(self.api_url, headers=self.headers, timeout=5)
+            print(f"Response status: {response.status_code}")
+            
+            if response.status_code != 200:
+                print(f"Error response: {response.text}")
+                if response.status_code == 401:
+                    print("Authentication failed - Please check your GitHub token")
+                return
+            
+            if response.status_code == 200:
+                latest = response.json()
+                if not latest:
+                    print("Error: Empty response from GitHub API")
+                    return
+                    
+                print("\nGitHub Response:")
+                print(f"Latest release: {latest.get('name')}")
+                print(f"Tag: {latest.get('tag_name')}")
+                print(f"Created: {latest.get('created_at')}")
+                
+                self.latest_version = latest['tag_name'].replace('v', '').strip()
+                self.release_notes = latest.get('body', 'No release notes available.')
+                
+                # Update config immediately after getting version
+                if 'git' not in self.config:
+                    self.config['git'] = {}
+                self.config['git']['last_github_version'] = self.latest_version
+                with open(self.config_path, 'w') as f:
+                    json.dump(self.config, f, indent=4)
+                    
+                print(f"\nVersion Check:")
+                print(f"Current: v{self.current_version}")
+                print(f"Latest: v{self.latest_version}")
+                
+                try:
+                    if semver.compare(self.latest_version, self.current_version) > 0:
+                        print("Update available!")
+                        self.update_available.emit(self.latest_version, self.release_notes)
+                except Exception as ve:
+                    print(f"Version comparison error: {str(ve)}")
+
             remaining = response.headers.get('X-RateLimit-Remaining', '0')
             reset_time = response.headers.get('X-RateLimit-Reset', '0')
             limit = response.headers.get('X-RateLimit-Limit', '0')
@@ -64,45 +107,30 @@ class UpdateChecker(QThread):
                 print(f"Rate limit exceeded. Resets at: {reset_time}")
                 return
                 
-            if response.status_code == 200:
-                latest = response.json()
-                self.latest_version = latest['tag_name'].replace('v', '')  # Remove v prefix for semver compare
-                self.release_notes = latest.get('body', 'No release notes available.')
+            # Get commit hash using proper API URL
+            tag_commit_url = f"{self.api_url}/git/refs/tags/v{self.current_version}"
+            commit_response = requests.get(tag_commit_url, headers=self.headers, timeout=5)
+            if commit_response.status_code == 200:
+                commit_data = commit_response.json()
+                self.commit_hash = commit_data['object']['sha'][:7]
                 
-                # Update last GitHub version in config
-                self.config['git']['last_github_version'] = self.latest_version
-                with open(self.config_path, 'w') as f:
-                    json.dump(self.config, f, indent=4)
-                
-                # Get commit hash for current tag
-                tag_commit_url = f"https://api.github.com/repos/mudrikam/Desainia-MS-Tool/git/refs/tags/v{self.current_version}"
-                commit_response = requests.get(tag_commit_url, headers=self.headers, timeout=5)
-                if commit_response.status_code == 200:
-                    commit_data = commit_response.json()
-                    self.commit_hash = commit_data['object']['sha'][:7]  # Get short hash
+                # Update config with commit hash
+                try:
+                    config_path = self.app.BASE_DIR.get_path('App', 'config', 'config.json')
+                    with open(config_path, 'r+') as f:
+                        config = json.load(f)
+                        if 'git' not in config:
+                            config['git'] = {}
+                        config['git']['commit_hash'] = self.commit_hash
+                        config['git']['tag'] = f"v{self.current_version}"
+                        f.seek(0)
+                        json.dump(config, f, indent=4)
+                        f.truncate()
+                except Exception as e:
+                    print(f"Error updating config with commit hash: {str(e)}")
                     
-                    # Update config with commit hash
-                    try:
-                        config_path = self.app.BASE_DIR.get_path('App', 'config', 'config.json')
-                        with open(config_path, 'r+') as f:
-                            config = json.load(f)
-                            if 'git' not in config:
-                                config['git'] = {}
-                            config['git']['commit_hash'] = self.commit_hash
-                            config['git']['tag'] = f"v{self.current_version}"
-                            f.seek(0)
-                            json.dump(config, f, indent=4)
-                            f.truncate()
-                    except Exception as e:
-                        print(f"Error updating config with commit hash: {str(e)}")
-                
-                # Continue only if new version available
-                if semver.compare(self.latest_version, self.current_version) > 0:
-                    print(f"Update available: {self.latest_version}")
-                    self.update_available.emit(self.latest_version, self.release_notes)
         except Exception as e:
             print(f"Update check error: {str(e)}")
-            pass
 
     def download_and_install(self, new_version):
         if not self.release_notes:  # Fallback if release notes not available
@@ -120,7 +148,8 @@ class UpdateChecker(QThread):
             # Download new version
             temp_dir = tempfile.mkdtemp()
             temp_file = os.path.join(temp_dir, "update.zip")
-            download_url = f"https://github.com/mudrikam/Desainia-MS-Tool/archive/refs/tags/v{new_version}.zip"
+            repo_url = self.config['repository']['github']['api_base'].replace('api.github.com/repos', 'github.com')
+            download_url = f"{repo_url}/archive/refs/tags/v{new_version}.zip"
             
             response = requests.get(download_url, stream=True)
             if response.status_code != 200:
@@ -149,11 +178,11 @@ class UpdateChecker(QThread):
             
             # Prepare update
             dialog.status_label.setText("Preparing to install...")
-            extracted_dir = os.path.join(temp_dir, f"Desainia-MS-Tool-{new_version}")
+            extracted_dir = os.path.join(temp_dir, f"Desainia-Rak-Arsip-{new_version}")
             config_path = os.path.join(os.getcwd(), "App", "config", "config.json")
             
             # Get new commit hash
-            tag_commit_url = f"https://api.github.com/repos/mudrikam/Desainia-MS-Tool/git/refs/tags/v{new_version}"
+            tag_commit_url = f"{self.config['repository']['github']['api_base']}/git/refs/tags/v{new_version}"
             commit_response = requests.get(tag_commit_url, headers=self.headers, timeout=5)
             new_commit_hash = ""
             if commit_response.status_code == 200:

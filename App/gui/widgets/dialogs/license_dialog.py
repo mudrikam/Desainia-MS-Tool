@@ -1,12 +1,15 @@
 from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QTextEdit, 
-                            QPushButton, QHBoxLayout)
+                            QPushButton, QHBoxLayout, QApplication)
 from PyQt6.QtCore import Qt
 import os
 
 class LicenseDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("License")
+        self.app = QApplication.instance()
+        self.tr = self.app.BASE_DIR.get_translation  # Translation helper
+        
+        self.setWindowTitle(self.tr('dialog', 'license', 'title'))
         self.setMinimumWidth(700)
         self.setMinimumHeight(500)
         
@@ -20,7 +23,7 @@ class LicenseDialog(QDialog):
         
         # Add close button
         button_container = QHBoxLayout()
-        close_btn = QPushButton("Close")
+        close_btn = QPushButton(self.tr('dialog', 'license', 'close'))
         close_btn.setFixedWidth(100)
         button_container.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addLayout(button_container)

@@ -145,23 +145,47 @@ class StatusBar(QStatusBar):
         self.addPermanentWidget(self.wa_container)
         self.addPermanentWidget(self.lang_container)
         
-        # Start update checker
-        self.checker = UpdateChecker(config['application']['version'])
-        self.checker.update_available.connect(self.show_update)
-        self.checker.start()
+        # Initialize update checker
+        print("\nStatusBar Update Check:")
+        print(f"Current app version: v{config['application']['version']}")
+        print(f"GitHub Token: {config['repository']['github']['token'][:10]}...")
+        print(f"API URL: {config['repository']['github']['releases']}/latest")
+        
+        try:
+            self.update_container.setVisible(False)
+            self.checker = UpdateChecker(config['application']['version'])
+            self.checker.update_available.connect(self.show_update)
+            print("Update checker initialized successfully")
+            self.checker.start()
+        except Exception as e:
+            print(f"Error initializing update checker: {str(e)}")
     
-    def show_update(self, new_version):
-        bell_icon = qta.icon('fa6s.bell', color='#0095FF').pixmap(12, 12)
-        self.update_icon.setPixmap(bell_icon)
-        self.update_text.setText(f"Update to v{new_version}")
-        self.update_container.setVisible(True)
-        self.new_version = new_version
-    
+    def show_update(self, new_version, release_notes):
+        try:
+            print("\nUpdate notification received:")
+            print(f"New version available: v{new_version}")
+            print(f"Current version: v{self.config['application']['version']}")
+            
+            self.new_version = new_version
+            self.release_notes = release_notes
+            # Changed icon to arrow-up from fa6s
+            bell_icon = qta.icon('fa6s.arrow-up', color='#0095FF').pixmap(12, 12)
+            self.update_icon.setPixmap(bell_icon)
+            self.update_text.setText(f"Update to v{new_version}")
+            self.update_container.setVisible(True)
+            self.update_container.repaint()
+            
+            print("Update notification shown successfully")
+            QApplication.instance().processEvents()
+        except Exception as e:
+            print(f"Error showing update notification: {str(e)}")
+        
     def open_release_page(self, event):
+        print(f"\nStarting update process to v{self.new_version}")
         self.checker.download_and_install(self.new_version)
     
     def open_github_repo(self, event):
-        QDesktopServices.openUrl(QUrl("https://github.com/mudrikam/Desainia-MS-Tool"))
+        QDesktopServices.openUrl(QUrl(self.config['repository']['url']))
     
     def open_coffee(self, event):
         QDesktopServices.openUrl(QUrl("https://www.buymeacoffee.com/mudrikam"))
@@ -169,10 +193,10 @@ class StatusBar(QStatusBar):
     def open_commit_page(self, event):
         commit_hash = self.commit_text.text()
         if commit_hash:
-            QDesktopServices.openUrl(QUrl(f"https://github.com/mudrikam/Desainia-MS-Tool/commit/{commit_hash}"))
+            QDesktopServices.openUrl(QUrl(f"{self.config['repository']['url']}/commit/{commit_hash}"))
     
     def open_whatsapp(self, event):
-        QDesktopServices.openUrl(QUrl("https://chat.whatsapp.com/CMQvDxpCfP647kBBA6dRn3"))
+        QDesktopServices.openUrl(QUrl(self.config['repository']['whatsapp_url']))
     
     def show_donate(self, event):
         dialog = DonateDialog(self)

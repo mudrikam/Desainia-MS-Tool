@@ -65,6 +65,7 @@ class WhatsAppFrame(HeaderFrame):
         
         app = QApplication.instance()
         tr = app.BASE_DIR.get_translation
+        config = app.BASE_DIR.config  # Get config
         
         # Group name with translation
         group_name = QLabel(tr('header', 'whatsapp', 'title'))
@@ -91,7 +92,7 @@ class WhatsAppFrame(HeaderFrame):
         join_button.setCursor(Qt.CursorShape.PointingHandCursor)
         join_button.setFixedHeight(25)
         join_button.setFixedWidth(100)
-        join_button.clicked.connect(lambda: webbrowser.open('https://chat.whatsapp.com/CMQvDxpCfP647kBBA6dRn3'))
+        join_button.clicked.connect(lambda: webbrowser.open(config['repository']['whatsapp_url']))
         
         layout.addWidget(group_name)
         layout.addWidget(join_button, alignment=Qt.AlignmentFlag.AlignCenter)

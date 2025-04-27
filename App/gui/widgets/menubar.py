@@ -71,14 +71,14 @@ class MenuBar(QMenuBar):
         doc_action = help_menu.addAction(qta.icon('fa6s.circle-question'), self.tr('menu', 'help', 'documentation'))
         doc_action.setShortcut("F1")
         doc_action.triggered.connect(lambda: QDesktopServices.openUrl(
-            QUrl("https://github.com/mudrikam/Desainia-MS-Tool/tree/master/Documentation")))
+            QUrl(f"{self.config['repository']['url']}/tree/master/Documentation")))
         
         help_menu.addSeparator()
         join_action = help_menu.addAction(qta.icon('fa6b.whatsapp', color='#25D366'), self.tr('menu', 'help', 'join_group'))
-        join_action.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://chat.whatsapp.com/CMQvDxpCfP647kBBA6dRn3")))
+        join_action.triggered.connect(lambda: QDesktopServices.openUrl(QUrl(self.config['repository']['whatsapp_url'])))
         
         issue_action = help_menu.addAction(qta.icon('fa6s.bug', color='#F05400'), self.tr('menu', 'help', 'report_bug'))
-        issue_action.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/mudrikam/Desainia-MS-Tool/issues")))
+        issue_action.triggered.connect(lambda: QDesktopServices.openUrl(QUrl(f"{self.config['repository']['url']}/issues")))
         
         help_menu.addSeparator()
         donate_action = help_menu.addAction(qta.icon('fa6s.heart', color='#FF335F'), self.tr('menu', 'help', 'donate'))

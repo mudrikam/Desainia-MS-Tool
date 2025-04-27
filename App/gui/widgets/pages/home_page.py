@@ -14,13 +14,14 @@ STYLES = {
     """,
     
     'tool_widget': """
-        QWidget { 
-            background-color: rgba(0, 0, 0, 0.05);
+        QWidget#tool_container { 
+            background-color: palette(light);
             border-radius: 10px;
         }
-        QWidget:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+        QWidget#tool_container:hover {
+            background-color: palette(light);
             border-radius: 10px;
+            border: 1px solid palette(mid);
         }
     """,
     
@@ -317,6 +318,7 @@ class HomePage(QWidget):
 
     def create_tool_widget(self, tool_data, parent_layout, position=None):
         col_widget = QWidget()
+        col_widget.setObjectName("tool_container")  # Add object name for specific styling
         col_widget.setMinimumWidth(150)
         col_layout = QVBoxLayout(col_widget)
         col_layout.setContentsMargins(10, 10, 10, 10)

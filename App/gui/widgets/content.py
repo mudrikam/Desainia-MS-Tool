@@ -12,7 +12,7 @@ class ContentWidget(QWidget):
         self.layout.setSpacing(0)
         
         # Add header (keep at edge)
-        self.header = PageHeaderWidget("Analytics Dashboard", "View and analyze your data metrics")
+        self.header = PageHeaderWidget()
         self.layout.addWidget(self.header)
         
         # Create stacked widget with padding
@@ -28,24 +28,11 @@ class ContentWidget(QWidget):
         """Add default pages to the stack"""
         pages = {
             'home': HomePage(),
-            'analytics': self._create_page("Analytics", "Analytics Dashboard"),
-            'settings': SettingsPage(),
-            'files': self._create_page("Files", "File Management")
+            'settings': SettingsPage()
         }
         
         for name, widget in pages.items():
             self.add_page(name, widget)
-    
-    def _create_page(self, title, text):
-        """Create a placeholder page"""
-        page = QWidget()
-        layout = QVBoxLayout(page)
-        
-        label = QLabel(f"<h1>{title}</h1><p>{text}</p>")
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(label)
-        
-        return page
     
     def add_page(self, name, widget):
         """Add a new page to the stack"""

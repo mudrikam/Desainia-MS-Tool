@@ -52,6 +52,41 @@
                 "header": "Support the Development",
                 "message": "\"When a person dies, their deeds come to an end except for three: Sadaqah Jariyah (continuing charity), beneficial knowledge, or a righteous child who prays for them.\" - (Sahih Muslim)\n\nSupport this tool as a form of Sadaqah Jariyah.",
                 "qris_instruction": "Scan QRIS code using your mobile banking or e-wallet app"
+            },
+            "about": {
+                "title": "About",
+                "version": "Version",
+                "requirements": "Package Requirements",
+                "author": "Author",
+                "rights": "All rights reserved",
+                "license": "Licensed under GNU General Public License v3.0",
+                "thanks_to": "Thanks to",
+                "details": "Details",
+                "close": "Close",
+                "credits": "Credits"
+            },
+            "about_details": {
+                "title": "About Details",
+                "close": "Close"
+            },
+            "license": {
+                "title": "License",
+                "close": "Close"
+            },
+            "update": {
+                "title": "Update Available",
+                "header": "Update Available: v{version}",
+                "current": "Current version: v{version}",
+                "new": "New version: v{version}",
+                "info_header": "The application will:",
+                "info_download": "• Download the new version",
+                "info_replace": "• Replace current files with new version",
+                "info_restart": "• Restart automatically",
+                "info_note": "Note: Your database and settings will not be affected.",
+                "release_notes": "Release Notes:",
+                "no_notes": "No release notes available.",
+                "update_now": "Update Now",
+                "cancel": "Cancel"
             }
         }
     },
@@ -108,6 +143,41 @@
                 "header": "Dukung Pengembangan",
                 "message": "\"Jika seorang manusia meninggal, terputuslah semua amalannya kecuali tiga perkara: sedekah jariyah, ilmu yang bermanfaat, dan anak shalih yang mendoakannya.\" - (Sahih Muslim)\n\nDukung alat ini sebagai bentuk Sedekah Jariyah.",
                 "qris_instruction": "Pindai kode QRIS menggunakan aplikasi perbankan atau dompet elektronik Anda"
+            },
+            "about": {
+                "title": "Tentang",
+                "version": "Versi",
+                "requirements": "Kebutuhan Paket",
+                "author": "Pembuat",
+                "rights": "Hak cipta dilindungi",
+                "license": "Dilisensikan di bawah GNU General Public License v3.0",
+                "thanks_to": "Terima kasih",
+                "details": "Detail",
+                "close": "Tutup", 
+                "credits": "Kredit"
+            },
+            "about_details": {
+                "title": "Detail Tentang",
+                "close": "Tutup"
+            },
+            "license": {
+                "title": "Lisensi",
+                "close": "Tutup"
+            },
+            "update": {
+                "title": "Pembaruan Tersedia",
+                "header": "Pembaruan Tersedia: v{version}",
+                "current": "Versi saat ini: v{version}",
+                "new": "Versi baru: v{version}",
+                "info_header": "Aplikasi akan:",
+                "info_download": "• Mengunduh versi baru",
+                "info_replace": "• Mengganti berkas saat ini dengan versi baru",
+                "info_restart": "• Memulai ulang secara otomatis",
+                "info_note": "Catatan: Database dan pengaturan Anda tidak akan terpengaruh.",
+                "release_notes": "Catatan Rilis:",
+                "no_notes": "Tidak ada catatan rilis.",
+                "update_now": "Perbarui Sekarang",
+                "cancel": "Batal"
             }
         }
     }

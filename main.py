@@ -41,7 +41,7 @@
 # infringement under applicable law.
 # ---------------------------------------------------------------
 
-# This main initializes and runs the Desainia-MS-Tool application
+# This main initializes and runs the Desainia-Rak-Arsip application
 # by creating an instance of MainWindow class from App.window module
 
 import sys
