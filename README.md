@@ -88,7 +88,77 @@ Help me install and run Desainia MS Tool. The GitHub repository is https://githu
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributors of all skill levels! Here's how you can participate:
+
+### Core Team Members
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/mudrikam">
+        <img src="https://github.com/mudrikam.png" width="100px;">
+        <br>
+        <sub><b>Mudrikul Hikam</b></sub>
+      </a>
+      <br>
+      <sub>Project Lead</sub>
+    </td>
+    <!-- Add more core team members here -->
+  </tr>
+</table>
+
+### Contributors Hall of Fame
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/contributor1">
+        <img src="https://github.com/contributor1.png" width="75px;">
+        <br>
+        <sub><b>Contributor 1</b></sub>
+      </a>
+      <br>
+      <sub>Feature Development</sub>
+    </td>
+    <!-- Add more contributors as needed -->
+  </tr>
+</table>
+
+### Special Thanks To
+<table>
+  <tr>
+    <td><b>Category</b></td>
+    <td><b>Contributors</b></td>
+  </tr>
+  <tr>
+    <td>🎯 Feature Requests</td>
+    <td>
+      <a href="https://github.com/user1">@user1</a>,
+      <a href="https://github.com/user2">@user2</a>
+    </td>
+  </tr>
+  <tr>
+    <td>🐛 Bug Hunters</td>
+    <td>
+      <a href="https://github.com/hunter1">@hunter1</a>,
+      <a href="https://github.com/hunter2">@hunter2</a>
+    </td>
+  </tr>
+  <tr>
+    <td>💰 Financial Support</td>
+    <td>
+      <a href="https://github.com/sponsor1">@sponsor1</a>,
+      <a href="https://github.com/sponsor2">@sponsor2</a>
+    </td>
+  </tr>
+  <tr>
+    <td>📚 Documentation</td>
+    <td>
+      <a href="https://github.com/doc1">@doc1</a>,
+      <a href="https://github.com/doc2">@doc2</a>
+    </td>
+  </tr>
+</table>
+
+Want to contribute? Check our [CONTRIBUTING.md](CONTRIBUTING.md) guide!
 
 ## 📝 License
 
