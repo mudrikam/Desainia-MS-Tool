@@ -4,16 +4,16 @@
 
 ```
 +----------------+     +----------------+     +----------------+
-|     GUI        |     |    Core       |     |    Utils      |
-|  PyQt6-based   |---->|  Business     |---->|  Helper       |
-|  Components    |     |   Logic       |     |  Functions    |
+|     GUI        |     |     Core       |     |     Utils      |
+|  PyQt6-based   |---->|   Business     |---->|   Helper       |
+|  Components    |     |    Logic       |     |   Functions    |
 +----------------+     +----------------+     +----------------+
          |                    |                     |
          v                    v                     v
 +----------------+     +----------------+     +----------------+
-|    Config      |     |     API       |     |   Storage     |
-|  Settings &    |     |   External    |     |    File &     |
-| Translations   |     |   Services    |     |    Cache      |
+|    Config      |     |      API       |     |    Storage     |
+|  Settings &    |     |    External    |     |     File &     |
+| Translations   |     |    Services    |     |     Cache      |
 +----------------+     +----------------+     +----------------+
 ```
 

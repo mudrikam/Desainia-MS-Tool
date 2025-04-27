@@ -27,6 +27,32 @@ Desainia Microstock Tool was born from the daily challenges at Desainia Studio. 
 
 > **Disclaimer**: While this tool is freely available for public use, it comes with no warranty. Use at your own discretion.
 
+## Getting Started
+
+1. Clone the repository:
+```bash
+git clone https://github.com/mudrikam/Desainia-MS-Tool.git
+cd Desainia-MS-Tool
+```
+
+2. Install dependencies:
+```bash
+# Windows
+Launcher.bat
+
+# macOS/Linux
+./Launcher.sh
+```
+
+Need a detailed walkthrough? Ask your AI assistant for guidance:
+- [ChatGPT](https://chatgpt.com/) | [Gemini](https://gemini.google.com/) Say something like:
+```bash
+I want to install Desainia MS Tool from https://github.com/mudrikam/Desainia-MS-Tool. Can you guide me through the process step by step?
+```
+```bash
+Help me install and run Desainia MS Tool. The GitHub repository is https://github.com/mudrikam/Desainia-MS-Tool
+```
+
 ## 📋 Requirements
 
 <table>
@@ -57,41 +83,6 @@ Desainia Microstock Tool was born from the daily challenges at Desainia Studio. 
   <tr>
     <td>Display</td>
     <td>1280x720 or higher resolution</td>
-  </tr>
-</table>
-
-## 📚 Dependencies
-
-<table>
-  <tr>
-    <td><b>Library</b></td>
-    <td><b>Version</b></td>
-    <td><b>Purpose</b></td>
-  </tr>
-  <tr>
-    <td>Selenium</td>
-    <td>4.0+</td>
-    <td>Web automation and uploads</td>
-  </tr>
-  <tr>
-    <td>Pillow (PIL)</td>
-    <td>9.0+</td>
-    <td>Image processing</td>
-  </tr>
-  <tr>
-    <td>Requests</td>
-    <td>2.28+</td>
-    <td>HTTP requests handling</td>
-  </tr>
-  <tr>
-    <td>PyQt6</td>
-    <td>6.4+</td>
-    <td>GUI interface</td>
-  </tr>
-  <tr>
-    <td>python-dotenv</td>
-    <td>0.21+</td>
-    <td>Environment configuration</td>
   </tr>
 </table>
 
