@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QPushButton,
 from PyQt6.QtCore import Qt
 import qtawesome as qta
 import os
+from .about_details_dialog import AboutDetailsDialog
 
 class AboutDialog(QDialog):
     def __init__(self, config, parent=None):
@@ -37,16 +38,16 @@ class AboutDialog(QDialog):
         license_label = QLabel("Licensed under GNU General Public License v3.0")
         license_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        # Button container with Thanks To and Close
+        # Button container with Thanks To and Details
         button_container = QWidget()
         button_layout = QHBoxLayout(button_container)
         thanks_btn = QPushButton(" Thanks to")  # Added space for icon
         thanks_btn.setIcon(qta.icon('fa5s.heart', color='#FF335F'))
-        close_btn = QPushButton("Close")
+        details_btn = QPushButton("Details")
         thanks_btn.setFixedWidth(100)
-        close_btn.setFixedWidth(100)
+        details_btn.setFixedWidth(100)
         button_layout.addWidget(thanks_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-        button_layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        button_layout.addWidget(details_btn, alignment=Qt.AlignmentFlag.AlignCenter)
         
         # Add widgets to layout
         layout.addWidget(title)
@@ -57,7 +58,7 @@ class AboutDialog(QDialog):
         
         # Connect buttons
         thanks_btn.clicked.connect(self.show_credits)
-        close_btn.clicked.connect(self.accept)
+        details_btn.clicked.connect(self.show_details)
 
     def show_credits(self):
         """Show credits dialog"""
@@ -72,7 +73,7 @@ class AboutDialog(QDialog):
         text_edit.setReadOnly(True)
         
         app = QApplication.instance()
-        credits_path = app.BASE_DIR.get_path('App', 'CREDITS.TXT')
+        credits_path = app.BASE_DIR.get_path('CREDITS.TXT')
         
         try:
             with open(credits_path, 'r') as f:
@@ -89,6 +90,11 @@ class AboutDialog(QDialog):
         layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignCenter)
         
         credits_dialog.exec()
+
+    def show_details(self):
+        """Show about details dialog"""
+        dialog = AboutDetailsDialog(self)
+        dialog.exec()
 
     def _get_requirements(self):
         """Parse requirements.txt and return list of (package, version) tuples"""

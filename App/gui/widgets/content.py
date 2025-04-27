@@ -7,7 +7,7 @@ class ContentWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setContentsMargins(5, 5, 5, 5)
         self.layout.setSpacing(0)
         
         # Add header (keep at edge)
@@ -16,7 +16,7 @@ class ContentWidget(QWidget):
         
         # Create stacked widget with padding
         self.stack = QStackedWidget()
-        self.stack.setContentsMargins(5, 5, 5, 5)  # Add 5px padding to content area
+        self.stack.setContentsMargins(5, 5, 5, 5)
         self.layout.addWidget(self.stack)
         
         # Add placeholder pages

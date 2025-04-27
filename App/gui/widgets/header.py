@@ -63,13 +63,16 @@ class WhatsAppFrame(HeaderFrame):
         layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(2)
         
-        # Group name without icon
-        group_name = QLabel("Sharing Group")
+        app = QApplication.instance()
+        tr = app.BASE_DIR.get_translation
+        
+        # Group name with translation
+        group_name = QLabel(tr('header', 'whatsapp', 'title'))
         group_name.setStyleSheet("font-weight: 600; font-size: 14px; background: transparent; color: rgba(127, 127, 127, 1);")
         group_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        # Join button with icon
-        join_button = QPushButton(" Join Chat")
+        # Join button with translation
+        join_button = QPushButton(f" {tr('header', 'whatsapp', 'join')}")
         join_button.setIcon(qta.icon('fa5b.whatsapp', color='#FFFFFF'))
         join_button.setStyleSheet("""
             QPushButton {
@@ -184,13 +187,16 @@ class DonateFrame(HeaderFrame):
         layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(2)
         
-        # Title label
-        title = QLabel("Support")
+        app = QApplication.instance()
+        tr = app.BASE_DIR.get_translation
+        
+        # Title label with translation
+        title = QLabel(tr('header', 'donate', 'title'))
         title.setStyleSheet("font-weight: 600; font-size: 14px; background: transparent; color: rgba(127, 127, 127, 1);")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        # Donate button
-        donate_button = QPushButton(" Donate")
+        # Donate button with translation 
+        donate_button = QPushButton(f" {tr('header', 'donate', 'button')}")
         donate_button.setIcon(qta.icon('fa5s.heart', color='#FF335F'))
         donate_button.setStyleSheet("""
             QPushButton {

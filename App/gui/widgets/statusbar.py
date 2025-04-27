@@ -1,7 +1,9 @@
-from PyQt6.QtWidgets import QStatusBar, QLabel, QHBoxLayout, QWidget
+from PyQt6.QtWidgets import (QStatusBar, QLabel, QHBoxLayout, QWidget, 
+                            QMessageBox, QApplication)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDesktopServices, QColor
 from PyQt6.QtCore import QUrl
+import json
 from ...utils.updater import UpdateChecker
 import qtawesome as qta
 from .dialogs.donate_dialog import DonateDialog
@@ -9,11 +11,13 @@ from .dialogs.donate_dialog import DonateDialog
 class StatusBar(QStatusBar):
     def __init__(self, config, parent=None):
         super().__init__(parent)
+        self.config = config
         
         # Add border and padding
         self.setStyleSheet("""
             QStatusBar {
-                border-top: 1px solid palette(dark);
+                border-top: 1px solid rgba(0, 0, 0, 0.08);
+                background-color: rgba(0, 0, 0, 0.05);
                 padding: 3px 10px;
             }
             QStatusBar QLabel {
@@ -115,6 +119,21 @@ class StatusBar(QStatusBar):
         
         heart_layout.addWidget(self.heart_icon)
         
+        # Create language toggle container
+        self.lang_container = QWidget()
+        lang_layout = QHBoxLayout(self.lang_container)
+        lang_layout.setContentsMargins(0, 0, 0, 0)
+        lang_layout.setSpacing(2)
+        
+        # Using emoji flags with proper font
+        self.lang_label = QLabel()
+        self.lang_label.setStyleSheet("QLabel { font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'Segoe UI Symbol'; font-size: 14px; }")
+        self.lang_label.setText("🇺🇸" if config['application']['language'] == 'en' else "🇮🇩")
+        self.lang_container.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.lang_container.mousePressEvent = self.toggle_language
+        
+        lang_layout.addWidget(self.lang_label)
+        
         # Add permanent widgets to right side
         self.addPermanentWidget(python_version)
         self.addPermanentWidget(self.update_container)
@@ -124,6 +143,7 @@ class StatusBar(QStatusBar):
         self.addPermanentWidget(self.coffee_container)
         self.addPermanentWidget(self.heart_container)
         self.addPermanentWidget(self.wa_container)
+        self.addPermanentWidget(self.lang_container)
         
         # Start update checker
         self.checker = UpdateChecker(config['application']['version'])
@@ -157,3 +177,36 @@ class StatusBar(QStatusBar):
     def show_donate(self, event):
         dialog = DonateDialog(self)
         dialog.exec()
+    
+    def toggle_language(self, event):
+        current_lang = self.config['application']['language']
+        new_lang = 'id' if current_lang == 'en' else 'en'
+        
+        # Show restart dialog
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Icon.Question)
+        msg.setWindowTitle("Restart Required")
+        msg.setText("The application needs to restart to apply language changes.")
+        msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        
+        if msg.exec() == QMessageBox.StandardButton.Yes:
+            # Save new language setting
+            self.config['application']['language'] = new_lang
+            with open('App/config/config.json', 'w', encoding='utf-8') as f:
+                json.dump(self.config, f, indent=4)
+            
+            # Get current program path and arguments
+            import sys
+            import subprocess
+            import platform
+            
+            if platform.system() == "Windows":
+                subprocess.Popen(["Launcher.bat"])
+            else:
+                subprocess.Popen(["./Launcher.sh"])
+            
+            # Exit current instance
+            QApplication.instance().quit()
+        
+        # Update display even if restart was cancelled
+        self.lang_label.setText("🇺🇸" if new_lang == 'en' else "🇮🇩")

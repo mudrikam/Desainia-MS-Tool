@@ -33,8 +33,8 @@ class SideBar(QFrame):
         palette = QApplication.palette()
         self.setStyleSheet(f"""
             QFrame#SideBar {{
-                background: {palette.base().color().name()};
-                border-right: 1px solid {palette.dark().color().name()};
+                border-right: 1px solid rgba(0, 0, 0, 0.08);
+                background-color: rgba(0, 0, 0, 0.05);
             }}
             QPushButton {{
                 padding: 8px;
@@ -44,10 +44,10 @@ class SideBar(QFrame):
                 background: transparent;
             }}
             QPushButton[active="true"] {{
-                background: {palette.alternateBase().color().name()};
+                background-color: rgba(0, 0, 0, 0.1);
             }}
             QPushButton:hover {{
-                background: {palette.alternateBase().color().name()};
+                background-color: rgba(0, 0, 0, 0.1);
             }}
         """)
         

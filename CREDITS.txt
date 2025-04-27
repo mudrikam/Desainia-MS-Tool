@@ -10,6 +10,9 @@ Development Assistance
 
 Special Thanks
 -------------------------------------------------------
+- Allah SWT - For guidance, blessings and wisdom.
+- Prophet Muhammad SAW - For being the perfect example 
+  and guidance to mankind.
 - Family & Friends - For endless support and 
   encouragement.  
 - PyQt Team - For the amazing GUI framework.  

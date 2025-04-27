@@ -2,6 +2,8 @@
     "application": {
         "name": "Desainia MS Tool",
         "version": "1.0.18",
+        "language": "id",
+        "author": "Desainia",
         "description": "A powerful tool for managing and uploading content to multiple microstock platforms"
     },
     "runtime": {

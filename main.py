@@ -60,10 +60,33 @@ from App.gui.window import MainWindow
 class PathHelper:
     def __init__(self, base_dir):
         self.base_dir = base_dir
+        self._load_config()
+        self._load_translations()
     
     def get_path(self, *paths):
         """Get absolute path relative to project root"""
         return os.path.join(self.base_dir, *paths)
+    
+    def _load_config(self):
+        """Load main configuration"""
+        import json
+        config_path = self.get_path('App', 'config', 'config.json')
+        with open(config_path, 'r', encoding='utf-8') as f:
+            self.config = json.load(f)
+            
+    def _load_translations(self):
+        """Load language translations"""
+        import json
+        translation_path = self.get_path('App', 'config', 'translation.json')
+        with open(translation_path, 'r', encoding='utf-8') as f:
+            self.translations = json.load(f)
+            
+    def get_translation(self, *keys):
+        """Get translated text for current language"""
+        current = self.translations.get(self.config['application']['language'], {})
+        for key in keys:
+            current = current.get(key, key)
+        return current
 
 # Initialize path helper
 BASE_DIR = PathHelper(project_root)

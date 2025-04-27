@@ -6,7 +6,10 @@ import qtawesome as qta
 class DonateDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Support Desainia MS Tool")
+        self.app = QApplication.instance()
+        self.tr = self.app.BASE_DIR.get_translation
+        
+        self.setWindowTitle(self.tr('dialog', 'donate', 'title'))
         self.setMinimumWidth(400)
         
         layout = QVBoxLayout(self)
@@ -20,18 +23,13 @@ class DonateDialog(QDialog):
         icon_label = QLabel()
         icon_label.setPixmap(qta.icon('fa5s.heart', color='#FF335F').pixmap(32, 32))
         icon_label.setStyleSheet("background: transparent;")
-        title = QLabel("Support the Development")
+        title = QLabel(self.tr('dialog', 'donate', 'header'))
         title.setStyleSheet("font-size: 24px; font-weight: bold; background: transparent;")
         title_layout.addWidget(icon_label)
         title_layout.addWidget(title)
         
         # Support message
-        message = QLabel(
-            "\"When a person dies, their deeds come to an end except for three: "
-            "Sadaqah Jariyah (continuing charity), beneficial knowledge, "
-            "or a righteous child who prays for them.\" - (Sahih Muslim)\n\n"
-            "Support this tool as a form of Sadaqah Jariyah."
-        )
+        message = QLabel(self.tr('dialog', 'donate', 'message'))
         message.setAlignment(Qt.AlignmentFlag.AlignCenter)
         message.setStyleSheet("color: gray; padding: 10px; background: transparent;")
         message.setWordWrap(True)
@@ -43,8 +41,7 @@ class DonateDialog(QDialog):
         
         # QRIS image
         qris_label = QLabel()
-        app = QApplication.instance()
-        qris_path = app.BASE_DIR.get_path('App', 'resources', 'proprietary', 'img', 'qris.jpeg')
+        qris_path = self.app.BASE_DIR.get_path('App', 'resources', 'proprietary', 'img', 'qris.jpeg')
         pixmap = QPixmap(qris_path)
         if not pixmap.isNull():
             if pixmap.width() > 400:
@@ -55,7 +52,7 @@ class DonateDialog(QDialog):
         qris_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         # QRIS instructions
-        instructions = QLabel("Scan QRIS code using your mobile banking or e-wallet app")
+        instructions = QLabel(self.tr('dialog', 'donate', 'qris_instruction'))
         instructions.setWordWrap(True)
         instructions.setAlignment(Qt.AlignmentFlag.AlignCenter)
         instructions.setStyleSheet("color: gray;")

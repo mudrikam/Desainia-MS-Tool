@@ -8,7 +8,9 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Downloads](https://img.shields.io/github/downloads/mudrikam/Desainia-MS-Tool/total)](https://github.com/mudrikam/Desainia-MS-Tool/releases)
 [![Last Commit](https://img.shields.io/github/last-commit/mudrikam/Desainia-MS-Tool)](https://github.com/mudrikam/Desainia-MS-Tool/commits/main)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue)](#)
 [![Stars](https://img.shields.io/github/stars/mudrikam/Desainia-MS-Tool)](https://github.com/mudrikam/Desainia-MS-Tool/stargazers)
+
 
 > A powerful tool for managing and uploading content to multiple microstock platforms
 

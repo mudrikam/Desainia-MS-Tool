@@ -1,0 +1,114 @@
+{
+    "en": {
+        "menu": {
+            "file": {
+                "title": "File",
+                "new": "New",
+                "open": "Open",
+                "save": "Save",
+                "exit": "Exit"
+            },
+            "edit": {
+                "title": "Edit",
+                "undo": "Undo",
+                "redo": "Redo",
+                "cut": "Cut",
+                "copy": "Copy",
+                "paste": "Paste",
+                "preferences": "Preferences"
+            },
+            "view": {
+                "title": "View",
+                "zoom_in": "Zoom In",
+                "zoom_out": "Zoom Out",
+                "reset_zoom": "Reset Zoom"
+            },
+            "help": {
+                "title": "Help",
+                "documentation": "Documentation",
+                "join_group": "Join Our Group",
+                "report_bug": "Found a Bug?",
+                "donate": "Donate",
+                "license": "View License",
+                "about": "About"
+            }
+        },
+        "header": {
+            "app_info": {
+                "support": "Support"
+            },
+            "whatsapp": {
+                "title": "Sharing Group",
+                "join": "Join Chat"
+            },
+            "donate": {
+                "title": "Support",
+                "button": "Donate"
+            }
+        },
+        "dialog": {
+            "donate": {
+                "title": "Support Desainia MS Tool",
+                "header": "Support the Development",
+                "message": "\"When a person dies, their deeds come to an end except for three: Sadaqah Jariyah (continuing charity), beneficial knowledge, or a righteous child who prays for them.\" - (Sahih Muslim)\n\nSupport this tool as a form of Sadaqah Jariyah.",
+                "qris_instruction": "Scan QRIS code using your mobile banking or e-wallet app"
+            }
+        }
+    },
+    "id": {
+        "menu": {
+            "file": {
+                "title": "Berkas",
+                "new": "Baru",
+                "open": "Buka",
+                "save": "Simpan",
+                "exit": "Keluar"
+            },
+            "edit": {
+                "title": "Sunting",
+                "undo": "Batalkan",
+                "redo": "Ulangi",
+                "cut": "Potong",
+                "copy": "Salin",
+                "paste": "Tempel",
+                "preferences": "Pengaturan"
+            },
+            "view": {
+                "title": "Tampilan",
+                "zoom_in": "Perbesar",
+                "zoom_out": "Perkecil", 
+                "reset_zoom": "Atur Ulang Zoom"
+            },
+            "help": {
+                "title": "Bantuan",
+                "documentation": "Dokumentasi",
+                "join_group": "Gabung Grup",
+                "report_bug": "Laporkan Bug",
+                "donate": "Donasi",
+                "license": "Lihat Lisensi",
+                "about": "Tentang"
+            }
+        },
+        "header": {
+            "app_info": {
+                "support": "Dukungan"
+            },
+            "whatsapp": {
+                "title": "Grup Berbagi",
+                "join": "Gabung Chat"
+            },
+            "donate": {
+                "title": "Dukungan",
+                "button": "Donasi"
+            }
+        },
+        "dialog": {
+            "donate": {
+                "title": "Dukung Desainia MS Tool",
+                "header": "Dukung Pengembangan",
+                "message": "\"Jika seorang manusia meninggal, terputuslah semua amalannya kecuali tiga perkara: sedekah jariyah, ilmu yang bermanfaat, dan anak shalih yang mendoakannya.\" - (Sahih Muslim)\n\nDukung alat ini sebagai bentuk Sedekah Jariyah.",
+                "qris_instruction": "Pindai kode QRIS menggunakan aplikasi perbankan atau dompet elektronik Anda"
+            }
+        }
+    }
+}
