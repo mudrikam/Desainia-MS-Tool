@@ -49,12 +49,37 @@ class UpdateChecker(QThread):
             raise
 
     def _show_dialog(self, current_version, new_version, release_notes):
-        dialog = UpdateDialog(current_version, new_version, release_notes)
+        if QApplication.instance().activeWindow():
+            dialog = UpdateDialog(current_version, new_version, release_notes, QApplication.instance().activeWindow())
+        else:
+            dialog = UpdateDialog(current_version, new_version, release_notes)
         dialog.update_btn.clicked.connect(lambda: self._perform_update(dialog, new_version))
         dialog.show()
 
     def run(self):
         try:
+            # Get commit hash for current version first
+            tag_commit_url = f"{self.config['repository']['github']['api_base']}/git/refs/tags/v{self.current_version}"
+            commit_response = requests.get(tag_commit_url, headers=self.headers, timeout=5)
+            if commit_response.status_code == 401:
+                self.headers.pop('Authorization', None)
+                commit_response = requests.get(tag_commit_url, headers=self.headers, timeout=5)
+                
+            if commit_response.status_code == 200:
+                commit_data = commit_response.json()
+                current_commit_hash = commit_data['object']['sha'][:7]
+                
+                # Update config with current version's commit hash
+                if 'git' not in self.config:
+                    self.config['git'] = {}
+                self.config['git'].update({
+                    'commit_hash': current_commit_hash,
+                    'tag': f"v{self.current_version}"
+                })
+                with open(self.config_path, 'w') as f:
+                    json.dump(self.config, f, indent=4)
+
+            # Then check for updates
             response = requests.get(self.api_url, headers=self.headers, timeout=5)
             
             if response.status_code != 200:
@@ -73,6 +98,18 @@ class UpdateChecker(QThread):
                     return
                     
                 self.latest_version = latest['tag_name'].replace('v', '').strip()
+                
+                # Check if this version should be skipped - from user preferences
+                prefs_path = self.app.BASE_DIR.get_path('UserData', 'user_preferences.json')
+                with open(prefs_path, 'r') as f:
+                    user_prefs = json.load(f)
+                
+                skip_update = user_prefs.get('update', {}).get('skip_update', False)
+                skip_version = user_prefs.get('update', {}).get('skip_version')
+                
+                if skip_update and skip_version == self.latest_version:
+                    return
+                    
                 self.release_notes = latest.get('body', 'No release notes available.')
                 
                 # Update config
@@ -88,32 +125,6 @@ class UpdateChecker(QThread):
                         self.show_update_dialog.emit(self.current_version, self.latest_version, self.release_notes)
                 except Exception as ve:
                     print(f"Version comparison error: {str(ve)}")
-
-            # Get commit hash with retry without token if needed
-            tag_commit_url = f"{self.api_url}/git/refs/tags/v{self.current_version}"
-            commit_response = requests.get(tag_commit_url, headers=self.headers, timeout=5)
-            if commit_response.status_code == 401:
-                self.headers.pop('Authorization', None)
-                commit_response = requests.get(tag_commit_url, headers=self.headers, timeout=5)
-                
-            if commit_response.status_code == 200:
-                commit_data = commit_response.json()
-                self.commit_hash = commit_data['object']['sha'][:7]
-                
-                # Update config with commit hash
-                try:
-                    config_path = self.app.BASE_DIR.get_path('App', 'config', 'config.json')
-                    with open(config_path, 'r+') as f:
-                        config = json.load(f)
-                        if 'git' not in config:
-                            config['git'] = {}
-                        config['git']['commit_hash'] = self.commit_hash
-                        config['git']['tag'] = f"v{self.current_version}"
-                        f.seek(0)
-                        json.dump(config, f, indent=4)
-                        f.truncate()
-                except Exception as e:
-                    print(f"Error updating config with commit hash: {str(e)}")
                     
         except Exception as e:
             print(f"Update check error: {str(e)}")

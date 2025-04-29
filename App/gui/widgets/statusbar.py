@@ -12,16 +12,17 @@ class StatusBar(QStatusBar):
     def __init__(self, config, parent=None):
         super().__init__(parent)
         self.config = config
+        self.tr = QApplication.instance().BASE_DIR.get_translation
         
         # Add border and padding
         self.setStyleSheet("""
             QStatusBar {
                 border-top: 1px solid rgba(0, 0, 0, 0.08);
                 background-color: rgba(0, 0, 0, 0.05);
-                padding: 3px 10px;
+                padding: 2px 5px;
             }
             QStatusBar QLabel {
-                margin: 2px 3px;
+                margin: 0px 2px;
             }
         """)
         
@@ -171,7 +172,7 @@ class StatusBar(QStatusBar):
             # Changed icon to arrow-up from fa6s
             bell_icon = qta.icon('fa6s.bell', color='#0095FF').pixmap(12, 12)
             self.update_icon.setPixmap(bell_icon)
-            self.update_text.setText(f"Update to v{new_version}")
+            self.update_text.setText(self.tr('statusbar', 'update').format(version=new_version))
             self.update_container.setVisible(True)
             self.update_container.repaint()
             

@@ -88,15 +88,22 @@ export PYTHONPATH="${BASE_DIR}/${INSTALL_DIR}/python/lib:${BASE_DIR}/${INSTALL_D
 # Install requirements
 if [ -f "${BASE_DIR}/requirements.txt" ]; then
     echo "Installing additional components..."
-    "${BASE_DIR}/Python/${OS_DIR}/python/bin/python3.12" -m pip install --no-warn-script-location -r "${BASE_DIR}/requirements.txt" >/dev/null 2>&1
+    echo "This may take a few minutes, please wait..."
+    "${BASE_DIR}/Python/${OS_DIR}/python/bin/python3.12" -m pip install --no-cache-dir -r "${BASE_DIR}/requirements.txt"
     if [ $? -eq 0 ]; then
+        echo
         echo "Installation completed successfully!"
     else
-        echo "Installation failed. Please check your internet connection."
+        echo
+        echo "Installation failed. Please try:"
+        echo "1. Check your internet connection"
+        echo "2. Run Install.sh with sudo"
+        echo "3. If still failing, try running manually:"
+        echo "   ${BASE_DIR}/Python/${OS_DIR}/python/bin/python3.12 -m pip install --no-cache-dir -r requirements.txt"
         exit 1
     fi
 else
-    echo "Installation failed. Missing required files."
+    echo "Installation failed. Missing requirements.txt file."
     exit 1
 fi
 

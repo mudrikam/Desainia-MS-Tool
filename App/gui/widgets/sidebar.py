@@ -19,10 +19,9 @@ class SideBar(QFrame):
         super().__init__(parent)
         
         # Load config
-        app = QApplication.instance()
-        config_path = app.BASE_DIR.get_path('App', 'config', 'config.json')
-        with open(config_path) as f:
-            self.config = json.load(f)
+        self.app = QApplication.instance()
+        self.tr = self.app.BASE_DIR.get_translation  # Translation helper
+        self.config = self.app.BASE_DIR.config
         
         self.setObjectName("SideBar")
         self.active_button = None  # Track active button
@@ -82,23 +81,23 @@ class SideBar(QFrame):
         self.content_layout.addWidget(self.bottom_section)
         
         # Add top icons
-        self.home_btn = self.addItem("fa6s.house", "Home", top_layout)
+        self.home_btn = self.addItem("fa6s.house", self.tr('sidebar', 'home'), top_layout)
         self.home_btn.clicked.connect(self._on_home_clicked)
         
-        self.github_btn = self.addItem("fa6b.github", "Visit GitHub", top_layout)
+        self.github_btn = self.addItem("fa6b.github", self.tr('sidebar', 'github'), top_layout)
         self.github_btn.clicked.connect(self._on_github_clicked)
         
-        self.bug_btn = self.addItem("fa6s.bug", "Report Bug", top_layout)
+        self.bug_btn = self.addItem("fa6s.bug", self.tr('sidebar', 'report_bug'), top_layout)
         self.bug_btn.clicked.connect(self._on_bug_clicked)
         
-        self.files_btn = self.addItem("fa6s.folder", "Open App Folder", top_layout)
+        self.files_btn = self.addItem("fa6s.folder", self.tr('sidebar', 'open_folder'), top_layout)
         self.files_btn.clicked.connect(self._on_files_clicked)
         
         # Add settings and about to bottom
-        self.about_btn = self.addItem("fa6s.circle-info", "About", bottom_layout)
+        self.about_btn = self.addItem("fa6s.circle-info", self.tr('sidebar', 'about'), bottom_layout)
         self.about_btn.clicked.connect(self._on_about_clicked)
         
-        self.settings_btn = self.addItem("fa6s.gear", "Settings", bottom_layout)
+        self.settings_btn = self.addItem("fa6s.gear", self.tr('sidebar', 'settings'), bottom_layout)
         self.settings_btn.clicked.connect(self._on_settings_clicked)
         
         # Set home as default active

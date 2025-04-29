@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QPushButton, 
                             QProgressBar, QWidget, QHBoxLayout, QTextEdit, QApplication)
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt, QTimer, QRectF, QPoint
+from PyQt6.QtGui import QPixmap, QPainterPath, QRegion
 import qtawesome as qta
 import random
 import json
@@ -9,10 +10,20 @@ import os
 class UpdateDialog(QDialog):
     def __init__(self, current_version, new_version, release_notes, parent=None):
         super().__init__(parent)
-        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)  # Disable close button
         self.app = QApplication.instance()
         self.tr = self.app.BASE_DIR.get_translation
-        self.setContentsMargins(20, 20, 20, 20)
+        self.new_version = new_version  # Store new version
+        
+        # Basic window setup
+        self.setWindowTitle(self.tr('dialog', 'update', 'title'))
+        self.setMinimumWidth(500)
+
+        # Window styling - remove custom border styling
+        self.setStyleSheet("""
+            QDialog {
+                background-color: palette(window);
+            }
+        """)
         
         # Load release messages based on language
         config_path = self.app.BASE_DIR.get_path('App', 'config', 'config.json')
@@ -30,24 +41,45 @@ class UpdateDialog(QDialog):
             with open(fallback_path, 'r', encoding='utf-8') as f:
                 self.messages = json.load(f)
         
-        self.setWindowTitle(random.choice(self.messages['release_titles']))
-        self.setMinimumWidth(500)
-        
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)  # Remove layout margins
+        layout.setSpacing(0)  # Remove spacing between elements
         
-        # Icon and title
+        # Add header image
+        header_img = QLabel()
+        header_img.setPixmap(QPixmap(self.app.BASE_DIR.get_path('App', 'resources', 'public', 'header', 'update_header.png')))
+        header_img.setScaledContents(True)
+        header_img.setFixedHeight(120)  # Adjust height as needed
+        layout.addWidget(header_img)
+        
+        # Content container with padding
+        content = QWidget()
+        content.setStyleSheet("""
+            QWidget {
+                background-color: palette(window);
+            }
+        """)
+        content_layout = QVBoxLayout(content)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        
+        # Release title 
+        release_title = QLabel(random.choice(self.messages['release_titles']))
+        release_title.setStyleSheet("font-size: 18px; font-weight: 600; padding: 5px 0; background: transparent;")
+        release_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        content_layout.addWidget(release_title)
+        
+        # Title section
         header = QWidget()
         header_layout = QHBoxLayout(header)
-        icon_label = QLabel()
-        icon_label.setPixmap(qta.icon('fa6s.arrow-rotate-right', color='#0366d6').pixmap(32, 32))
+        header_layout.setContentsMargins(0, 0, 0, 0)  # Remove padding
         
         # Title formatting dengan emoji tetap terjaga
         greeting = random.choice(self.messages['greetings'])
         version_msg = random.choice(self.messages['version_messages']).format(version=new_version)
         title = QLabel(f"{greeting}\n{version_msg}")
-        title.setStyleSheet("font-size: 16px; font-weight: bold;")
+        title.setStyleSheet("font-size: 14px; font-weight: 600;")
+        title.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Align left like info text
         
-        header_layout.addWidget(icon_label)
         header_layout.addWidget(title)
         header_layout.addStretch()
         
@@ -63,8 +95,15 @@ class UpdateDialog(QDialog):
         notes_label.setStyleSheet("font-weight: bold; margin-top: 10px;")
         self.notes = QTextEdit()
         self.notes.setReadOnly(True)
-        self.notes.setMinimumHeight(150)
-        self.notes.setMaximumHeight(300)
+        self.notes.setMinimumHeight(100)  # Reduced from 150
+        self.notes.setMaximumHeight(100)  # Reduced from 300
+        self.notes.setStyleSheet("""
+            QTextEdit {
+                border: 1px solid palette(mid);
+                border-radius: 4px;
+                padding: 4px;
+            }
+        """)
         if release_notes and release_notes.strip():
             self.notes.setPlainText(release_notes.strip())
         else:
@@ -139,19 +178,45 @@ class UpdateDialog(QDialog):
         button_layout.addStretch()
         button_layout.addWidget(self.update_btn)
         
-        # Add widgets to layout
-        layout.addWidget(header)
-        layout.addWidget(info)
-        layout.addWidget(notes_label)
-        layout.addWidget(self.notes)
-        layout.addWidget(self.timer_label)  # Add timer label
-        layout.addWidget(self.status_label)
-        layout.addWidget(self.progress)
-        layout.addWidget(buttons)
+        # Move existing widgets into content layout
+        content_layout.addWidget(header)
+        content_layout.addWidget(info)
+        content_layout.addWidget(notes_label)
+        content_layout.addWidget(self.notes)
+        content_layout.addWidget(self.timer_label)
+        content_layout.addWidget(self.status_label)
+        content_layout.addWidget(self.progress)
+        content_layout.addWidget(buttons)
+        
+        # Add content container to main layout
+        layout.addWidget(content)
         
         # Connect buttons
-        self.cancel_btn.clicked.connect(self.reject)
+        self.cancel_btn.clicked.connect(self._on_cancel)
         self.cancel_btn.setEnabled(False)  # Initially disabled
+
+        # Center dialog on screen
+        self.centerDialog()
+
+    def centerDialog(self):
+        # Get the geometry of the parent window or screen if no parent
+        if self.parent():
+            parent_geo = self.parent().geometry()
+            center = parent_geo.center()
+        else:
+            screen = QApplication.primaryScreen().geometry()
+            center = screen.center()
+            
+        # Calculate position to center the dialog
+        dialog_geo = self.geometry()
+        new_pos = QPoint(center.x() - dialog_geo.width()//2,
+                        center.y() - dialog_geo.height()//2)
+        self.move(new_pos)
+
+    def showEvent(self, event):
+        """Ensure dialog is centered when shown"""
+        self.centerDialog()
+        super().showEvent(event)
 
     def _update_countdown(self):
         if self.countdown > 0:
@@ -162,6 +227,25 @@ class UpdateDialog(QDialog):
             self.timer_label.setText(self.tr('dialog', 'update', 'countdown_done'))
             self.timer_label.setStyleSheet(f"color: {self.tr('dialog', 'update', 'countdown_done_color')}; font-weight: 600;")
             self.cancel_btn.setEnabled(True)
+
+    def _on_cancel(self):
+        """Set skip_update flag in user preferences to skip this version"""
+        prefs_path = self.app.BASE_DIR.get_path('UserData', 'user_preferences.json')
+        with open(prefs_path, 'r') as f:
+            prefs = json.load(f)
+        
+        if 'update' not in prefs:
+            prefs['update'] = {}
+        
+        prefs['update'].update({
+            'skip_version': self.new_version,
+            'skip_update': True
+        })
+        
+        with open(prefs_path, 'w') as f:
+            json.dump(prefs, f, indent=4)
+            
+        self.reject()
 
     def closeEvent(self, event):
         # Prevent closing while timer is running

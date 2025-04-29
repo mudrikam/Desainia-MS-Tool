@@ -99,6 +99,17 @@
                 "image_processing": "Image Processing",
                 "video_processing": "Video Processing"
             }
+        },
+        "statusbar": {
+            "update": "Update to v{version}"
+        },
+        "sidebar": {
+            "home": "Home",
+            "github": "Visit GitHub",
+            "report_bug": "Report Bug",
+            "open_folder": "Open App Folder",
+            "about": "About",
+            "settings": "Settings"
         }
     },
     "id": {
@@ -201,6 +212,17 @@
                 "image_processing": "Pengolahan Gambar",
                 "video_processing": "Pengolahan Video"
             }
+        },
+        "statusbar": {
+            "update": "Perbarui ke v{version}"
+        },
+        "sidebar": {
+            "home": "Beranda",
+            "github": "Kunjungi GitHub",
+            "report_bug": "Laporkan Bug",
+            "open_folder": "Buka Folder Aplikasi",
+            "about": "Tentang",
+            "settings": "Pengaturan"
         }
     }
 }

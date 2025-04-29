@@ -1,7 +1,7 @@
 {
     "application": {
         "name": "Desainia Rak Arsip",
-        "version": "1.0.19",
+        "version": "1.0.16",
         "language": "en",
         "author": "Desainia",
         "description": "A powerful tool for managing and uploading content to multiple microstock platforms"
@@ -20,8 +20,8 @@
         "qt_version": "6.6.1"
     },
     "git": {
-        "commit_hash": "b1db01a",
-        "tag": "v1.0.12",
+        "commit_hash": "8d47a5e",
+        "tag": "v1.0.16",
         "last_github_version": "1.0.19"
     },
     "window": {
