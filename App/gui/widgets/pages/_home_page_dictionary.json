@@ -1,0 +1,188 @@
+{
+    "file_management": {
+        "folder_creator": {
+            "id": "tool_folder_creator",
+            "title": "Folder Creator",
+            "description": "Create folders with custom structure",
+            "color": "rgba(52, 152, 219, 0.8)",
+            "function": "_tool_folder_creator",
+            "icon": "tool_folder_creator.png",
+            "enabled": true
+        },
+        "file_renamer": {
+            "id": "tool_file_renamer",
+            "title": "File Renamer",
+            "description": "Batch rename files easily",
+            "color": "rgba(46, 204, 113, 0.8)",
+            "function": "_tool_file_renamer",
+            "icon": "tool_file_renamer.png",
+            "enabled": true
+        },
+        "file_converter": {
+            "id": "tool_file_converter",
+            "title": "File Converter",
+            "description": "Convert between formats",
+            "color": "rgba(155, 89, 182, 0.8)",
+            "function": "_tool_file_converter",
+            "icon": "tool_file_converter.png",
+            "enabled": true
+        },
+        "file_organizer": {
+            "id": "tool_file_organizer",
+            "title": "File Organizer",
+            "description": "Sort files automatically",
+            "color": "rgba(241, 196, 15, 0.8)",
+            "function": "_tool_file_organizer",
+            "icon": "tool_file_organizer.png",
+            "enabled": true
+        }
+    },
+    "image_processing": {
+        "image_converter": {
+            "id": "tool_image_converter",
+            "title": "Image Converter",
+            "description": "Convert between image formats",
+            "color": "rgba(231, 76, 60, 0.8)",
+            "function": "_tool_image_converter",
+            "icon": "tool_image_converter.png",
+            "enabled": true
+        },
+        "image_resizer": {
+            "id": "tool_image_resizer",
+            "title": "Image Resizer",
+            "description": "Resize and compress images",
+            "color": "rgba(142, 68, 173, 0.8)",
+            "function": "_tool_image_resizer",
+            "icon": "tool_image_resizer.png",
+            "enabled": true
+        },
+        "image_filter": {
+            "id": "tool_image_filter",
+            "title": "Image Filter",
+            "description": "Apply filters and effects",
+            "color": "rgba(230, 126, 34, 0.8)",
+            "function": "_tool_image_filter",
+            "icon": "tool_image_filter.png",
+            "enabled": true
+        },
+        "batch_process": {
+            "id": "tool_batch_process",
+            "title": "Batch Process",
+            "description": "Process multiple images",
+            "color": "rgba(41, 128, 185, 0.8)",
+            "function": "_tool_batch_process",
+            "icon": "tool_batch_process.png",
+            "enabled": true
+        },
+        "image_watermark": {
+            "id": "tool_image_watermark",
+            "title": "Image Watermark",
+            "description": "Add text or image watermarks",
+            "color": "rgba(39, 174, 96, 0.8)",
+            "function": "_tool_image_watermark",
+            "icon": "tool_image_watermark.png",
+            "enabled": true
+        },
+        "image_optimizer": {
+            "id": "tool_image_optimizer",
+            "title": "Image Optimizer",
+            "description": "Optimize images for web",
+            "color": "rgba(211, 84, 0, 0.8)",
+            "function": "_tool_image_optimizer",
+            "icon": "tool_image_optimizer.png",
+            "enabled": true
+        },
+        "image_cropper": {
+            "id": "tool_image_cropper",
+            "title": "Image Cropper",
+            "description": "Crop and adjust images",
+            "color": "rgba(22, 160, 133, 0.8)",
+            "function": "_tool_image_cropper",
+            "icon": "tool_image_cropper.png",
+            "enabled": true
+        },
+        "metadata_editor": {
+            "id": "tool_metadata_editor",
+            "title": "Metadata Editor",
+            "description": "Edit image metadata",
+            "color": "rgba(155, 89, 182, 0.8)",
+            "function": "_tool_metadata_editor",
+            "icon": "tool_metadata_editor.png",
+            "enabled": true
+        }
+    },
+    "video_processing": {
+        "video_converter": {
+            "id": "tool_video_converter",
+            "title": "Video Converter",
+            "description": "Convert video formats",
+            "color": "rgba(52, 73, 94, 0.8)",
+            "function": "_tool_video_converter",
+            "icon": "tool_video_converter.png",
+            "enabled": true
+        },
+        "video_compressor": {
+            "id": "tool_video_compressor",
+            "title": "Video Compressor",
+            "description": "Compress video files",
+            "color": "rgba(192, 57, 43, 0.8)",
+            "function": "_tool_video_compressor",
+            "icon": "tool_video_compressor.png",
+            "enabled": true
+        },
+        "video_trimmer": {
+            "id": "tool_video_trimmer",
+            "title": "Video Trimmer",
+            "description": "Cut and trim videos",
+            "color": "rgba(22, 160, 133, 0.8)",
+            "function": "_tool_video_trimmer",
+            "icon": "tool_video_trimmer.png",
+            "enabled": true
+        },
+        "video_merger": {
+            "id": "tool_video_merger",
+            "title": "Video Merger",
+            "description": "Combine multiple videos",
+            "color": "rgba(243, 156, 18, 0.8)",
+            "function": "_tool_video_merger",
+            "icon": "tool_video_merger.png",
+            "enabled": true
+        },
+        "audio_extractor": {
+            "id": "tool_audio_extractor",
+            "title": "Audio Extractor",
+            "description": "Extract audio from video",
+            "color": "rgba(142, 68, 173, 0.8)",
+            "function": "_tool_audio_extractor",
+            "icon": "tool_audio_extractor.png",
+            "enabled": true
+        },
+        "video_resizer": {
+            "id": "tool_video_resizer",
+            "title": "Video Resizer",
+            "description": "Resize video resolution",
+            "color": "rgba(39, 174, 96, 0.8)",
+            "function": "_tool_video_resizer",
+            "icon": "tool_video_resizer.png",
+            "enabled": true
+        },
+        "frame_extractor": {
+            "id": "tool_frame_extractor",
+            "title": "Frame Extractor",
+            "description": "Extract frames from video",
+            "color": "rgba(211, 84, 0, 0.8)",
+            "function": "_tool_frame_extractor",
+            "icon": "tool_frame_extractor.png",
+            "enabled": true
+        },
+        "subtitle_editor": {
+            "id": "tool_subtitle_editor",
+            "title": "Subtitle Editor",
+            "description": "Add or edit subtitles",
+            "color": "rgba(41, 128, 185, 0.8)",
+            "function": "_tool_subtitle_editor",
+            "icon": "tool_subtitle_editor.png",
+            "enabled": true
+        }
+    }
+}

@@ -67,136 +67,6 @@ STYLES = {
     """
 }
 
-# Add tool definitions with IDs
-TOOLS = {
-    'file_management': {
-        'folder_creator': {
-            'id': 'tool_folder_creator',
-            'title': 'Folder Creator',
-            'description': 'Create folders with custom structure',
-            'color': "rgba(52, 152, 219, 0.8)"
-        },
-        'file_renamer': {
-            'id': 'tool_file_renamer',
-            'title': 'File Renamer',
-            'description': 'Batch rename files easily',
-            'color': "rgba(46, 204, 113, 0.8)"
-        },
-        'file_converter': {
-            'id': 'tool_file_converter',
-            'title': 'File Converter',
-            'description': 'Convert between formats',
-            'color': "rgba(155, 89, 182, 0.8)"
-        },
-        'file_organizer': {
-            'id': 'tool_file_organizer',
-            'title': 'File Organizer',
-            'description': 'Sort files automatically',
-            'color': "rgba(241, 196, 15, 0.8)"
-        }
-    },
-    'image_processing': {
-        'image_converter': {
-            'id': 'tool_image_converter',
-            'title': 'Image Converter',
-            'description': 'Convert between image formats',
-            'color': "rgba(231, 76, 60, 0.8)"
-        },
-        'image_resizer': {
-            'id': 'tool_image_resizer',
-            'title': 'Image Resizer',
-            'description': 'Resize and compress images',
-            'color': "rgba(142, 68, 173, 0.8)"
-        },
-        'image_filter': {
-            'id': 'tool_image_filter',
-            'title': 'Image Filter',
-            'description': 'Apply filters and effects',
-            'color': "rgba(230, 126, 34, 0.8)"
-        },
-        'batch_process': {
-            'id': 'tool_batch_process',
-            'title': 'Batch Process',
-            'description': 'Process multiple images',
-            'color': "rgba(41, 128, 185, 0.8)"
-        },
-        'image_watermark': {
-            'id': 'tool_image_watermark',
-            'title': 'Image Watermark',
-            'description': 'Add text or image watermarks',
-            'color': "rgba(39, 174, 96, 0.8)"
-        },
-        'image_optimizer': {
-            'id': 'tool_image_optimizer',
-            'title': 'Image Optimizer',
-            'description': 'Optimize images for web',
-            'color': "rgba(211, 84, 0, 0.8)"
-        },
-        'image_cropper': {
-            'id': 'tool_image_cropper',
-            'title': 'Image Cropper',
-            'description': 'Crop and adjust images',
-            'color': "rgba(22, 160, 133, 0.8)"
-        },
-        'metadata_editor': {
-            'id': 'tool_metadata_editor',
-            'title': 'Metadata Editor',
-            'description': 'Edit image metadata',
-            'color': "rgba(155, 89, 182, 0.8)"
-        }
-    },
-    'video_processing': {
-        'video_converter': {
-            'id': 'tool_video_converter',
-            'title': 'Video Converter',
-            'description': 'Convert video formats',
-            'color': "rgba(52, 73, 94, 0.8)"
-        },
-        'video_compressor': {
-            'id': 'tool_video_compressor',
-            'title': 'Video Compressor',
-            'description': 'Compress video files',
-            'color': "rgba(192, 57, 43, 0.8)"
-        },
-        'video_trimmer': {
-            'id': 'tool_video_trimmer',
-            'title': 'Video Trimmer',
-            'description': 'Cut and trim videos',
-            'color': "rgba(22, 160, 133, 0.8)"
-        },
-        'video_merger': {
-            'id': 'tool_video_merger',
-            'title': 'Video Merger',
-            'description': 'Combine multiple videos',
-            'color': "rgba(243, 156, 18, 0.8)"
-        },
-        'audio_extractor': {
-            'id': 'tool_audio_extractor',
-            'title': 'Audio Extractor',
-            'description': 'Extract audio from video',
-            'color': "rgba(142, 68, 173, 0.8)"
-        },
-        'video_resizer': {
-            'id': 'tool_video_resizer',
-            'title': 'Video Resizer',
-            'description': 'Resize video resolution',
-            'color': "rgba(39, 174, 96, 0.8)"
-        },
-        'frame_extractor': {
-            'id': 'tool_frame_extractor',
-            'title': 'Frame Extractor',
-            'description': 'Extract frames from video',
-            'color': "rgba(211, 84, 0, 0.8)"
-        },
-        'subtitle_editor': {
-            'id': 'tool_subtitle_editor',
-            'title': 'Subtitle Editor',
-            'description': 'Add or edit subtitles',
-            'color': "rgba(41, 128, 185, 0.8)"
-        }
-    }
-}
-
 class HomePage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -205,6 +75,12 @@ class HomePage(QWidget):
         self.app = QApplication.instance()
         self.tr = self.app.BASE_DIR.get_translation  # Translation helper
         self.user_prefs_path = os.path.join(self.app.BASE_DIR.get_path('UserData'), 'user_preferences.json')
+        
+        # Load tools dictionary from JSON file
+        tools_dict_path = self.app.BASE_DIR.get_path('App', 'gui', 'widgets', 'pages', '_home_page_dictionary.json')
+        with open(tools_dict_path, 'r') as f:
+            self.TOOLS = json.load(f)
+            
         self.load_preferences()
         
         # Ensure favorite_tools exists
@@ -237,72 +113,42 @@ class HomePage(QWidget):
         # Update favorites display
         self.refresh_favorites()
         
-        # File Management section with translation
-        title = QLabel(self.tr('page', 'home', 'file_management'))
-        title.setStyleSheet(STYLES['title'])
-        title.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        layout.addWidget(title)
+        # Dynamically render all tool categories
+        for category_key, category_tools in self.TOOLS.items():
+            # Check if there are any enabled tools in this category
+            has_enabled_tools = any(t.get('enabled', False) for t in category_tools.values())
+            if not has_enabled_tools:
+                continue
+                
+            # Add category title with translation
+            title = QLabel(self.tr('page', 'home', category_key))
+            title.setStyleSheet(STYLES['title'])
+            title.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            layout.addWidget(title)
+            
+            # Create grid layout for the category
+            grid_layout = QGridLayout()
+            grid_layout.setSpacing(10)
+            
+            # Add tools to grid
+            row = 0
+            col = 0
+            for tool_key, tool_data in category_tools.items():
+                # Skip disabled tools
+                if not tool_data.get('enabled', False):
+                    continue
+                    
+                col_widget = self.create_tool_widget(tool_data, grid_layout)
+                grid_layout.addWidget(col_widget, row, col)
+                grid_layout.setColumnStretch(col, 1)
+                
+                col += 1
+                if col == 4:  # 4 columns per row
+                    col = 0
+                    row += 1
+            
+            layout.addLayout(grid_layout)
         
-        # Add grid layout with 4 columns directly
-        grid_layout = QGridLayout()
-        grid_layout.setSpacing(10)
-        
-        # Add 4 labeled columns
-        for col, tool_key in enumerate(TOOLS['file_management']):
-            tool_data = TOOLS['file_management'][tool_key]
-            col_widget = self.create_tool_widget(tool_data, grid_layout)
-            grid_layout.addWidget(col_widget, 0, col)
-            grid_layout.setColumnStretch(col, 1)
-        
-        layout.addLayout(grid_layout)
-        
-        # Image Processing section with translation
-        image_title = QLabel(self.tr('page', 'home', 'image_processing'))
-        image_title.setStyleSheet(STYLES['title'])
-        image_title.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        layout.addWidget(image_title)
-        
-        # Add grid layout for image processing tools
-        image_grid = QGridLayout()
-        image_grid.setSpacing(10)
-        
-        row = 0
-        col = 0
-        for tool_key in TOOLS['image_processing']:
-            tool_data = TOOLS['image_processing'][tool_key]
-            col_widget = self.create_tool_widget(tool_data, image_grid)
-            image_grid.addWidget(col_widget, row, col)
-            image_grid.setColumnStretch(col, 1)
-            col += 1
-            if col == 4:
-                col = 0
-                row += 1
-        
-        layout.addLayout(image_grid)
-        
-        # Video Processing section with translation
-        video_title = QLabel(self.tr('page', 'home', 'video_processing'))
-        video_title.setStyleSheet(STYLES['title'])
-        video_title.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        layout.addWidget(video_title)
-        
-        # Add grid layout for video processing tools
-        video_grid = QGridLayout()
-        video_grid.setSpacing(10)
-        
-        row = 0
-        col = 0
-        for tool_key in TOOLS['video_processing']:
-            tool_data = TOOLS['video_processing'][tool_key]
-            col_widget = self.create_tool_widget(tool_data, video_grid)
-            video_grid.addWidget(col_widget, row, col)
-            video_grid.setColumnStretch(col, 1)
-            col += 1
-            if col == 4:
-                col = 0
-                row += 1
-        
-        layout.addLayout(video_grid)
         layout.addStretch()
         
         # Add extra space at bottom to ensure scrolling
@@ -369,10 +215,16 @@ class HomePage(QWidget):
         header_layout.addStretch()
         header_layout.addWidget(star_btn)
         
-        # Rest of the widget
+        # Launch button with connection to the tool's function if available
         launch_btn = QPushButton("Open")
         launch_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         launch_btn.setStyleSheet(STYLES['launch_button'])
+        
+        # Connect launch button to the tool's function if specified
+        if 'function' in tool_data:
+            func_name = tool_data['function']
+            if hasattr(self, func_name):
+                launch_btn.clicked.connect(getattr(self, func_name))
         
         col_layout.addLayout(header_layout)
         col_layout.addWidget(launch_btn)
@@ -414,15 +266,27 @@ class HomePage(QWidget):
             self.favorites_grid.itemAt(i).widget().setParent(None)
         
         # Add favorite tools
-        for idx, tool_id in enumerate(self.user_prefs['favorite_tools']):
-            for category in TOOLS.values():
-                for tool in category.values():
-                    if tool['id'] == tool_id:
-                        col = idx % 4
-                        row = idx // 4
-                        widget = self.create_tool_widget(tool, self.favorites_grid, (row, col))
-                        self.favorites_grid.addWidget(widget, row, col)
-                        self.favorites_grid.setColumnStretch(col, 1)
+        row, col = 0, 0
+        for tool_id in self.user_prefs['favorite_tools']:
+            # Find the tool in all categories
+            tool = None
+            for category in self.TOOLS.values():
+                for t in category.values():
+                    if t['id'] == tool_id and t.get('enabled', False):
+                        tool = t
+                        break
+                if tool:
+                    break
+            
+            if tool:
+                widget = self.create_tool_widget(tool, self.favorites_grid, (row, col))
+                self.favorites_grid.addWidget(widget, row, col)
+                self.favorites_grid.setColumnStretch(col, 1)
+                
+                col += 1
+                if col == 4:  # 4 columns per row
+                    col = 0
+                    row += 1
 
     def load_preferences(self):
         with open(self.user_prefs_path, 'r') as f:
@@ -431,4 +295,10 @@ class HomePage(QWidget):
     def save_preferences(self):
         with open(self.user_prefs_path, 'w') as f:
             json.dump(self.user_prefs, f, indent=4)
+            
+    # Example tool handler method - you can add more like this
+    def _tool_folder_creator(self):
+        # This will be called when the Folder Creator tool is launched
+        print("Launching Folder Creator Tool")
+        # Add your tool implementation here
 
