@@ -14,6 +14,7 @@ class SideBar(QFrame):
     # Update signals - remove analytics_clicked
     home_clicked = pyqtSignal()
     settings_clicked = pyqtSignal()
+    account_clicked = pyqtSignal()  # Add new signal for account
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -97,11 +98,27 @@ class SideBar(QFrame):
         self.about_btn = self.addItem("fa6s.circle-info", self.tr('sidebar', 'about'), bottom_layout)
         self.about_btn.clicked.connect(self._on_about_clicked)
         
+        self.account_btn = self.addItem("fa6s.user", self.tr('sidebar', 'account'), bottom_layout)
+        self.account_btn.clicked.connect(self._on_account_clicked)
+        
         self.settings_btn = self.addItem("fa6s.gear", self.tr('sidebar', 'settings'), bottom_layout)
         self.settings_btn.clicked.connect(self._on_settings_clicked)
-        
-        # Set home as default active
-        self._set_active(self.home_btn)
+
+    def handle_page_changed(self, page_name):
+        """Update active button based on current page"""
+        if page_name == 'home':
+            self._set_active(self.home_btn)
+        elif page_name == 'settings':
+            self._set_active(self.settings_btn)
+        elif page_name == 'user':  # Change from 'account' to 'user' to match the actual page name
+            self._set_active(self.account_btn)
+        else:
+            # For tools or other pages, clear active state
+            if self.active_button:
+                self.active_button.setProperty("active", False)
+                self.active_button.style().unpolish(self.active_button)
+                self.active_button.style().polish(self.active_button)
+                self.active_button = None
 
     def _set_active(self, button):
         """Set active state for button"""
@@ -150,6 +167,11 @@ class SideBar(QFrame):
         """Show about dialog"""
         dialog = AboutDialog(self.config, self)
         dialog.exec()
+
+    def _on_account_clicked(self):
+        """Handle account button click"""
+        self._set_active(self.account_btn)
+        self.account_clicked.emit()
 
     def addItem(self, icon_name, tooltip="", parent_layout=None):
         """Add an icon button"""

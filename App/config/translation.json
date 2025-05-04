@@ -95,9 +95,126 @@
         "page": {
             "home": {
                 "favorites": "Favorites",
+                "team_management": "Team Management",
                 "file_management": "File Management",
                 "image_processing": "Image Processing",
                 "video_processing": "Video Processing"
+            },
+            "user": {
+                "title": "Sign In",
+                "username": "Username or Email",
+                "password": "Password",
+                "remember_me": "Remember me",
+                "forgot_password": "Forgot password?",
+                "signin_button": "Sign In",
+                "no_account": "Don't have an account?",
+                "register": "Register",
+                "register_title": "Create Account",
+                "fullname": "Full Name",
+                "email": "Email Address",
+                "register_username": "Username",
+                "register_password": "Password",
+                "create_account_button": "Create Account",
+                "have_account": "Already have an account?",
+                "login": "Log In"
+            }
+        },
+        "tools": {
+            "folder_creator": {
+                "title": "Folder Creator",
+                "description": "Create folders with custom structure"
+            },
+            "file_renamer": {
+                "title": "File Renamer",
+                "description": "Batch rename files easily"
+            },
+            "file_converter": {
+                "title": "File Converter",
+                "description": "Convert between formats"
+            },
+            "file_organizer": {
+                "title": "File Organizer",
+                "description": "Sort files automatically"
+            },
+            "image_converter": {
+                "title": "Image Converter",
+                "description": "Convert between image formats"
+            },
+            "image_resizer": {
+                "title": "Image Resizer",
+                "description": "Resize and compress images"
+            },
+            "image_filter": {
+                "title": "Image Filter",
+                "description": "Apply filters and effects"
+            },
+            "batch_process": {
+                "title": "Batch Process",
+                "description": "Process multiple images"
+            },
+            "image_watermark": {
+                "title": "Image Watermark",
+                "description": "Add text or image watermarks"
+            },
+            "image_optimizer": {
+                "title": "Image Optimizer",
+                "description": "Optimize images for web"
+            },
+            "image_cropper": {
+                "title": "Image Cropper",
+                "description": "Crop and adjust images"
+            },
+            "metadata_editor": {
+                "title": "Metadata Editor",
+                "description": "Edit image metadata"
+            },
+            "video_converter": {
+                "title": "Video Converter",
+                "description": "Convert video formats"
+            },
+            "video_compressor": {
+                "title": "Video Compressor",
+                "description": "Compress video files"
+            },
+            "video_trimmer": {
+                "title": "Video Trimmer",
+                "description": "Cut and trim videos"
+            },
+            "video_merger": {
+                "title": "Video Merger",
+                "description": "Combine multiple videos"
+            },
+            "audio_extractor": {
+                "title": "Audio Extractor",
+                "description": "Extract audio from video"
+            },
+            "video_resizer": {
+                "title": "Video Resizer",
+                "description": "Resize video resolution"
+            },
+            "frame_extractor": {
+                "title": "Frame Extractor",
+                "description": "Extract frames from video"
+            },
+            "subtitle_editor": {
+                "title": "Subtitle Editor",
+                "description": "Add or edit subtitles"
+            },
+            "team_assignment": {
+                "title": "Team Assignment",
+                "description": "Assign tasks to team members"
+            },
+            "progress_tracker": {
+                "title": "Progress Tracker",
+                "description": "Track project progress and deadlines"
+            },
+            "attendance": {
+                "title": "Attendance",
+                "description": "Track team member attendance"
+            },
+            "team_calendar": {
+                "title": "Team Calendar",
+                "description": "Manage team schedules and events"
             }
         },
         "statusbar": {
@@ -109,7 +226,8 @@
             "report_bug": "Report Bug",
             "open_folder": "Open App Folder",
             "about": "About",
-            "settings": "Settings"
+            "settings": "Settings",
+            "account": "Account"
         }
     },
     "id": {
@@ -133,7 +251,7 @@
             "view": {
                 "title": "Tampilan",
                 "zoom_in": "Perbesar",
-                "zoom_out": "Perkecil", 
+                "zoom_out": "Perkecil",
                 "reset_zoom": "Atur Ulang Zoom"
             },
             "help": {
@@ -175,7 +293,7 @@
                 "license": "Dilisensikan di bawah GNU General Public License v3.0",
                 "thanks_to": "Terima kasih",
                 "details": "Detail",
-                "close": "Tutup", 
+                "close": "Tutup",
                 "credits": "Kredit"
             },
             "about_details": {
@@ -201,16 +319,133 @@
                 "update_now": "Perbarui Sekarang",
                 "cancel": "Batal",
                 "countdown_color": "#dc2626",
-                "countdown_done_color": "#059669", 
+                "countdown_done_color": "#059669",
                 "countdown_done": "Anda sekarang dapat membatalkan pembaruan."
             }
         },
         "page": {
             "home": {
                 "favorites": "Favorit",
+                "team_management": "Manajemen Tim",
                 "file_management": "Manajemen Berkas",
                 "image_processing": "Pengolahan Gambar",
                 "video_processing": "Pengolahan Video"
+            },
+            "user": {
+                "title": "Masuk",
+                "username": "Nama Pengguna atau Email",
+                "password": "Kata Sandi",
+                "remember_me": "Ingat saya",
+                "forgot_password": "Lupa kata sandi?",
+                "signin_button": "Masuk",
+                "no_account": "Belum punya akun?",
+                "register": "Daftar",
+                "register_title": "Buat Akun",
+                "fullname": "Nama Lengkap",
+                "email": "Alamat Email",
+                "register_username": "Nama Pengguna",
+                "register_password": "Kata Sandi",
+                "create_account_button": "Buat Akun",
+                "have_account": "Sudah punya akun?",
+                "login": "Masuk"
+            }
+        },
+        "tools": {
+            "folder_creator": {
+                "title": "Pembuat Folder",
+                "description": "Buat folder dengan struktur kustom"
+            },
+            "file_renamer": {
+                "title": "Pengubah Nama",
+                "description": "Ubah nama berkas dengan mudah"
+            },
+            "file_converter": {
+                "title": "Konverter File",
+                "description": "Konversi antar format"
+            },
+            "file_organizer": {
+                "title": "Pengatur Berkas",
+                "description": "Sortir berkas secara otomatis"
+            },
+            "image_converter": {
+                "title": "Konverter Gambar",
+                "description": "Konversi antar format gambar"
+            },
+            "image_resizer": {
+                "title": "Pengubah Ukuran",
+                "description": "Ubah ukuran dan kompres gambar"
+            },
+            "image_filter": {
+                "title": "Filter Gambar",
+                "description": "Terapkan filter dan efek"
+            },
+            "batch_process": {
+                "title": "Proses Batch",
+                "description": "Proses banyak gambar sekaligus"
+            },
+            "image_watermark": {
+                "title": "Watermark Gambar",
+                "description": "Tambahkan teks atau gambar watermark"
+            },
+            "image_optimizer": {
+                "title": "Pengoptimal Gambar",
+                "description": "Optimalkan gambar untuk web"
+            },
+            "image_cropper": {
+                "title": "Pemotong Gambar",
+                "description": "Potong dan atur gambar"
+            },
+            "metadata_editor": {
+                "title": "Editor Metadata",
+                "description": "Edit metadata gambar"
+            },
+            "video_converter": {
+                "title": "Konverter Video",
+                "description": "Konversi format video"
+            },
+            "video_compressor": {
+                "title": "Kompresor Video",
+                "description": "Kompres berkas video"
+            },
+            "video_trimmer": {
+                "title": "Pemotong Video",
+                "description": "Potong dan pangkas video"
+            },
+            "video_merger": {
+                "title": "Penggabung Video",
+                "description": "Gabungkan beberapa video"
+            },
+            "audio_extractor": {
+                "title": "Ekstraktor Audio",
+                "description": "Ekstrak audio dari video"
+            },
+            "video_resizer": {
+                "title": "Pengubah Ukuran Video",
+                "description": "Ubah resolusi video"
+            },
+            "frame_extractor": {
+                "title": "Ekstraktor Frame",
+                "description": "Ekstrak frame dari video"
+            },
+            "subtitle_editor": {
+                "title": "Editor Subtitel",
+                "description": "Tambah atau edit subtitel"
+            },
+            "team_assignment": {
+                "title": "Penugasan Tim",
+                "description": "Tugaskan pekerjaan ke anggota tim"
+            },
+            "progress_tracker": {
+                "title": "Pelacak Progres",
+                "description": "Lacak kemajuan proyek dan tenggat waktu"
+            },
+            "attendance": {
+                "title": "Kehadiran",
+                "description": "Lacak kehadiran anggota tim"
+            },
+            "team_calendar": {
+                "title": "Kalender Tim",
+                "description": "Kelola jadwal dan acara tim"
             }
         },
         "statusbar": {
@@ -222,7 +457,8 @@
             "report_bug": "Laporkan Bug",
             "open_folder": "Buka Folder Aplikasi",
             "about": "Tentang",
-            "settings": "Pengaturan"
+            "settings": "Pengaturan",
+            "account": "Akun"
         }
     }
 }

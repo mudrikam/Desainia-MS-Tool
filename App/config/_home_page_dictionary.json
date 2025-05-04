@@ -1,0 +1,226 @@
+{
+    "team_management": {
+        "team_assignment": {
+            "id": "tool_team_assignment",
+            "title_key": "tools.team_assignment.title",
+            "description_key": "tools.team_assignment.description",
+            "color": "rgba(26, 188, 156, 0.8)",
+            "function": "_tool_team_assignment",
+            "icon": "tool_team_assignment.svg",
+            "enabled": true
+        },
+        "progress_tracker": {
+            "id": "tool_progress_tracker",
+            "title_key": "tools.progress_tracker.title",
+            "description_key": "tools.progress_tracker.description",
+            "color": "rgba(52, 152, 219, 0.8)",
+            "function": "_tool_progress_tracker",
+            "icon": "tool_progress_tracker.svg",
+            "enabled": true
+        },
+        "attendance": {
+            "id": "tool_attendance",
+            "title_key": "tools.attendance.title",
+            "description_key": "tools.attendance.description",
+            "color": "rgba(155, 89, 182, 0.8)",
+            "function": "_tool_attendance",
+            "icon": "tool_attendance.svg",
+            "enabled": true
+        },
+        "team_calendar": {
+            "id": "tool_team_calendar",
+            "title_key": "tools.team_calendar.title",
+            "description_key": "tools.team_calendar.description",
+            "color": "rgba(241, 196, 15, 0.8)",
+            "function": "_tool_team_calendar",
+            "icon": "tool_team_calendar.svg",
+            "enabled": true
+        }
+    },
+    "file_management": {
+        "folder_creator": {
+            "id": "tool_folder_creator",
+            "title_key": "tools.folder_creator.title",
+            "description_key": "tools.folder_creator.description",
+            "color": "rgba(52, 152, 219, 0.8)",
+            "function": "_tool_folder_creator",
+            "icon": "tool_folder_creator.svg",
+            "enabled": true
+        },
+        "file_renamer": {
+            "id": "tool_file_renamer",
+            "title_key": "tools.file_renamer.title",
+            "description_key": "tools.file_renamer.description",
+            "color": "rgba(46, 204, 113, 0.8)",
+            "function": "_tool_file_renamer",
+            "icon": "tool_file_renamer.svg",
+            "enabled": true
+        },
+        "file_converter": {
+            "id": "tool_file_converter",
+            "title_key": "tools.file_converter.title",
+            "description_key": "tools.file_converter.description",
+            "color": "rgba(155, 89, 182, 0.8)",
+            "function": "_tool_file_converter",
+            "icon": "tool_file_converter.svg",
+            "enabled": true
+        },
+        "file_organizer": {
+            "id": "tool_file_organizer",
+            "title_key": "tools.file_organizer.title",
+            "description_key": "tools.file_organizer.description",
+            "color": "rgba(241, 196, 15, 0.8)",
+            "function": "_tool_file_organizer",
+            "icon": "tool_file_organizer.svg",
+            "enabled": true
+        }
+    },
+    "image_processing": {
+        "image_converter": {
+            "id": "tool_image_converter",
+            "title_key": "tools.image_converter.title",
+            "description_key": "tools.image_converter.description",
+            "color": "rgba(231, 76, 60, 0.8)",
+            "function": "_tool_image_converter",
+            "icon": "tool_image_converter.svg",
+            "enabled": true
+        },
+        "image_resizer": {
+            "id": "tool_image_resizer",
+            "title_key": "tools.image_resizer.title",
+            "description_key": "tools.image_resizer.description",
+            "color": "rgba(142, 68, 173, 0.8)",
+            "function": "_tool_image_resizer",
+            "icon": "tool_image_resizer.svg",
+            "enabled": true
+        },
+        "image_filter": {
+            "id": "tool_image_filter",
+            "title_key": "tools.image_filter.title",
+            "description_key": "tools.image_filter.description",
+            "color": "rgba(230, 126, 34, 0.8)",
+            "function": "_tool_image_filter",
+            "icon": "tool_image_filter.svg",
+            "enabled": true
+        },
+        "batch_process": {
+            "id": "tool_batch_process",
+            "title_key": "tools.batch_process.title",
+            "description_key": "tools.batch_process.description",
+            "color": "rgba(41, 128, 185, 0.8)",
+            "function": "_tool_batch_process",
+            "icon": "tool_batch_process.svg",
+            "enabled": true
+        },
+        "image_watermark": {
+            "id": "tool_image_watermark",
+            "title_key": "tools.image_watermark.title",
+            "description_key": "tools.image_watermark.description",
+            "color": "rgba(39, 174, 96, 0.8)",
+            "function": "_tool_image_watermark",
+            "icon": "tool_image_watermark.svg",
+            "enabled": true
+        },
+        "image_optimizer": {
+            "id": "tool_image_optimizer",
+            "title_key": "tools.image_optimizer.title",
+            "description_key": "tools.image_optimizer.description",
+            "color": "rgba(211, 84, 0, 0.8)",
+            "function": "_tool_image_optimizer",
+            "icon": "tool_image_optimizer.svg",
+            "enabled": true
+        },
+        "image_cropper": {
+            "id": "tool_image_cropper",
+            "title_key": "tools.image_cropper.title",
+            "description_key": "tools.image_cropper.description",
+            "color": "rgba(22, 160, 133, 0.8)",
+            "function": "_tool_image_cropper",
+            "icon": "tool_image_cropper.svg",
+            "enabled": true
+        },
+        "metadata_editor": {
+            "id": "tool_metadata_editor",
+            "title_key": "tools.metadata_editor.title",
+            "description_key": "tools.metadata_editor.description",
+            "color": "rgba(155, 89, 182, 0.8)",
+            "function": "_tool_metadata_editor",
+            "icon": "tool_metadata_editor.svg",
+            "enabled": true
+        }
+    },
+    "video_processing": {
+        "video_converter": {
+            "id": "tool_video_converter",
+            "title_key": "tools.video_converter.title",
+            "description_key": "tools.video_converter.description",
+            "color": "rgba(52, 73, 94, 0.8)",
+            "function": "_tool_video_converter",
+            "icon": "tool_video_converter.svg",
+            "enabled": true
+        },
+        "video_compressor": {
+            "id": "tool_video_compressor",
+            "title_key": "tools.video_compressor.title",
+            "description_key": "tools.video_compressor.description",
+            "color": "rgba(192, 57, 43, 0.8)",
+            "function": "_tool_video_compressor",
+            "icon": "tool_video_compressor.svg",
+            "enabled": true
+        },
+        "video_trimmer": {
+            "id": "tool_video_trimmer",
+            "title_key": "tools.video_trimmer.title",
+            "description_key": "tools.video_trimmer.description",
+            "color": "rgba(22, 160, 133, 0.8)",
+            "function": "_tool_video_trimmer",
+            "icon": "tool_video_trimmer.svg",
+            "enabled": true
+        },
+        "video_merger": {
+            "id": "tool_video_merger",
+            "title_key": "tools.video_merger.title",
+            "description_key": "tools.video_merger.description",
+            "color": "rgba(243, 156, 18, 0.8)",
+            "function": "_tool_video_merger",
+            "icon": "tool_video_merger.svg",
+            "enabled": true
+        },
+        "audio_extractor": {
+            "id": "tool_audio_extractor",
+            "title_key": "tools.audio_extractor.title",
+            "description_key": "tools.audio_extractor.description",
+            "color": "rgba(142, 68, 173, 0.8)",
+            "function": "_tool_audio_extractor",
+            "icon": "tool_audio_extractor.svg",
+            "enabled": true
+        },
+        "video_resizer": {
+            "id": "tool_video_resizer",
+            "title_key": "tools.video_resizer.title",
+            "description_key": "tools.video_resizer.description",
+            "color": "rgba(39, 174, 96, 0.8)",
+            "function": "_tool_video_resizer",
+            "icon": "tool_video_resizer.svg",
+            "enabled": true
+        },
+        "frame_extractor": {
+            "id": "tool_frame_extractor",
+            "title_key": "tools.frame_extractor.title",
+            "description_key": "tools.frame_extractor.description",
+            "color": "rgba(211, 84, 0, 0.8)",
+            "function": "_tool_frame_extractor",
+            "icon": "tool_frame_extractor.svg",
+            "enabled": true
+        },
+        "subtitle_editor": {
+            "id": "tool_subtitle_editor",
+            "title_key": "tools.subtitle_editor.title",
+            "description_key": "tools.subtitle_editor.description",
+            "color": "rgba(41, 128, 185, 0.8)",
+            "function": "_tool_subtitle_editor",
+            "icon": "tool_subtitle_editor.svg",
+            "enabled": true
+        }
+    }
+}

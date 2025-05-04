@@ -1,9 +1,12 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QGridLayout, 
                             QHBoxLayout, QPushButton, QScrollArea, QApplication)
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPixmap
 import qtawesome as qta
 import os
 import json
+import importlib.util
+import sys
 
 # Centralized styles
 STYLES = {
@@ -77,7 +80,7 @@ class HomePage(QWidget):
         self.user_prefs_path = os.path.join(self.app.BASE_DIR.get_path('UserData'), 'user_preferences.json')
         
         # Load tools dictionary from JSON file
-        tools_dict_path = self.app.BASE_DIR.get_path('App', 'gui', 'widgets', 'pages', '_home_page_dictionary.json')
+        tools_dict_path = self.app.BASE_DIR.get_path('App', 'config', '_home_page_dictionary.json')
         with open(tools_dict_path, 'r') as f:
             self.TOOLS = json.load(f)
             
@@ -178,16 +181,62 @@ class HomePage(QWidget):
         
         img_label = QLabel()
         img_label.setFixedSize(50, 50)
-        img_label.setStyleSheet(f"QLabel {{ background-color: {tool_data['color']}; border-radius: 8px; }}")
+        
+        # Try to load the icon from file
+        icon_path = None
+        if 'icon' in tool_data:
+            icon_name = tool_data['icon']
+            icon_path = self.app.BASE_DIR.get_path('App', 'resources', 'public', 'img', 'icons', 'tools', icon_name)
+            
+            # Check if the icon file exists
+            if not os.path.exists(icon_path):
+                # Try with .svg extension if the file doesn't exist
+                svg_path = os.path.splitext(icon_path)[0] + '.svg'
+                if os.path.exists(svg_path):
+                    icon_path = svg_path
+                else:
+                    # Fall back to default.svg
+                    icon_path = self.app.BASE_DIR.get_path('App', 'resources', 'public', 'img', 'icons', 'tools', 'default.svg')
+        else:
+            # Fall back to default.svg if no icon is specified
+            icon_path = self.app.BASE_DIR.get_path('App', 'resources', 'public', 'img', 'icons', 'tools', 'default.svg')
+        
+        # Load the image if the icon path exists
+        if icon_path and os.path.exists(icon_path):
+            pixmap = QPixmap(icon_path)
+            img_label.setPixmap(pixmap.scaled(50, 50, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+            img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        else:
+            # Use colored background if image loading fails
+            img_label.setStyleSheet(f"QLabel {{ background-color: {tool_data['color']}; border-radius: 8px; }}")
         
         title_container = QVBoxLayout()
         title_container.setSpacing(2)
         
+        # Manual lookup from translation file instead of using tr function
+        try:
+            # Access translation based on current language
+            language = self.app.BASE_DIR.config["application"]["language"]
+            
+            tool_name = tool_data['id'].replace('tool_', '')
+            
+            # Load translation.json directly
+            translation_path = self.app.BASE_DIR.get_path('App', 'config', 'translation.json')
+            with open(translation_path, 'r', encoding='utf-8') as f:
+                translations = json.load(f)
+            
+            # Fetch the title and description from the translation file
+            title_text = translations.get(language, {}).get('tools', {}).get(tool_name, {}).get('title', tool_data.get('title', tool_data['id']))
+            desc_text = translations.get(language, {}).get('tools', {}).get(tool_name, {}).get('description', tool_data.get('description', ''))
+        except Exception:
+            title_text = tool_data.get('title', tool_data['id'])
+            desc_text = tool_data.get('description', '')
+        
         # Simple title label without header layout
-        title_label = QLabel(tool_data['title'])
+        title_label = QLabel(title_text)
         title_label.setStyleSheet(STYLES['tool_title'])
         
-        desc_label = QLabel(tool_data['description'])
+        desc_label = QLabel(desc_text)
         desc_label.setStyleSheet(STYLES['tool_description'])
         desc_label.setWordWrap(True)
         
@@ -220,11 +269,9 @@ class HomePage(QWidget):
         launch_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         launch_btn.setStyleSheet(STYLES['launch_button'])
         
-        # Connect launch button to the tool's function if specified
+        # Connect launch button to the generic tool handler
         if 'function' in tool_data:
-            func_name = tool_data['function']
-            if hasattr(self, func_name):
-                launch_btn.clicked.connect(getattr(self, func_name))
+            launch_btn.clicked.connect(lambda checked, tid=tool_data['id']: self._launch_tool(tid))
         
         col_layout.addLayout(header_layout)
         col_layout.addWidget(launch_btn)
@@ -295,10 +342,47 @@ class HomePage(QWidget):
     def save_preferences(self):
         with open(self.user_prefs_path, 'w') as f:
             json.dump(self.user_prefs, f, indent=4)
+    
+    def _launch_tool(self, tool_id):
+        """Launch tool by dynamically importing and showing the tool module"""
+        try:
+            # Get tool category and name
+            for category in self.TOOLS.values():
+                for tool_data in category.values():
+                    if tool_data['id'] == tool_id:
+                        # Extract tool name from ID (remove 'tool_' prefix)
+                        tool_name = tool_id.replace('tool_', '')
+                        
+                        # Construct path to tool module
+                        tool_path = self.app.BASE_DIR.get_path('App', 'gui', 'widgets', 'pages', 'tools', tool_name, f"{tool_name}.py")
+                        
+                        if os.path.exists(tool_path):
+                            # Import module dynamically
+                            spec = importlib.util.spec_from_file_location(tool_name, tool_path)
+                            module = importlib.util.module_from_spec(spec)
+                            sys.modules[tool_name] = module
+                            spec.loader.exec_module(module)
+                            
+                            # Get the main tool class (assuming it follows naming convention)
+                            tool_class_name = ''.join(word.capitalize() for word in tool_name.split('_')) + 'Tool'
+                            if hasattr(module, tool_class_name):
+                                tool_class = getattr(module, tool_class_name)
+                                # Instantiate and show the tool
+                                tool_instance = tool_class(self)
+                                
+                                # Get the main window content widget to show the tool
+                                main_window = self.window()
+                                if hasattr(main_window, 'content'):
+                                    content_widget = main_window.content
+                                    # Add the page if it doesn't exist
+                                    if tool_id not in content_widget.pages:
+                                        content_widget.add_page(tool_id, tool_instance)
+                                    content_widget.show_page(tool_id)
+                                    return
+                        break
             
-    # Example tool handler method - you can add more like this
-    def _tool_folder_creator(self):
-        # This will be called when the Folder Creator tool is launched
-        print("Launching Folder Creator Tool")
-        # Add your tool implementation here
+            print(f"Could not find tool module for {tool_id}")
+        except Exception as e:
+            print(f"Error launching tool {tool_id}: {str(e)}")
+
 

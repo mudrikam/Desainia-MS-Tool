@@ -69,10 +69,17 @@ class MainWindow(QMainWindow):
         # Connect sidebar signals
         self.sidebar.home_clicked.connect(lambda: self.content.show_page('home'))
         self.sidebar.settings_clicked.connect(lambda: self.content.show_page('settings'))
+        self.sidebar.account_clicked.connect(lambda: self.content.show_page('user'))
+        
+        # Connect content page_changed signal to sidebar handler
+        self.content.page_changed.connect(self.sidebar.handle_page_changed)
         
         # Add to layout
         self.main_layout.addWidget(self.sidebar)
         self.main_layout.addWidget(self.content)
+        
+        # Ensure initial page is properly reflected in sidebar (default is home)
+        self.content.page_changed.emit('home')
     
     def _center_window(self):
         """Center window on screen"""

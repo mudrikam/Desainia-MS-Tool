@@ -18,7 +18,7 @@ class StatusBar(QStatusBar):
         self.setStyleSheet("""
             QStatusBar {
                 border-top: 1px solid rgba(0, 0, 0, 0.08);
-                background-color: rgba(0, 0, 0, 0.05);
+                background-color: rgba(0, 0, 0, 0.01);
                 padding: 2px 5px;
             }
             QStatusBar QLabel {
