@@ -47,6 +47,7 @@
 import sys
 import os
 import json
+import logging
 
 # Use os.path.join for cross-platform path handling
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -91,11 +92,24 @@ class PathHelper:
 BASE_DIR = PathHelper(project_root)
 
 if __name__ == '__main__':
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler(BASE_DIR.get_path('debug.log'))
+        ]
+    )
+    logger = logging.getLogger('main')
+    logger.info("Application starting...")
+
     # Initialize user data
     user_data_dir = BASE_DIR.get_path('UserData')
     # Create user data directory if it doesn't exist
     if not os.path.exists(user_data_dir):
         os.makedirs(user_data_dir)
+        logger.info(f"Created user data directory: {user_data_dir}")
     
     preferences_path = os.path.join(user_data_dir, 'user_preferences.json')
     if not os.path.exists(preferences_path):
@@ -107,6 +121,20 @@ if __name__ == '__main__':
         }
         with open(preferences_path, 'w') as f:
             json.dump(default_preferences, f, indent=4)
+        logger.info(f"Created default user preferences")
+    
+    # Run database migrations with minimal logging
+    try:
+        from App.core.database import run_migrations
+        db_status = run_migrations()
+        if db_status == "created":
+            logger.info("Database created successfully")
+        elif db_status == "exists":
+            pass  # Don't log anything for existing database
+        else:
+            logger.error("Database initialization failed")
+    except Exception as e:
+        logger.error(f"Database error: {str(e)}")
     
     # Enable High DPI scaling
     if hasattr(Qt, 'AA_EnableHighDpiScaling'):

@@ -1,12 +1,19 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QApplication, QSizePolicy
+from PyQt6.QtCore import Qt, pyqtSignal
 import qtawesome as qta
 
 class UserProfilePage(QWidget):
     """User profile page shown after successful login."""
     
+    # Add signal for logout
+    logout_requested = pyqtSignal()
+    
     def __init__(self, parent=None, username="User"):
         super().__init__(parent)
+        self.username = username
+        
+        # Get app instance 
+        self.app = QApplication.instance()
         
         # Main layout
         main_layout = QVBoxLayout(self)
@@ -23,8 +30,8 @@ class UserProfilePage(QWidget):
         welcome_layout = QVBoxLayout()
         
         # Welcome message
-        welcome_label = QLabel(f"Welcome, {username}!")
-        welcome_label.setStyleSheet("""
+        self.welcome_label = QLabel(f"Welcome, {username}!")
+        self.welcome_label.setStyleSheet("""
             font-size: 24px;
             font-weight: 500;
             color: palette(text);
@@ -37,12 +44,45 @@ class UserProfilePage(QWidget):
             color: palette(mid);
         """)
         
-        welcome_layout.addWidget(welcome_label)
+        welcome_layout.addWidget(self.welcome_label)
         welcome_layout.addWidget(subtitle_label)
         
         header_layout.addWidget(user_icon)
         header_layout.addLayout(welcome_layout)
         header_layout.addStretch()
+        
+        # Logout button with adjusted margins and reversed color scheme
+        logout_btn = QPushButton("Logout")
+        logout_icon = qta.icon("fa6s.right-from-bracket", color="#dc3545")  # Red icon
+        logout_btn.setIcon(logout_icon)
+        # Fix: Use a fixed size instead of calculating based on sizeHint
+        icon_size = logout_btn.iconSize()
+        logout_btn.setIconSize(icon_size * 0.7)  # Slightly smaller icon
+        logout_btn.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                color: #dc3545;  /* Red text */
+                border: 1px solid #dc3545;  /* Red border */
+                border-radius: 5px;
+                padding: 5px 10px;  /* Reasonable padding for compact look */
+                font-size: 14px;
+                font-weight: 500;
+                outline: none; /* Remove focus outline */
+            }
+            QPushButton:focus {
+                outline: none; /* Remove focus outline */
+            }
+            QPushButton:hover {
+                background-color: rgba(220, 53, 69, 0.1);  /* Light red background on hover */
+            }
+            QPushButton:pressed {
+                background-color: rgba(220, 53, 69, 0.2);  /* Slightly darker red on press */
+            }
+        """)
+        logout_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        logout_btn.clicked.connect(self._on_logout)
+        
+        header_layout.addWidget(logout_btn)
         
         # Information message
         info_label = QLabel("This is your user dashboard. Your account information and preferences will be displayed here.")
@@ -93,3 +133,35 @@ class UserProfilePage(QWidget):
         main_layout.addWidget(info_label)
         main_layout.addWidget(stats_container)
         main_layout.addStretch()
+    
+    def _on_logout(self):
+        """Handle logout button click"""
+        # Import auth helper and logout
+        from App.core.user._user_auth import UserAuth
+        auth = UserAuth(self.app)
+        
+        # Get current user before logout
+        current_user = auth.get_current_user()
+        if current_user:
+            print(f"Logging out user: {current_user.get('username', 'unknown')}")
+        else:
+            print("No user currently logged in")
+        
+        # Ensure remember_login is disabled
+        auth.update_settings(remember_login=False)
+        
+        # Perform the logout
+        success = auth.logout()
+        
+        # Double check current user is None
+        if auth.get_current_user() is not None:
+            print("Warning: Current user still not None after logout!")
+            auth.current_user = None
+        
+        # Emit signal to notify parent
+        self.logout_requested.emit()
+    
+    def update_username(self, username):
+        """Update the displayed username"""
+        self.username = username
+        self.welcome_label.setText(f"Welcome, {username}!")

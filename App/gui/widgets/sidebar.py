@@ -53,6 +53,10 @@ class SideBar(QFrame):
                 border-radius: 4px;
                 margin: 2px;
                 background: transparent;
+                outline: none; /* Remove focus outline */
+            }}
+            QPushButton:focus {{
+                outline: none; /* Remove focus outline */
             }}
             QPushButton[active="true"] {{
                 background-color: rgba(0, 0, 0, 0.1);
@@ -171,6 +175,32 @@ class SideBar(QFrame):
     def _on_account_clicked(self):
         """Handle account button click"""
         self._set_active(self.account_btn)
+        
+        # Check if user is logged in
+        from App.core.user._user_auth import UserAuth
+        auth = UserAuth(self.app)
+        current_user = auth.get_current_user()
+        
+        main_window = self.window()
+        if hasattr(main_window, 'content'):
+            content_widget = main_window.content
+            
+            if current_user:
+                # User is logged in
+                if 'user_profile' in content_widget.pages:
+                    # Profile page exists, show it
+                    content_widget.show_page('user_profile')
+                else:
+                    # Profile page doesn't exist yet, create it first
+                    from .pages.user.user_page import UserProfilePage
+                    display_name = current_user.get("fullname") or current_user.get("username")
+                    profile_page = UserProfilePage(content_widget, username=display_name)
+                    content_widget.add_page('user_profile', profile_page)
+                    content_widget.show_page('user_profile')
+            else:
+                # Not logged in, show login page
+                content_widget.show_page('user')
+                
         self.account_clicked.emit()
 
     def addItem(self, icon_name, tooltip="", parent_layout=None):

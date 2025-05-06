@@ -12,12 +12,19 @@
         "github": {
             "api_base": "https://api.github.com/repos/mudrikam/Desainia-Rak-Arsip",
             "releases": "https://api.github.com/repos/mudrikam/Desainia-Rak-Arsip/releases",
-            "token": "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"
+            "token": ""
         }
     },
     "runtime": {
         "python_version": "3.12.1",
         "qt_version": "6.6.1"
+    },
+    "database": {
+        "type": "sqlite",
+        "path": "App/database/database.db",
+        "backup_path": "UserData/backups/database",
+        "backup_interval_days": 7,
+        "auto_backup": true
     },
     "git": {
         "commit_hash": "8d47a5e",

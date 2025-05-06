@@ -5,3 +5,5 @@ PyQt6-sip==13.6.0
 qtawesome>=1.4.0
 requests>=2.31.0
 semver>=3.0.2
+gspread>=6.2.0
+oauth2client>=4.1.3

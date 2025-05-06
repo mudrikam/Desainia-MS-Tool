@@ -95,7 +95,7 @@
         "page": {
             "home": {
                 "favorites": "Favorites",
-                "team_management": "Team Management",
+                "project_management": "Project Management",
                 "file_management": "File Management",
                 "image_processing": "Image Processing",
                 "video_processing": "Video Processing"
@@ -326,7 +326,7 @@
         "page": {
             "home": {
                 "favorites": "Favorit",
-                "team_management": "Manajemen Tim",
+                "project_management": "Manajemen Proyek",
                 "file_management": "Manajemen Berkas",
                 "image_processing": "Pengolahan Gambar",
                 "video_processing": "Pengolahan Video"

@@ -1,5 +1,5 @@
 {
-    "team_management": {
+    "project_management": {
         "team_assignment": {
             "id": "tool_team_assignment",
             "title_key": "tools.team_assignment.title",

@@ -38,3 +38,5 @@ env/
 
 # Program files
 UserData/
+App/config/config.json
+App/database/
