@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QLineEdit,
 from PyQt6.QtCore import Qt, pyqtSignal
 import qtawesome as qta
 import os
+import re
 
 class LoginRegisterWidget(QWidget):
     """Login and registration widget that can be used as a helper component."""
@@ -11,6 +12,101 @@ class LoginRegisterWidget(QWidget):
     # Define signals
     login_successful = pyqtSignal(dict)  # Emits user data when login succeeds
     register_successful = pyqtSignal(dict)  # Emits user data when registration succeeds
+    
+    # Centralized styles
+    STYLES = {
+        # Common colors
+        "colors": {
+            "primary": "palette(highlight)",
+            "primary_hover": "#0366d6",
+            "primary_pressed": "#024ea2",
+            "danger": "#e03131",
+            "danger_bg": "rgba(224, 49, 49, 0.1)",
+            "border": "rgba(0, 0, 0, 0.1)",
+            "transparent": "rgba(0, 0, 0, 0.01)",
+        },
+        
+        # Form elements
+        "container": """
+            QFrame#login_container {
+                background-color: rgba(0, 0, 0, 0.01);
+                border-radius: 10px;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+            }
+        """,
+        
+        "title": """
+            font-size: 24px;
+            font-weight: 500;
+            color: palette(text);
+            margin-top: 10px;
+            margin-bottom: 20px;
+        """,
+        
+        "input": """
+            QLineEdit {
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                border-radius: 5px;
+                padding: 8px 15px;
+                background-color: palette(base);
+                font-size: 14px;
+            }
+            QLineEdit:focus {
+                border: 1px solid palette(highlight);
+            }
+        """,
+        
+        "button_primary": """
+            QPushButton {
+                background-color: palette(highlight);
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 15px;
+                font-weight: 500;
+            }
+            QPushButton:hover {
+                background-color: #0366d6;
+            }
+            QPushButton:pressed {
+                background-color: #024ea2;
+            }
+        """,
+        
+        "button_link": """
+            QPushButton {
+                border: none;
+                font-size: 13px;
+                color: palette(link);
+                padding: 0 3px;
+            }
+            QPushButton:hover {
+                text-decoration: underline;
+            }
+        """,
+        
+        "checkbox": """
+            QCheckBox {
+                font-size: 13px;
+                color: palette(text);
+            }
+        """,
+        
+        "error_message": """
+            font-size: 13px;
+            color: #e03131;
+            background-color: rgba(224, 49, 49, 0.1);
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-left: 3px solid #e03131;
+        """,
+        
+        "text_label": """
+            font-size: 13px; 
+            color: palette(text);
+        """
+    }
     
     def __init__(self, parent=None, auth=None):
         super().__init__(parent)
@@ -32,13 +128,7 @@ class LoginRegisterWidget(QWidget):
         container = QFrame()
         container.setObjectName("login_container")
         container.setFixedWidth(400)
-        container.setStyleSheet("""
-            QFrame#login_container {
-                background-color: rgba(0, 0, 0, 0.01);
-                border-radius: 10px;
-                border: 1px solid rgba(0, 0, 0, 0.1);
-            }
-        """)
+        container.setStyleSheet(self.STYLES["container"])
         
         # Container layout
         container_layout = QVBoxLayout(container)
@@ -79,13 +169,7 @@ class LoginRegisterWidget(QWidget):
         
         # Title label
         login_title = QLabel(self.tr('page', 'user', 'title'))
-        login_title.setStyleSheet("""
-            font-size: 24px;
-            font-weight: 500;
-            color: palette(text);
-            margin-top: 10px;
-            margin-bottom: 20px;
-        """)
+        login_title.setStyleSheet(self.STYLES["title"])
         login_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         login_title_layout.addWidget(login_title)
@@ -94,23 +178,19 @@ class LoginRegisterWidget(QWidget):
         login_form_layout = QVBoxLayout()
         login_form_layout.setSpacing(15)
         
+        # Error message label for login
+        self.login_error_label = QLabel("")
+        self.login_error_label.setStyleSheet(self.STYLES["error_message"])
+        self.login_error_label.setWordWrap(True)
+        self.login_error_label.setVisible(False)
+        login_form_layout.addWidget(self.login_error_label)
+        
         # Username field
         self.username_field = QLineEdit()
         self.username_field.setPlaceholderText(self.tr('page', 'user', 'username'))
         self.username_field.setProperty("class", "login-input")
         self.username_field.setMinimumHeight(40)
-        self.username_field.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 5px;
-                padding: 8px 15px;
-                background-color: palette(base);
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid palette(highlight);
-            }
-        """)
+        self.username_field.setStyleSheet(self.STYLES["input"])
         # Connect Enter key press
         self.username_field.returnPressed.connect(self._on_login)
         
@@ -120,18 +200,7 @@ class LoginRegisterWidget(QWidget):
         self.password_field.setEchoMode(QLineEdit.EchoMode.Password)
         self.password_field.setProperty("class", "login-input")
         self.password_field.setMinimumHeight(40)
-        self.password_field.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 5px;
-                padding: 8px 15px;
-                background-color: palette(base);
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid palette(highlight);
-            }
-        """)
+        self.password_field.setStyleSheet(self.STYLES["input"])
         # Connect Enter key press
         self.password_field.returnPressed.connect(self._on_login)
         
@@ -139,12 +208,7 @@ class LoginRegisterWidget(QWidget):
         options_layout = QHBoxLayout()
         
         self.remember_me = QCheckBox(self.tr('page', 'user', 'remember_me'))
-        self.remember_me.setStyleSheet("""
-            QCheckBox {
-                font-size: 13px;
-                color: palette(text);
-            }
-        """)
+        self.remember_me.setStyleSheet(self.STYLES["checkbox"])
         
         # Load remember_me setting
         try:
@@ -156,18 +220,7 @@ class LoginRegisterWidget(QWidget):
         forgot_password = QPushButton(self.tr('page', 'user', 'forgot_password'))
         forgot_password.setFlat(True)
         forgot_password.setCursor(Qt.CursorShape.PointingHandCursor)
-        forgot_password.setStyleSheet("""
-            QPushButton {
-                border: none;
-                font-size: 13px;
-                color: palette(link);
-                text-align: right;
-                padding: 0;
-            }
-            QPushButton:hover {
-                text-decoration: underline;
-            }
-        """)
+        forgot_password.setStyleSheet(self.STYLES["button_link"])
         
         options_layout.addWidget(self.remember_me)
         options_layout.addStretch()
@@ -177,44 +230,19 @@ class LoginRegisterWidget(QWidget):
         login_btn = QPushButton(self.tr('page', 'user', 'signin_button'))
         login_btn.setMinimumHeight(45)
         login_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        login_btn.setStyleSheet("""
-            QPushButton {
-                background-color: palette(highlight);
-                color: white;
-                border: none;
-                border-radius: 5px;
-                font-size: 15px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #0366d6;
-            }
-            QPushButton:pressed {
-                background-color: #024ea2;
-            }
-        """)
+        login_btn.setStyleSheet(self.STYLES["button_primary"])
         
         # Register link
         login_register_layout = QHBoxLayout()
         login_register_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         login_register_text = QLabel(self.tr('page', 'user', 'no_account'))
-        login_register_text.setStyleSheet("font-size: 13px; color: palette(text);")
+        login_register_text.setStyleSheet(self.STYLES["text_label"])
         
         login_register_btn = QPushButton(self.tr('page', 'user', 'register'))
         login_register_btn.setFlat(True)
         login_register_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        login_register_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                font-size: 13px;
-                color: palette(link);
-                padding: 0 3px;
-            }
-            QPushButton:hover {
-                text-decoration: underline;
-            }
-        """)
+        login_register_btn.setStyleSheet(self.STYLES["button_link"])
         
         login_register_layout.addWidget(login_register_text)
         login_register_layout.addWidget(login_register_btn)
@@ -238,13 +266,7 @@ class LoginRegisterWidget(QWidget):
         
         # Register title
         register_title = QLabel(self.tr('page', 'user', 'register_title'))
-        register_title.setStyleSheet("""
-            font-size: 24px;
-            font-weight: 500;
-            color: palette(text);
-            margin-top: 10px;
-            margin-bottom: 20px;
-        """)
+        register_title.setStyleSheet(self.STYLES["title"])
         register_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         register_title_layout.addWidget(register_title)
@@ -253,23 +275,19 @@ class LoginRegisterWidget(QWidget):
         register_form_layout = QVBoxLayout()
         register_form_layout.setSpacing(15)
         
+        # Error message label for registration
+        self.register_error_label = QLabel("")
+        self.register_error_label.setStyleSheet(self.STYLES["error_message"])
+        self.register_error_label.setWordWrap(True)
+        self.register_error_label.setVisible(False)
+        register_form_layout.addWidget(self.register_error_label)
+
         # Name field
         self.name_field = QLineEdit()
         self.name_field.setPlaceholderText(self.tr('page', 'user', 'fullname'))
         self.name_field.setProperty("class", "register-input")
         self.name_field.setMinimumHeight(40)
-        self.name_field.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 5px;
-                padding: 8px 15px;
-                background-color: palette(base);
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid palette(highlight);
-            }
-        """)
+        self.name_field.setStyleSheet(self.STYLES["input"])
         self.name_field.returnPressed.connect(self._on_register)
         
         # Email field
@@ -277,18 +295,7 @@ class LoginRegisterWidget(QWidget):
         self.email_field.setPlaceholderText(self.tr('page', 'user', 'email'))
         self.email_field.setProperty("class", "register-input")
         self.email_field.setMinimumHeight(40)
-        self.email_field.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 5px;
-                padding: 8px 15px;
-                background-color: palette(base);
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid palette(highlight);
-            }
-        """)
+        self.email_field.setStyleSheet(self.STYLES["input"])
         self.email_field.returnPressed.connect(self._on_register)
         
         # Register username field
@@ -296,18 +303,7 @@ class LoginRegisterWidget(QWidget):
         self.reg_username_field.setPlaceholderText(self.tr('page', 'user', 'register_username'))
         self.reg_username_field.setProperty("class", "register-input")
         self.reg_username_field.setMinimumHeight(40)
-        self.reg_username_field.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 5px;
-                padding: 8px 15px;
-                background-color: palette(base);
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid palette(highlight);
-            }
-        """)
+        self.reg_username_field.setStyleSheet(self.STYLES["input"])
         self.reg_username_field.returnPressed.connect(self._on_register)
         
         # Register password field
@@ -316,62 +312,26 @@ class LoginRegisterWidget(QWidget):
         self.reg_password_field.setEchoMode(QLineEdit.EchoMode.Password)
         self.reg_password_field.setProperty("class", "register-input")
         self.reg_password_field.setMinimumHeight(40)
-        self.reg_password_field.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 5px;
-                padding: 8px 15px;
-                background-color: palette(base);
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid palette(highlight);
-            }
-        """)
+        self.reg_password_field.setStyleSheet(self.STYLES["input"])
         self.reg_password_field.returnPressed.connect(self._on_register)
         
         # Register button
         register_btn = QPushButton(self.tr('page', 'user', 'create_account_button'))
         register_btn.setMinimumHeight(45)
         register_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        register_btn.setStyleSheet("""
-            QPushButton {
-                background-color: palette(highlight);
-                color: white;
-                border: none;
-                border-radius: 5px;
-                font-size: 15px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #0366d6;
-            }
-            QPushButton:pressed {
-                background-color: #024ea2;
-            }
-        """)
+        register_btn.setStyleSheet(self.STYLES["button_primary"])
         
         # Back to login link
         back_login_layout = QHBoxLayout()
         back_login_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         back_login_text = QLabel(self.tr('page', 'user', 'have_account'))
-        back_login_text.setStyleSheet("font-size: 13px; color: palette(text);")
+        back_login_text.setStyleSheet(self.STYLES["text_label"])
         
         register_back_login_btn = QPushButton(self.tr('page', 'user', 'login'))
         register_back_login_btn.setFlat(True)
         register_back_login_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        register_back_login_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                font-size: 13px;
-                color: palette(link);
-                padding: 0 3px;
-            }
-            QPushButton:hover {
-                text-decoration: underline;
-            }
-        """)
+        register_back_login_btn.setStyleSheet(self.STYLES["button_link"])
         
         back_login_layout.addWidget(back_login_text)
         back_login_layout.addWidget(register_back_login_btn)
@@ -396,13 +356,7 @@ class LoginRegisterWidget(QWidget):
         
         # Forgot password title
         forgot_title = QLabel("Reset Password")
-        forgot_title.setStyleSheet("""
-            font-size: 24px;
-            font-weight: 500;
-            color: palette(text);
-            margin-top: 10px;
-            margin-bottom: 20px;
-        """)
+        forgot_title.setStyleSheet(self.STYLES["title"])
         forgot_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         forgot_title_layout.addWidget(forgot_title)
@@ -411,79 +365,38 @@ class LoginRegisterWidget(QWidget):
         forgot_form_layout = QVBoxLayout()
         forgot_form_layout.setSpacing(15)
         
+        # Status message for forgot password
+        self.reset_status = QLabel("")
+        self.reset_status.setStyleSheet(self.STYLES["error_message"])
+        self.reset_status.setWordWrap(True)
+        self.reset_status.setVisible(False)
+        forgot_form_layout.addWidget(self.reset_status)
+        
         # Email field
         self.reset_email_field = QLineEdit()
         self.reset_email_field.setPlaceholderText("Email Address")
         self.reset_email_field.setMinimumHeight(40)
-        self.reset_email_field.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 5px;
-                padding: 8px 15px;
-                background-color: palette(base);
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid palette(highlight);
-            }
-        """)
+        self.reset_email_field.setStyleSheet(self.STYLES["input"])
         
         # New password field
         self.new_password_field = QLineEdit()
         self.new_password_field.setPlaceholderText("New Password")
         self.new_password_field.setEchoMode(QLineEdit.EchoMode.Password)
         self.new_password_field.setMinimumHeight(40)
-        self.new_password_field.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 5px;
-                padding: 8px 15px;
-                background-color: palette(base);
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid palette(highlight);
-            }
-        """)
+        self.new_password_field.setStyleSheet(self.STYLES["input"])
         
         # Confirm password field
         self.confirm_password_field = QLineEdit()
         self.confirm_password_field.setPlaceholderText("Confirm Password")
         self.confirm_password_field.setEchoMode(QLineEdit.EchoMode.Password)
         self.confirm_password_field.setMinimumHeight(40)
-        self.confirm_password_field.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 5px;
-                padding: 8px 15px;
-                background-color: palette(base);
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid palette(highlight);
-            }
-        """)
+        self.confirm_password_field.setStyleSheet(self.STYLES["input"])
         
         # Reset button
         reset_btn = QPushButton("Reset Password")
         reset_btn.setMinimumHeight(45)
         reset_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        reset_btn.setStyleSheet("""
-            QPushButton {
-                background-color: palette(highlight);
-                color: white;
-                border: none;
-                border-radius: 5px;
-                font-size: 15px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #0366d6;
-            }
-            QPushButton:pressed {
-                background-color: #024ea2;
-            }
-        """)
+        reset_btn.setStyleSheet(self.STYLES["button_primary"])
         
         # Back to login link
         back_login_layout = QHBoxLayout()
@@ -492,35 +405,14 @@ class LoginRegisterWidget(QWidget):
         back_login_btn = QPushButton("Back to Login")
         back_login_btn.setFlat(True)
         back_login_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        back_login_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                font-size: 13px;
-                color: palette(link);
-                padding: 0 3px;
-            }
-            QPushButton:hover {
-                text-decoration: underline;
-            }
-        """)
+        back_login_btn.setStyleSheet(self.STYLES["button_link"])
         
         back_login_layout.addWidget(back_login_btn)
-        
-        # Status message
-        self.reset_status = QLabel("")
-        self.reset_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.reset_status.setStyleSheet("""
-            font-size: 13px;
-            color: #e03131;
-            margin-bottom: 5px;
-        """)
-        self.reset_status.setVisible(False)
         
         # Add form elements to forgot password layout
         forgot_form_layout.addWidget(self.reset_email_field)
         forgot_form_layout.addWidget(self.new_password_field)
         forgot_form_layout.addWidget(self.confirm_password_field)
-        forgot_form_layout.addWidget(self.reset_status)
         forgot_form_layout.addWidget(reset_btn)
         forgot_form_layout.addSpacing(5)
         forgot_form_layout.addLayout(back_login_layout)
@@ -567,6 +459,10 @@ class LoginRegisterWidget(QWidget):
         # Uncheck the remember me checkbox
         self.remember_me.setChecked(False)
         
+        # Hide any error messages
+        self.login_error_label.setVisible(False)
+        self.login_error_label.setText("")
+        
         # Switch to login form if we're on register form
         self.stacked_widget.setCurrentIndex(0)
         
@@ -601,7 +497,8 @@ class LoginRegisterWidget(QWidget):
             self.login_successful.emit(user)
         else:
             print("Login failed. Invalid username or password.")
-            # In a real app, show an error message
+            self.login_error_label.setText("Invalid username or password.")
+            self.login_error_label.setVisible(True)
     
     def _on_forgot_password(self):
         """Handle forgot password link click"""
@@ -620,7 +517,13 @@ class LoginRegisterWidget(QWidget):
         
         # Validate inputs
         if not all([name.strip(), email.strip(), username.strip(), password.strip()]):
-            print("Please fill in all fields")
+            self.register_error_label.setText("Please fill in all fields.")
+            self.register_error_label.setVisible(True)
+            return
+        
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            self.register_error_label.setText("Invalid email address.")
+            self.register_error_label.setVisible(True)
             return
         
         # Register user
@@ -642,15 +545,18 @@ class LoginRegisterWidget(QWidget):
                 self.register_successful.emit(user)
         else:
             print(f"Registration failed: {message}")
-            # In a real app, show an error message
+            self.register_error_label.setText(message)
+            self.register_error_label.setVisible(True)
     
     def _switch_to_register(self):
         """Switch to register form"""
         self.stacked_widget.setCurrentIndex(1)
+        self.register_error_label.setVisible(False)
         
     def _switch_to_login(self):
         """Switch to login form"""
         self.stacked_widget.setCurrentIndex(0)
+        self.login_error_label.setVisible(False)
     
     def _switch_to_forgot_password(self):
         """Switch to forgot password form"""

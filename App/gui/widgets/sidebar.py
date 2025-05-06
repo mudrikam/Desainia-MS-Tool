@@ -185,21 +185,9 @@ class SideBar(QFrame):
         if hasattr(main_window, 'content'):
             content_widget = main_window.content
             
-            if current_user:
-                # User is logged in
-                if 'user_profile' in content_widget.pages:
-                    # Profile page exists, show it
-                    content_widget.show_page('user_profile')
-                else:
-                    # Profile page doesn't exist yet, create it first
-                    from .pages.user.user_page import UserProfilePage
-                    display_name = current_user.get("fullname") or current_user.get("username")
-                    profile_page = UserProfilePage(content_widget, username=display_name)
-                    content_widget.add_page('user_profile', profile_page)
-                    content_widget.show_page('user_profile')
-            else:
-                # Not logged in, show login page
-                content_widget.show_page('user')
+            # Always show the user page which contains the AuthController
+            # that handles both login and dashboard states
+            content_widget.show_page('user')
                 
         self.account_clicked.emit()
 

@@ -96,11 +96,11 @@ class DatabaseMigration:
             return False
     
     def _create_tables(self):
-        """Create all necessary database tables if they don't exist."""
+        """Create all necessary database tables with complete schema."""
         try:
             cursor = self.conn.cursor()
             
-            # Create users table
+            # Create users table with all required fields
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -108,7 +108,17 @@ class DatabaseMigration:
                 password TEXT NOT NULL,
                 fullname TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
+                phone_number TEXT,
+                address TEXT,
+                birth_date DATE,
+                gender TEXT,
+                start_date DATE,
+                department TEXT,
+                bank_name TEXT,
+                bank_account_number TEXT,
+                bank_account_holder TEXT,
                 role TEXT NOT NULL,
+                profile_image TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 last_login TIMESTAMP
             )
@@ -165,6 +175,17 @@ class DatabaseMigration:
             )
             """)
             
+            # Create departments table to store department data
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS departments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """)
+            
             # Initialize default app settings if app_settings is empty
             cursor.execute("SELECT COUNT(*) as count FROM app_settings")
             if cursor.fetchone()['count'] == 0:
@@ -180,6 +201,26 @@ class DatabaseMigration:
                     INSERT INTO app_settings (key, value)
                     VALUES (?, ?)
                     """, (key, value))
+                    
+            # Initialize default departments if departments table is empty
+            cursor.execute("SELECT COUNT(*) as count FROM departments")
+            if cursor.fetchone()['count'] == 0:
+                default_departments = [
+                    ("Management", "Company management and executives"),
+                    ("HR", "Human Resources department"),
+                    ("IT", "Information Technology department"),
+                    ("Finance", "Finance and accounting department"),
+                    ("Marketing", "Marketing and communications department"),
+                    ("Operations", "Operations and logistics department"),
+                    ("Sales", "Sales and customer relations department"),
+                    ("R&D", "Research and development department")
+                ]
+                
+                for dept_name, dept_desc in default_departments:
+                    cursor.execute("""
+                    INSERT INTO departments (name, description)
+                    VALUES (?, ?)
+                    """, (dept_name, dept_desc))
             
             self.conn.commit()
             return True

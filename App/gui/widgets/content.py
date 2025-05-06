@@ -32,12 +32,13 @@ class ContentWidget(QWidget):
         # Import pages
         from .pages.home_page import HomePage
         from .pages.settings_page import SettingsPage
-        from .pages.user.user import UserPage
+        # Import the UserPage from user.py using a full absolute path to avoid ambiguity
+        from .pages.user.auth_controller import AuthController
         
         # Create pages
         self.add_page('home', HomePage(self))
         self.add_page('settings', SettingsPage(self))
-        self.add_page('user', UserPage(self))  # Add the user page
+        self.add_page('user', AuthController(self))  # Add the user page
         
         # Set initial page
         self.show_page('home')

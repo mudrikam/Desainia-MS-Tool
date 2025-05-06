@@ -177,20 +177,30 @@ class UserAuth:
             self.logger.error(f"Database error loading current user: {e}")
             self.current_user = None
     
-    def authenticate(self, username, password):
-        """Authenticate user and update last login"""
+    def authenticate(self, username_or_email, password):
+        """
+        Authenticate user with username or email and update last login
+        
+        Args:
+            username_or_email: Can be either username or email address
+            password: User's password
+            
+        Returns:
+            User data if authentication successful, None otherwise
+        """
         try:
             if not self._connect_db():
                 return None
             
             cursor = self.conn.cursor()
             
-            # First, get user by username only
-            cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+            # Try to get user by username or email
+            cursor.execute("SELECT * FROM users WHERE username = ? OR email = ?", 
+                          (username_or_email, username_or_email))
             user_row = cursor.fetchone()
             
             if not user_row:
-                self.logger.info(f"Authentication failed: Username '{username}' not found")
+                self.logger.info(f"Authentication failed: User with username/email '{username_or_email}' not found")
                 return None
             
             # Hash the provided password
@@ -213,10 +223,10 @@ class UserAuth:
                 cursor.execute("""
                 UPDATE users SET password = ? WHERE id = ?
                 """, (hashed_password, user_row['id']))
-                self.logger.info(f"Updated legacy password to hashed format for user: {username}")
+                self.logger.info(f"Updated legacy password to hashed format for user: {user_row['username']}")
             
             if not password_match:
-                self.logger.info(f"Authentication failed: Invalid password for user '{username}'")
+                self.logger.info(f"Authentication failed: Invalid password for user '{user_row['username']}'")
                 return None
             
             # Update last login time
@@ -228,7 +238,7 @@ class UserAuth:
             # Create a session if remember_login is enabled
             if self.settings.get("remember_login", False):
                 # Generate a session token
-                session_token = hashlib.sha256(f"{username}{now}{os.urandom(16).hex()}".encode()).hexdigest()
+                session_token = hashlib.sha256(f"{user_row['username']}{now}{os.urandom(16).hex()}".encode()).hexdigest()
                 
                 # Calculate expiry (current time + session_timeout_minutes)
                 timeout_minutes = self.settings.get("session_timeout_minutes", 60)
