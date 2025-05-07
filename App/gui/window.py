@@ -78,8 +78,10 @@ class MainWindow(QMainWindow):
         self.main_layout.addWidget(self.sidebar)
         self.main_layout.addWidget(self.content)
         
-        # Ensure initial page is properly reflected in sidebar (default is home)
-        self.content.page_changed.emit('home')
+        # Show user page as default instead of home page
+        self.content.show_page('user')
+        # Update sidebar to highlight the account button
+        self.content.page_changed.emit('user')
     
     def _center_window(self):
         """Center window on screen"""

@@ -355,7 +355,7 @@ class LoginRegisterWidget(QWidget):
         forgot_title_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         # Forgot password title
-        forgot_title = QLabel("Reset Password")
+        forgot_title = QLabel(self.tr('page', 'user', 'reset_password_title'))
         forgot_title.setStyleSheet(self.STYLES["title"])
         forgot_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
@@ -374,26 +374,26 @@ class LoginRegisterWidget(QWidget):
         
         # Email field
         self.reset_email_field = QLineEdit()
-        self.reset_email_field.setPlaceholderText("Email Address")
+        self.reset_email_field.setPlaceholderText(self.tr('page', 'user', 'email'))
         self.reset_email_field.setMinimumHeight(40)
         self.reset_email_field.setStyleSheet(self.STYLES["input"])
         
         # New password field
         self.new_password_field = QLineEdit()
-        self.new_password_field.setPlaceholderText("New Password")
+        self.new_password_field.setPlaceholderText(self.tr('page', 'user', 'new_password'))
         self.new_password_field.setEchoMode(QLineEdit.EchoMode.Password)
         self.new_password_field.setMinimumHeight(40)
         self.new_password_field.setStyleSheet(self.STYLES["input"])
         
         # Confirm password field
         self.confirm_password_field = QLineEdit()
-        self.confirm_password_field.setPlaceholderText("Confirm Password")
+        self.confirm_password_field.setPlaceholderText(self.tr('page', 'user', 'confirm_password'))
         self.confirm_password_field.setEchoMode(QLineEdit.EchoMode.Password)
         self.confirm_password_field.setMinimumHeight(40)
         self.confirm_password_field.setStyleSheet(self.STYLES["input"])
         
         # Reset button
-        reset_btn = QPushButton("Reset Password")
+        reset_btn = QPushButton(self.tr('page', 'user', 'reset_password_button'))
         reset_btn.setMinimumHeight(45)
         reset_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         reset_btn.setStyleSheet(self.STYLES["button_primary"])
@@ -402,7 +402,7 @@ class LoginRegisterWidget(QWidget):
         back_login_layout = QHBoxLayout()
         back_login_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        back_login_btn = QPushButton("Back to Login")
+        back_login_btn = QPushButton(self.tr('page', 'user', 'back_to_login'))
         back_login_btn.setFlat(True)
         back_login_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         back_login_btn.setStyleSheet(self.STYLES["button_link"])
@@ -497,7 +497,7 @@ class LoginRegisterWidget(QWidget):
             self.login_successful.emit(user)
         else:
             print("Login failed. Invalid username or password.")
-            self.login_error_label.setText("Invalid username or password.")
+            self.login_error_label.setText(self.tr('page', 'user', 'invalid_credentials'))
             self.login_error_label.setVisible(True)
     
     def _on_forgot_password(self):
@@ -517,12 +517,12 @@ class LoginRegisterWidget(QWidget):
         
         # Validate inputs
         if not all([name.strip(), email.strip(), username.strip(), password.strip()]):
-            self.register_error_label.setText("Please fill in all fields.")
+            self.register_error_label.setText(self.tr('page', 'user', 'please_fill_all_fields'))
             self.register_error_label.setVisible(True)
             return
         
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            self.register_error_label.setText("Invalid email address.")
+            self.register_error_label.setText(self.tr('page', 'user', 'invalid_email'))
             self.register_error_label.setVisible(True)
             return
         
@@ -543,10 +543,6 @@ class LoginRegisterWidget(QWidget):
             user = self.auth.get_current_user()
             if user:
                 self.register_successful.emit(user)
-        else:
-            print(f"Registration failed: {message}")
-            self.register_error_label.setText(message)
-            self.register_error_label.setVisible(True)
     
     def _switch_to_register(self):
         """Switch to register form"""
@@ -578,7 +574,7 @@ class LoginRegisterWidget(QWidget):
         
         # Validate inputs
         if not all([email.strip(), new_password.strip(), confirm_password.strip()]):
-            self.reset_status.setText("Please fill in all fields")
+            self.reset_status.setText(self.tr('page', 'user', 'please_fill_all_fields'))
             self.reset_status.setVisible(True)
             return
         

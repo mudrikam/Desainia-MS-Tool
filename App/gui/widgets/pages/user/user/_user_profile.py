@@ -123,7 +123,6 @@ class UserProfileWidget(QWidget):
         self.fullname = self.user_data.get('fullname', self.username) if self.user_data else self.username
         
         if not self.user_data:
-            print("No user data available to display profile")
             return
         
         # Update header info

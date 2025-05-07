@@ -116,7 +116,21 @@
                 "register_password": "Password",
                 "create_account_button": "Create Account",
                 "have_account": "Already have an account?",
-                "login": "Log In"
+                "login": "Log In",
+                "reset_password_title": "Reset Password",
+                "new_password": "New Password",
+                "confirm_password": "Confirm Password",
+                "reset_password_button": "Reset Password",
+                "back_to_login": "Back to Login",
+                "reset_password_email": "Email Address",
+                "reset_password_success": "Password has been reset successfully",
+                "reset_password_error": "Failed to reset password",
+                "passwords_not_match": "Passwords do not match",
+                "email_not_found": "Email address not found",
+                "password_requirements": "Password must be at least 8 characters",
+                "invalid_credentials": "Invalid username or password.",
+                "please_fill_all_fields": "Please fill in all fields.",
+                "invalid_email": "Invalid email address."
             }
         },
         "tools": {
@@ -227,7 +241,8 @@
             "open_folder": "Open App Folder",
             "about": "About",
             "settings": "Settings",
-            "account": "Account"
+            "account": "Account",
+            "login_required": "Please login to access home page"
         }
     },
     "id": {
@@ -347,7 +362,21 @@
                 "register_password": "Kata Sandi",
                 "create_account_button": "Buat Akun",
                 "have_account": "Sudah punya akun?",
-                "login": "Masuk"
+                "login": "Masuk",
+                "reset_password_title": "Atur Ulang Kata Sandi",
+                "new_password": "Kata Sandi Baru",
+                "confirm_password": "Konfirmasi Kata Sandi",
+                "reset_password_button": "Atur Ulang Kata Sandi",
+                "back_to_login": "Kembali ke Masuk",
+                "reset_password_email": "Alamat Email",
+                "reset_password_success": "Kata sandi berhasil diatur ulang",
+                "reset_password_error": "Gagal mengatur ulang kata sandi",
+                "passwords_not_match": "Kata sandi tidak cocok",
+                "email_not_found": "Alamat email tidak ditemukan",
+                "password_requirements": "Kata sandi harus minimal 8 karakter",
+                "invalid_credentials": "Username atau kata sandi tidak valid.",
+                "please_fill_all_fields": "Harap isi semua bidang.",
+                "invalid_email": "Alamat email tidak valid."
             }
         },
         "tools": {
@@ -458,7 +487,8 @@
             "open_folder": "Buka Folder Aplikasi",
             "about": "Tentang",
             "settings": "Pengaturan",
-            "account": "Akun"
+            "account": "Akun",
+            "login_required": "Silakan login untuk mengakses halaman beranda"
         }
     }
 }

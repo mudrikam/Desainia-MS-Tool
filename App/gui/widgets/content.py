@@ -38,10 +38,41 @@ class ContentWidget(QWidget):
         # Create pages
         self.add_page('home', HomePage(self))
         self.add_page('settings', SettingsPage(self))
-        self.add_page('user', AuthController(self))  # Add the user page
         
-        # Set initial page
-        self.show_page('home')
+        # Add the user page and connect authentication signals
+        auth_controller = AuthController(self)
+        self.add_page('user', auth_controller)
+        
+        # Connect to login status change signal
+        auth_controller.login_status_changed.connect(self._update_login_state)
+        
+        # Connect to login/logout events to update sidebar
+        if hasattr(auth_controller.login_widget, 'login_successful'):
+            auth_controller.login_widget.login_successful.connect(self._update_login_state)
+        if hasattr(auth_controller.login_widget, 'register_successful'):
+            auth_controller.login_widget.register_successful.connect(self._update_login_state)
+        
+        # Connect to logout events from both dashboards if they exist
+        self._connect_logout_signals(auth_controller)
+        
+    def _connect_logout_signals(self, auth_controller):
+        """Connect to logout signals to update UI state"""
+        # This method will be called when auth_controller is loaded and
+        # again when _on_login_success creates the dashboard
+        
+        # Connect to dashboards' logout signals if they exist
+        if hasattr(auth_controller, 'user_dashboard') and auth_controller.user_dashboard:
+            auth_controller.user_dashboard.logout_requested.connect(self._update_login_state)
+        
+        if hasattr(auth_controller, 'admin_dashboard') and auth_controller.admin_dashboard:
+            auth_controller.admin_dashboard.logout_requested.connect(self._update_login_state)
+            
+    def _update_login_state(self, *args):
+        """Update UI elements based on login state"""
+        # Update the home button state in sidebar
+        main_window = self.window()
+        if hasattr(main_window, 'sidebar'):
+            main_window.sidebar.update_home_button_state()
 
     def add_page(self, name, page_widget):
         """Add a page to the stack"""

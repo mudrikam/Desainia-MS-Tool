@@ -64,6 +64,9 @@ class SideBar(QFrame):
             QPushButton:hover {{
                 background-color: rgba(0, 0, 0, 0.1);
             }}
+            QPushButton:disabled {{
+                opacity: 0.5;
+            }}
         """)
         
         # Create top section for main icons
@@ -87,6 +90,7 @@ class SideBar(QFrame):
         
         # Add top icons
         self.home_btn = self.addItem("fa6s.house", self.tr('sidebar', 'home'), top_layout)
+        # IMPORTANT: Don't use setEnabled to make home_btn still clickable
         self.home_btn.clicked.connect(self._on_home_clicked)
         
         self.github_btn = self.addItem("fa6b.github", self.tr('sidebar', 'github'), top_layout)
@@ -107,6 +111,9 @@ class SideBar(QFrame):
         
         self.settings_btn = self.addItem("fa6s.gear", self.tr('sidebar', 'settings'), bottom_layout)
         self.settings_btn.clicked.connect(self._on_settings_clicked)
+        
+        # Check login status and update home button
+        self.update_home_button_state()
 
     def handle_page_changed(self, page_name):
         """Update active button based on current page"""
@@ -134,10 +141,70 @@ class SideBar(QFrame):
         button.setProperty("active", True)
         button.style().unpolish(button)
         button.style().polish(button)
-
+    
+    def update_home_button_state(self):
+        """Update home button visual state based on login status"""
+        from App.core.user._user_auth import UserAuth
+        auth = UserAuth(self.app)
+        user = auth.get_current_user()
+        
+        # Don't disable the button, just change its appearance
+        is_logged_in = user is not None
+        
+        # Set visual state using property instead of enabled
+        self.home_btn.setProperty("logged_in", is_logged_in)
+        
+        if is_logged_in:
+            # Use palette text color for logged in state
+            icon = qta.icon("fa6s.house", color=QApplication.palette().text().color().name())
+            self.home_btn.setIcon(icon)
+            self.home_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.home_btn.setStyleSheet("")
+            # Make sure we're fully enabling the button
+            self.home_btn.setEnabled(True)
+        else:
+            # Use palette text color with opacity for logged out state
+            icon = qta.icon("fa6s.house", color=QApplication.palette().text().color().name())
+            self.home_btn.setIcon(icon)
+            self.home_btn.setStyleSheet("opacity: 0.5;")
+            
+        # Force style refresh
+        self.home_btn.style().unpolish(self.home_btn)
+        self.home_btn.style().polish(self.home_btn)
+        self.home_btn.update()
+        
     def _on_home_clicked(self):
-        self._set_active(self.home_btn)
-        self.home_clicked.emit()
+        """Handle home button click with login check"""
+        from App.core.user._user_auth import UserAuth
+        from App.core.user._user_session_handler import session
+        
+        # Periksa status login melalui session handler dan UserAuth
+        is_logged_in = session.is_logged_in()
+        
+        # Jika tidak ada di session, cek di UserAuth sebagai fallback
+        if not is_logged_in:
+            auth = UserAuth(self.app)
+            user = auth.get_current_user()
+            is_logged_in = user is not None
+            
+            # Jika ditemukan di auth tapi tidak di session, update session
+            if is_logged_in and user:
+                session.set_user_data(user)
+        
+        if is_logged_in:
+            self._set_active(self.home_btn)
+            self.home_clicked.emit()
+        else:
+            # Show message in status bar at the left side using translation
+            main_window = self.window()
+            if hasattr(main_window, 'statusbar'):
+                login_message = self.tr('sidebar', 'login_required')
+                main_window.statusbar.showMessage(login_message, 5000)
+            
+            # Redirect to login page
+            if hasattr(main_window, 'content'):
+                main_window.content.show_page('user')
+                self._set_active(self.account_btn)
         
     def _on_files_clicked(self):
         """Open base directory in system file explorer"""

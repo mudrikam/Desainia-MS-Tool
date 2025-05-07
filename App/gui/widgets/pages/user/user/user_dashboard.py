@@ -14,6 +14,7 @@ from App.core.database import UserDashboardDB
 # Import our custom sidebar widget
 from App.gui.widgets.pages.user.user._user_sidebar import UserSidebar
 # Import our custom widgets
+from App.gui.widgets.pages.user.user._user_dashboard import UserDashboardWidget
 from App.gui.widgets.pages.user.user._user_preferences import UserPreferencesWidget
 from App.gui.widgets.pages.user.user._user_profile import UserProfileWidget
 
@@ -67,7 +68,7 @@ class UserDashboard(QWidget):
         self.tab_widget = QTabWidget()
         
         # Create tabs
-        dashboard_tab = QWidget()
+        self.dashboard_widget = UserDashboardWidget(self, username, self.app)
         # Create profile tab using our new UserProfileWidget
         self.profile_widget = UserProfileWidget(self, username, self.app)
         # Use our UserPreferencesWidget for preferences tab
@@ -76,7 +77,7 @@ class UserDashboard(QWidget):
         self.prefs_widget.image_changed.connect(self._on_profile_image_changed)
         
         # Add tabs to tab widget
-        self.tab_widget.addTab(dashboard_tab, "Dashboard")
+        self.tab_widget.addTab(self.dashboard_widget, "Dashboard")
         self.tab_widget.addTab(self.profile_widget, "Profile")  # New Profile tab
         self.tab_widget.addTab(self.prefs_widget, "Preferences")
         

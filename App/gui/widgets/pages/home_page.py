@@ -370,6 +370,10 @@ class HomePage(QWidget):
                                 # Instantiate and show the tool
                                 tool_instance = tool_class(self)
                                 
+                                # Connect login_required signal if it exists in the tool
+                                if hasattr(tool_instance, 'login_required'):
+                                    tool_instance.login_required.connect(self._redirect_to_login)
+                                
                                 # Get the main window content widget to show the tool
                                 main_window = self.window()
                                 if hasattr(main_window, 'content'):
@@ -384,5 +388,14 @@ class HomePage(QWidget):
             print(f"Could not find tool module for {tool_id}")
         except Exception as e:
             print(f"Error launching tool {tool_id}: {str(e)}")
+            
+    def _redirect_to_login(self):
+        """Redirect to the login page when a tool requires authentication."""
+        # Get the main window content widget to show the login page
+        main_window = self.window()
+        if hasattr(main_window, 'content'):
+            content_widget = main_window.content
+            # Show the user/login page
+            content_widget.show_page('user')
 
 

@@ -118,6 +118,7 @@ class DatabaseMigration:
                 bank_account_number TEXT,
                 bank_account_holder TEXT,
                 role TEXT NOT NULL,
+                attendance_pin TEXT,
                 profile_image TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 last_login TIMESTAMP
@@ -186,41 +187,43 @@ class DatabaseMigration:
             )
             """)
             
-            # Initialize default app settings if app_settings is empty
-            cursor.execute("SELECT COUNT(*) as count FROM app_settings")
-            if cursor.fetchone()['count'] == 0:
-                default_settings = {
-                    "allow_registration": "True",
-                    "allow_password_reset": "True",
-                    "remember_login": "False",
-                    "session_timeout_minutes": "60"
-                }
-                
-                for key, value in default_settings.items():
-                    cursor.execute("""
-                    INSERT INTO app_settings (key, value)
-                    VALUES (?, ?)
-                    """, (key, value))
-                    
-            # Initialize default departments if departments table is empty
-            cursor.execute("SELECT COUNT(*) as count FROM departments")
-            if cursor.fetchone()['count'] == 0:
-                default_departments = [
-                    ("Management", "Company management and executives"),
-                    ("HR", "Human Resources department"),
-                    ("IT", "Information Technology department"),
-                    ("Finance", "Finance and accounting department"),
-                    ("Marketing", "Marketing and communications department"),
-                    ("Operations", "Operations and logistics department"),
-                    ("Sales", "Sales and customer relations department"),
-                    ("R&D", "Research and development department")
-                ]
-                
-                for dept_name, dept_desc in default_departments:
-                    cursor.execute("""
-                    INSERT INTO departments (name, description)
-                    VALUES (?, ?)
-                    """, (dept_name, dept_desc))
+            # Create user_attendance table for tracking employee attendance
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS user_attendance (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                full_date DATE NOT NULL,
+                year INTEGER NOT NULL,
+                month INTEGER NOT NULL,
+                day INTEGER NOT NULL,
+                check_in_time TIME,
+                check_out_time TIME,
+                working_hours FLOAT,
+                status TEXT NOT NULL,
+                is_present BOOLEAN DEFAULT 0,
+                is_absent BOOLEAN DEFAULT 0, 
+                is_sick BOOLEAN DEFAULT 0,
+                is_permission BOOLEAN DEFAULT 0,
+                is_late BOOLEAN DEFAULT 0,
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+            """)
+            
+            # Create attendance_status table for tracking attendance statuses
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS attendance_status (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                description TEXT,
+                color TEXT,
+                is_default BOOLEAN DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """)
             
             self.conn.commit()
             return True
@@ -276,18 +279,112 @@ class DatabaseMigration:
         try:
             db_exists = os.path.exists(self.db_path) and os.path.getsize(self.db_path) > 0
             
-            # Create required tables
-            if not self._create_tables():
-                return False
+            # Get list of existing tables in the database
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            existing_tables = set(row['name'] for row in cursor.fetchall())
             
-            # Create default admin user if needed
-            if not self._ensure_default_admin():
-                self.logger.error("Failed to create default admin user")
+            # List of all tables that should exist in the current schema
+            required_tables = {
+                'users', 'user_preferences', 'files', 'app_settings', 
+                'user_sessions', 'departments', 'user_attendance', 'attendance_status'
+            }
+            
+            # Check if all required tables exist
+            missing_tables = required_tables - existing_tables
+            
+            if missing_tables:
+                self.logger.info(f"Database exists but missing tables: {', '.join(missing_tables)}")
+                self.logger.info("Creating missing tables...")
+                
+                # Create all tables - _create_tables handles "IF NOT EXISTS" so it won't
+                # recreate tables that already exist
+                if not self._create_tables():
+                    return False
+                
+                # Only initialize default data for newly created tables
+                # This avoids duplicating default data in existing tables
+                self._initialize_missing_tables(missing_tables)
+                
+                return "updated"  # Indicate that the database was updated
+            else:
+                # All tables exist, just ensure they're up to date
+                if not self._create_tables():
+                    return False
+                
+                # Create default admin user if needed
+                if not self._ensure_default_admin():
+                    self.logger.error("Failed to create default admin user")
             
             return "exists" if db_exists else "created"
         
         finally:
             self._close_db()
+            
+    def _initialize_missing_tables(self, missing_tables):
+        """Initialize default data only for newly created tables."""
+        try:
+            cursor = self.conn.cursor()
+            
+            # Initialize default app settings if app_settings was missing
+            if 'app_settings' in missing_tables:
+                default_settings = {
+                    "allow_registration": "True",
+                    "allow_password_reset": "True",
+                    "remember_login": "False",
+                    "session_timeout_minutes": "60"
+                }
+                
+                for key, value in default_settings.items():
+                    cursor.execute("""
+                    INSERT INTO app_settings (key, value)
+                    VALUES (?, ?)
+                    """, (key, value))
+            
+            # Initialize default departments if departments was missing
+            if 'departments' in missing_tables:
+                default_departments = [
+                    ("Management", "Company management and executives"),
+                    ("HR", "Human Resources department"),
+                    ("IT", "Information Technology department"),
+                    ("Finance", "Finance and accounting department"),
+                    ("Marketing", "Marketing and communications department"),
+                    ("Operations", "Operations and logistics department"),
+                    ("Sales", "Sales and customer relations department"),
+                    ("R&D", "Research and development department")
+                ]
+                
+                for dept_name, dept_desc in default_departments:
+                    cursor.execute("""
+                    INSERT INTO departments (name, description)
+                    VALUES (?, ?)
+                    """, (dept_name, dept_desc))
+            
+            # Initialize default attendance statuses if attendance_status was missing
+            if 'attendance_status' in missing_tables:
+                default_statuses = [
+                    ("Present", "Employee was present for work", "#4CAF50", 1),
+                    ("Absent", "Employee was absent without notification", "#F44336", 0),
+                    ("Sick", "Employee was absent due to illness", "#FF9800", 0),
+                    ("Permission", "Employee was absent with permission", "#2196F3", 0),
+                    ("Late", "Employee arrived late", "#FFC107", 0),
+                    ("No Information", "No attendance information available", "#757575", 0)
+                ]
+                
+                for status_name, status_desc, status_color, is_default in default_statuses:
+                    cursor.execute("""
+                    INSERT INTO attendance_status (name, description, color, is_default)
+                    VALUES (?, ?, ?, ?)
+                    """, (status_name, status_desc, status_color, is_default))
+            
+            
+            # Add initialization for other tables if needed
+            
+            self.conn.commit()
+            return True
+        except sqlite3.Error as e:
+            self.logger.error(f"Database error initializing missing tables: {e}")
+            return False
 
 def run():
     """

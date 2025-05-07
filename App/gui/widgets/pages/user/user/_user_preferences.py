@@ -108,7 +108,7 @@ class UserPreferencesWidget(QWidget):
         image_buttons_layout.addStretch()  # Add stretch after buttons to prevent them from expanding
         
         # Image requirements note
-        image_note = QLabel("Note: Images will be resized to 100x100 pixels. Supported formats: JPG, PNG, BMP.")
+        image_note = QLabel("Note: Images will be resized to 200x200 pixels. Supported formats: JPG, PNG, BMP.")
         image_note.setStyleSheet("font-size: 11px; color: palette(mid); font-style: italic;")
         image_note.setWordWrap(True)
         
@@ -369,18 +369,6 @@ class UserPreferencesWidget(QWidget):
         if not self.start_date_edit.specialValueText() or self.start_date_edit.date() != self.start_date_edit.minimumDate():
             start_date = self.start_date_edit.date().toString("yyyy-MM-dd")
         
-        # Print values for debugging
-        print(f"Saving user info:")
-        print(f"Phone/WhatsApp: {new_phone}")
-        print(f"Address: {new_address}")
-        print(f"Gender: {new_gender}")
-        print(f"Department: {new_department}")
-        print(f"Birth date: {birth_date}")
-        print(f"Start date: {start_date}")
-        print(f"Bank name: {new_bank_name}")
-        print(f"Bank account #: {new_bank_account_number}")
-        print(f"Bank account holder: {new_bank_account_holder}")
-        
         # Validate input
         if not new_fullname:
             QMessageBox.warning(self, "Validation Error", "Full name cannot be empty.")
@@ -472,10 +460,6 @@ class UserPreferencesWidget(QWidget):
         # Get fresh user data from database - include_profile=True to get all profile fields
         self.user_data = self.db_handler.get_user_data(self.username, no_cache=True, include_profile=True)
         self.fullname = self.user_data.get('fullname', self.username) if self.user_data else self.username
-
-        # For debugging - print data
-        if self.user_data:
-            print(f"Refreshing UI with user data: {list(self.user_data.keys())}")
         
         # Update UI with fresh data
         self._refresh_profile_image()
@@ -572,11 +556,8 @@ class UserPreferencesWidget(QWidget):
     def _refresh_form_fields(self):
         """Refresh form fields with current user data"""
         if not self.user_data:
-            print("Warning: No user data available to refresh form fields")
             return
             
-        print(f"DEBUG - User data keys: {list(self.user_data.keys())}")
-        
         # Update form fields with current values
         self.fullname_edit.setText(self.user_data.get('fullname', ''))
         self.username_edit.setText(self.user_data.get('username', ''))
@@ -584,12 +565,10 @@ class UserPreferencesWidget(QWidget):
         
         # Update WhatsApp field
         phone = self.user_data.get('phone_number', '')
-        print(f"Phone/WhatsApp from DB: {phone}")
         self.phone_edit.setText(phone)
         
         # Set address
         address = self.user_data.get('address', '')
-        print(f"Address from DB: {address}")
         if address:
             self.address_edit.setText(address)
         else:
@@ -597,7 +576,6 @@ class UserPreferencesWidget(QWidget):
             
         # Set gender selection
         gender = self.user_data.get('gender', '')
-        print(f"Gender from DB: {gender}")
         index = self.gender_combo.findText(gender)
         if index >= 0:
             self.gender_combo.setCurrentIndex(index)
@@ -606,7 +584,6 @@ class UserPreferencesWidget(QWidget):
             
         # Set department selection
         department = self.user_data.get('department', '')
-        print(f"Department from DB: {department}")
         index = self.department_combo.findText(department)
         if index >= 0:
             self.department_combo.setCurrentIndex(index)
@@ -618,27 +595,20 @@ class UserPreferencesWidget(QWidget):
         bank_account_number = self.user_data.get('bank_account_number', '')
         bank_account_holder = self.user_data.get('bank_account_holder', '')
         
-        print(f"Bank Name from DB: {bank_name}")
-        print(f"Bank Account # from DB: {bank_account_number}")
-        print(f"Bank Account Holder from DB: {bank_account_holder}")
-        
         self.bank_name_edit.setText(bank_name)
         self.bank_account_number_edit.setText(bank_account_number)
         self.bank_account_holder_edit.setText(bank_account_holder)
             
         # Handle birth date specially - don't set a default if no data
         birth_date_str = self.user_data.get('birth_date', '')
-        print(f"Birth date from DB: {birth_date_str}")
         if birth_date_str:
             try:
                 birth_date = QDate.fromString(birth_date_str, "yyyy-MM-dd")
                 if birth_date.isValid():
                     self.birth_date_edit.setDate(birth_date)
                 else:
-                    print(f"Invalid birth date format: {birth_date_str}")
                     self.birth_date_edit.setDate(self.birth_date_edit.minimumDate())
             except Exception as e:
-                print(f"Error parsing birth date: {e}")
                 # Clear the date if parsing fails
                 self.birth_date_edit.setDate(self.birth_date_edit.minimumDate())
         else:
@@ -647,17 +617,14 @@ class UserPreferencesWidget(QWidget):
                 
         # Handle start date specially - don't set a default if no data
         start_date_str = self.user_data.get('start_date', '')
-        print(f"Start date from DB: {start_date_str}")
         if start_date_str:
             try:
                 start_date = QDate.fromString(start_date_str, "yyyy-MM-dd")
                 if start_date.isValid():
                     self.start_date_edit.setDate(start_date)
                 else:
-                    print(f"Invalid start date format: {start_date_str}")
                     self.start_date_edit.setDate(self.start_date_edit.minimumDate())
             except Exception as e:
-                print(f"Error parsing start date: {e}")
                 # Clear the date if parsing fails
                 self.start_date_edit.setDate(self.start_date_edit.minimumDate())
         else:
