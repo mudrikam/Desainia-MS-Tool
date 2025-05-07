@@ -495,7 +495,6 @@ class UserDashboardWidget(QWidget):
         permission_stats = AttendanceStats("Permission", 2, "fa5s.clipboard-check", "#2196F3")
         
         # Use theme-friendly colors for the bottom stats using palette colors
-        no_info_stats = AttendanceStats("No Information", 3, "fa5s.question-circle", "palette(text)")
         total_workdays_stats = AttendanceStats("Total Workdays", 100, "fa5s.calendar-alt", "palette(text)")
         avg_hours_stats = AttendanceStats("Avg Hours/Day", 7.5, "fa5s.clock", "palette(text)")
         total_hours_stats = AttendanceStats("Total Hours", 750, "fa5s.hourglass-half", "palette(text)")
@@ -505,7 +504,6 @@ class UserDashboardWidget(QWidget):
         right_layout.addWidget(absent_stats)
         right_layout.addWidget(sick_stats)
         right_layout.addWidget(permission_stats)
-        right_layout.addWidget(no_info_stats)
         right_layout.addWidget(total_workdays_stats)
         right_layout.addWidget(avg_hours_stats)
         right_layout.addWidget(total_hours_stats)

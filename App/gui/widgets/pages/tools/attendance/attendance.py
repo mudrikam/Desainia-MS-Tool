@@ -5,6 +5,7 @@ from PyQt6.QtCore import Qt, QTimer, QDateTime, pyqtSignal, QEvent, QPoint
 from PyQt6.QtGui import QFont, QColor, QPixmap, QPainter, QPainterPath, QBrush
 import json
 import os
+import datetime
 from PyQt6.QtWidgets import QApplication
 from App.core.user._user_session_handler import session  # Import session handler
 from App.core.database._db_user_attendance import attendance_db  # Import attendance database
@@ -103,7 +104,7 @@ class CircularPhotoLabel(QLabel):
             grayscale_painter.drawPixmap(0, 0, scaled_pixmap)
             
             # Apply grayscale effect
-            image = grayscale_pixmap.toImage()
+            image = grayscale_painter.device().toImage()
             for y in range(image.height()):
                 for x in range(image.width()):
                     pixel = image.pixelColor(x, y)
@@ -133,6 +134,8 @@ class AttendanceTool(QWidget):
         super().__init__(parent)
         self.is_checked_in = False
         self.pin = ""
+        self.work_timer = None
+        self.check_in_time = None
         
         # Get language setting from config
         self.app = QApplication.instance()
@@ -164,7 +167,7 @@ class AttendanceTool(QWidget):
         self.time_label = QLabel()
         self.time_label.setStyleSheet("""
             font-size: 64px;
-            font-weight: bold;
+            font-weight: 600;
             color: palette(text);
         """)
         self.time_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -206,6 +209,121 @@ class AttendanceTool(QWidget):
         """)
         self.dept_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
+        # Create attendance info section with the style of IncomeBox
+        self.attendance_info_widget = QWidget()
+        attendance_info_layout = QHBoxLayout(self.attendance_info_widget)
+        attendance_info_layout.setContentsMargins(0, 10, 0, 5)
+        attendance_info_layout.setSpacing(15)  # Same spacing as income boxes
+        
+        # Create Check-in box (similar to IncomeBox)
+        checkin_box = QFrame()
+        checkin_box.setFrameShape(QFrame.Shape.StyledPanel)
+        checkin_box.setObjectName("checkinBox")
+        checkin_box.setStyleSheet("""
+            #checkinBox {
+                background-color: palette(light);
+                border: none;
+                border-radius: 15px;
+            }
+        """)
+        
+        checkin_layout = QVBoxLayout(checkin_box)
+        checkin_layout.setContentsMargins(15, 10, 15, 10)
+        checkin_layout.setSpacing(0)
+        
+        # Check-in title
+        checkin_title = QLabel("Last Check-in")
+        checkin_title_font = QFont()
+        checkin_title_font.setPointSize(9)
+        checkin_title.setFont(checkin_title_font)
+        checkin_title.setStyleSheet("color: rgba(127, 127, 127, 1);")
+        
+        # Check-in value
+        self.last_checkin_value = QLabel("Never")
+        checkin_value_font = QFont()
+        checkin_value_font.setPointSize(12)
+        checkin_value_font.setWeight(600)
+        self.last_checkin_value.setFont(checkin_value_font)
+        self.last_checkin_value.setStyleSheet("color: #4CAF50;")
+        self.last_checkin_value.setTextFormat(Qt.TextFormat.RichText)  # Enable HTML formatting
+        
+        checkin_layout.addWidget(checkin_title)
+        checkin_layout.addWidget(self.last_checkin_value)
+        
+        # Create Check-out box
+        checkout_box = QFrame()
+        checkout_box.setFrameShape(QFrame.Shape.StyledPanel)
+        checkout_box.setObjectName("checkoutBox")
+        checkout_box.setStyleSheet("""
+            #checkoutBox {
+                background-color: palette(light);
+                border: none;
+                border-radius: 15px;
+            }
+        """)
+        
+        checkout_layout = QVBoxLayout(checkout_box)
+        checkout_layout.setContentsMargins(15, 10, 15, 10)
+        checkout_layout.setSpacing(0)
+        
+        # Check-out title
+        checkout_title = QLabel("Last Check-out")
+        checkout_title_font = QFont()
+        checkout_title_font.setPointSize(9)
+        checkout_title.setFont(checkout_title_font)
+        checkout_title.setStyleSheet("color: rgba(127, 127, 127, 1);")
+        
+        # Check-out value
+        self.last_checkout_value = QLabel("Never")
+        checkout_value_font = QFont()
+        checkout_value_font.setPointSize(12)
+        checkout_value_font.setWeight(600)
+        self.last_checkout_value.setFont(checkout_value_font)
+        self.last_checkout_value.setStyleSheet("color: #f44336;")
+        self.last_checkout_value.setTextFormat(Qt.TextFormat.RichText)  # Enable HTML formatting
+        
+        checkout_layout.addWidget(checkout_title)
+        checkout_layout.addWidget(self.last_checkout_value)
+        
+        # Create Work Duration box
+        duration_box = QFrame()
+        duration_box.setFrameShape(QFrame.Shape.StyledPanel)
+        duration_box.setObjectName("durationBox")
+        duration_box.setStyleSheet("""
+            #durationBox {
+                background-color: palette(light);
+                border: none;
+                border-radius: 15px;
+            }
+        """)
+        
+        duration_layout = QVBoxLayout(duration_box)
+        duration_layout.setContentsMargins(15, 10, 15, 10)
+        duration_layout.setSpacing(0)
+        
+        # Duration title
+        duration_title = QLabel("Work Duration")
+        duration_title_font = QFont()
+        duration_title_font.setPointSize(9)
+        duration_title.setFont(duration_title_font)
+        duration_title.setStyleSheet("color: rgba(127, 127, 127, 1);")
+        
+        # Duration value
+        self.work_duration_value = QLabel("00:00:00")
+        duration_value_font = QFont()
+        duration_value_font.setPointSize(12)
+        duration_value_font.setWeight(600)
+        self.work_duration_value.setFont(duration_value_font)
+        self.work_duration_value.setStyleSheet("color: palette(text);")
+        
+        duration_layout.addWidget(duration_title)
+        duration_layout.addWidget(self.work_duration_value)
+        
+        # Add all boxes to attendance info layout
+        attendance_info_layout.addWidget(checkin_box)
+        attendance_info_layout.addWidget(checkout_box)
+        attendance_info_layout.addWidget(duration_box)
+        
         # Update user info from session handler
         self.update_user_info()
         
@@ -232,6 +350,7 @@ class AttendanceTool(QWidget):
         
         left_layout.addWidget(self.name_value)
         left_layout.addWidget(self.dept_value)
+        left_layout.addWidget(self.attendance_info_widget, 0, Qt.AlignmentFlag.AlignHCenter)
         
         # Add another stretch to balance the vertical centering
         left_layout.addStretch(1)
@@ -536,6 +655,54 @@ class AttendanceTool(QWidget):
             # Get latest attendance record for today for the CURRENT user
             latest_record = attendance_db.get_latest_attendance_record(user_id)
             
+            # Get last check-in time (from any date)
+            last_checkin_record = attendance_db.get_last_check_in_time(user_id)
+            
+            # Get last check-out time (from any date)
+            last_checkout_record = attendance_db.get_last_check_out_time(user_id)
+            
+            # Update last check-in time display
+            if last_checkin_record and last_checkin_record.get('check_in_time'):
+                checkin_date = last_checkin_record.get('full_date')
+                checkin_time = last_checkin_record.get('check_in_time')
+                if checkin_date and checkin_time:
+                    # Format date as May 7, 2023
+                    date_obj = None
+                    try:
+                        if isinstance(checkin_date, str):
+                            date_obj = datetime.datetime.strptime(checkin_date, "%Y-%m-%d").date()
+                        else:
+                            date_obj = checkin_date
+                    except:
+                        date_obj = None
+                    
+                    date_str = date_obj.strftime("%b %d, %Y") if date_obj else str(checkin_date)
+                    # Format with HTML to put time on a new line
+                    self.last_checkin_value.setText(f"{date_str}<br><span style='font-size: 11pt;'>{checkin_time}</span>")
+            else:
+                self.last_checkin_value.setText("Never")
+                
+            # Update last check-out time display
+            if last_checkout_record and last_checkout_record.get('check_out_time'):
+                checkout_date = last_checkout_record.get('full_date')
+                checkout_time = last_checkout_record.get('check_out_time')
+                if checkout_date and checkout_time:
+                    # Format date as May 7, 2023
+                    date_obj = None
+                    try:
+                        if isinstance(checkout_date, str):
+                            date_obj = datetime.datetime.strptime(checkout_date, "%Y-%m-%d").date()
+                        else:
+                            date_obj = checkout_date
+                    except:
+                        date_obj = None
+                    
+                    date_str = date_obj.strftime("%b %d, %Y") if date_obj else str(checkout_date)
+                    # Format with HTML to put time on a new line
+                    self.last_checkout_value.setText(f"{date_str}<br><span style='font-size: 11pt;'>{checkout_time}</span>")
+            else:
+                self.last_checkout_value.setText("Never")
+            
             # If record exists and has check-in time but no check-out time, user is checked in
             if latest_record and latest_record.get('check_in_time') and not latest_record.get('check_out_time'):
                 self.is_checked_in = True
@@ -559,6 +726,31 @@ class AttendanceTool(QWidget):
                         background-color: #d32f2f;
                     }
                 """)
+                
+                # Start work duration timer
+                if latest_record.get('check_in_time'):
+                    try:
+                        check_in_time_str = latest_record.get('check_in_time')
+                        check_in_date = latest_record.get('full_date')
+                        
+                        # Create check-in datetime object
+                        if isinstance(check_in_date, str):
+                            date_obj = datetime.datetime.strptime(check_in_date, "%Y-%m-%d").date()
+                        else:
+                            date_obj = check_in_date
+                            
+                        # Combine date and time
+                        time_obj = datetime.datetime.strptime(check_in_time_str, "%H:%M:%S").time()
+                        self.check_in_time = datetime.datetime.combine(date_obj, time_obj)
+                        
+                        # Start timer to update work duration
+                        if self.work_timer is None:
+                            self.work_timer = QTimer(self)
+                            self.work_timer.timeout.connect(self.update_work_duration)
+                            self.work_timer.start(1000)  # Update every second
+                    except Exception as e:
+                        print(f"Error starting work duration timer: {e}")
+                        
             else:
                 self.is_checked_in = False
                 
@@ -582,6 +774,15 @@ class AttendanceTool(QWidget):
                     }
                 """)
                 
+                # Stop work duration timer if running
+                if self.work_timer and self.work_timer.isActive():
+                    self.work_timer.stop()
+                self.work_timer = None
+                self.check_in_time = None
+                
+                # Display the last completed work duration (static)
+                self.update_last_work_duration()
+                
             # Reset PIN input field style to normal
             self.pin_display.setStyleSheet("""
                 font-size: 24px;
@@ -594,6 +795,72 @@ class AttendanceTool(QWidget):
             
         except Exception as e:
             print(f"Failed to check attendance status: {e}")
+    
+    def update_last_work_duration(self):
+        """Update the work duration display with the last completed work duration"""
+        try:
+            # Get the last checkout record with working_hours
+            user_id = session.get_user_id()
+            last_checkout_record = attendance_db.get_last_check_out_time(user_id)
+            
+            if last_checkout_record and 'working_hours' in last_checkout_record and last_checkout_record['working_hours'] is not None:
+                # Get working hours from the record
+                working_hours = float(last_checkout_record['working_hours'])
+                
+                # Convert to hours, minutes, seconds
+                total_seconds = int(working_hours * 3600)
+                hours = total_seconds // 3600
+                minutes = (total_seconds % 3600) // 60
+                seconds = total_seconds % 60
+                
+                # Get the date from the checkout record
+                checkout_date = last_checkout_record.get('full_date')
+                date_obj = None
+                try:
+                    if isinstance(checkout_date, str):
+                        date_obj = datetime.datetime.strptime(checkout_date, "%Y-%m-%d").date()
+                    else:
+                        date_obj = checkout_date
+                except:
+                    date_obj = None
+                    
+                date_str = date_obj.strftime("%b %d, %Y") if date_obj else str(checkout_date)
+                
+                # Update the label with the last work duration including date
+                duration_str = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+                self.work_duration_value.setText(f"{date_str}<br><span style='font-size: 11pt;'>{duration_str}</span>")
+            else:
+                # No previous work duration found
+                self.work_duration_value.setText("Never")
+                
+        except Exception as e:
+            print(f"Error updating last work duration: {e}")
+            self.work_duration_value.setText("00:00:00")
+    
+    def update_work_duration(self):
+        """Update the work duration timer based on check-in time"""
+        if not self.check_in_time:
+            return
+        
+        try:
+            # Calculate time difference between check-in time and now
+            now = datetime.datetime.now()
+            duration = now - self.check_in_time
+            
+            # Format as HH:MM:SS
+            total_seconds = int(duration.total_seconds())
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            
+            # Get today's date formatted consistently
+            today_date = now.strftime("%b %d, %Y")
+            
+            # Update the label with today's date and current duration
+            duration_str = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+            self.work_duration_value.setText(f"{today_date}<br><span style='font-size: 11pt;'>{duration_str}</span>")
+        except Exception as e:
+            print(f"Error updating work duration: {e}")
     
     def toggle_check_status(self):
         """Process check-in or check-out based on current status."""        
@@ -687,6 +954,11 @@ class AttendanceTool(QWidget):
                 else:
                     # Visual feedback for failure can be added here if needed
                     pass
+                    
+            # Important: Immediately refresh the attendance status to update UI
+            if success:
+                # Update attendance info immediately after successful check-in/out
+                QTimer.singleShot(100, self.check_current_attendance_status)
                                       
         except Exception as e:
             print(f"An error occurred during attendance operation: {str(e)}")

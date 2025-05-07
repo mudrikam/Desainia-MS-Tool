@@ -387,6 +387,96 @@ class UserAttendanceDB:
             return []
         finally:
             self._close_db()
+    
+    def get_last_check_in_time(self, user_id=None):
+        """
+        Get the most recent check-in time for a user (from any date).
+        
+        Args:
+            user_id (int, optional): User ID to get check-in time for. Defaults to logged-in user.
+            
+        Returns:
+            dict: The most recent check-in record or None if not found
+        """
+        if user_id is None:
+            if not session.is_logged_in():
+                self.logger.warning("Attempted to get last check-in when not logged in")
+                return None
+            
+            user_id = session.get_user_id()
+            if not user_id:
+                self.logger.warning("No user ID found in session")
+                return None
+        
+        try:
+            if not self._connect_db():
+                return None
+            
+            cursor = self.conn.cursor()
+            cursor.execute(
+                "SELECT * FROM user_attendance "
+                "WHERE user_id = ? AND check_in_time IS NOT NULL "
+                "ORDER BY full_date DESC, check_in_time DESC LIMIT 1",
+                (user_id,)
+            )
+            result = cursor.fetchone()
+            
+            if not result:
+                return None
+            
+            # Convert row to dict
+            return dict(result)
+            
+        except sqlite3.Error as e:
+            self.logger.error(f"Database error getting last check-in time: {e}")
+            return None
+        finally:
+            self._close_db()
+    
+    def get_last_check_out_time(self, user_id=None):
+        """
+        Get the most recent check-out time for a user (from any date).
+        
+        Args:
+            user_id (int, optional): User ID to get check-out time for. Defaults to logged-in user.
+            
+        Returns:
+            dict: The most recent check-out record or None if not found
+        """
+        if user_id is None:
+            if not session.is_logged_in():
+                self.logger.warning("Attempted to get last check-out when not logged in")
+                return None
+            
+            user_id = session.get_user_id()
+            if not user_id:
+                self.logger.warning("No user ID found in session")
+                return None
+        
+        try:
+            if not self._connect_db():
+                return None
+            
+            cursor = self.conn.cursor()
+            cursor.execute(
+                "SELECT * FROM user_attendance "
+                "WHERE user_id = ? AND check_out_time IS NOT NULL "
+                "ORDER BY full_date DESC, check_out_time DESC LIMIT 1",
+                (user_id,)
+            )
+            result = cursor.fetchone()
+            
+            if not result:
+                return None
+            
+            # Convert row to dict
+            return dict(result)
+            
+        except sqlite3.Error as e:
+            self.logger.error(f"Database error getting last check-out time: {e}")
+            return None
+        finally:
+            self._close_db()
 
 # Create a global instance for easy import
 attendance_db = UserAttendanceDB()
