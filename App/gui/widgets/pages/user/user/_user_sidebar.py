@@ -11,19 +11,33 @@ import os
 # Import the database module for user data
 from App.core.database import UserDashboardDB
 from App.core.user._user_auth import UserAuth
+from App.core.user._user_session_handler import session
+from App.core.database._db_user_attendance import attendance_db
 
 class CircularImageLabel(QLabel):
     """A custom QLabel that displays images in a circular shape"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, border_width=3, border_color="transparent"):
         super().__init__(parent)
         self.setMinimumSize(100, 100)
         self.setMaximumSize(100, 100)
         self._pixmap = None
+        self.border_width = border_width
+        self.border_color = border_color
         
     def setPixmap(self, pixmap):
         self._pixmap = pixmap
-        super().setPixmap(self._get_circular_pixmap())
+        self.update_image()
+        
+    def set_border_color(self, color):
+        """Set the border color and redraw the image"""
+        self.border_color = color
+        self.update_image()
+        
+    def update_image(self):
+        """Update the circular image with current border settings"""
+        if self._pixmap:
+            super().setPixmap(self._get_circular_pixmap())
         
     def _get_circular_pixmap(self):
         if self._pixmap is None:
@@ -38,19 +52,36 @@ class CircularImageLabel(QLabel):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
         
-        # Create circular path
-        path = QPainterPath()
-        path.addEllipse(0, 0, self.width(), self.height())
-        painter.setClipPath(path)
+        # Create circular path for border
+        border_path = QPainterPath()
+        border_path.addEllipse(0, 0, self.width(), self.height())
+        
+        # Draw border if border color is not transparent
+        if self.border_color != "transparent":
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(QColor(self.border_color))
+            painter.drawPath(border_path)
+        
+        # Create circular path for image (smaller to account for border)
+        image_path = QPainterPath()
+        image_rect = self.width() - (self.border_width * 2)
+        image_path.addEllipse(
+            self.border_width, 
+            self.border_width, 
+            image_rect, 
+            image_rect
+        )
+        
+        painter.setClipPath(image_path)
         
         # Scale the pixmap to fill the circular area
-        scaled_pixmap = self._pixmap.scaled(self.width(), self.height(), 
-                                       Qt.AspectRatioMode.KeepAspectRatioByExpanding, 
-                                       Qt.TransformationMode.SmoothTransformation)
+        scaled_pixmap = self._pixmap.scaled(image_rect, image_rect,
+                                      Qt.AspectRatioMode.KeepAspectRatioByExpanding, 
+                                      Qt.TransformationMode.SmoothTransformation)
         
         # Calculate position to center the pixmap
-        x = (self.width() - scaled_pixmap.width()) // 2
-        y = (self.height() - scaled_pixmap.height()) // 2
+        x = self.border_width
+        y = self.border_width
         
         # Draw the pixmap
         painter.drawPixmap(x, y, scaled_pixmap)
@@ -398,6 +429,37 @@ class UserSidebar(QFrame):
         # Emit signal to notify parent
         self.logout_requested.emit()
     
+    def showEvent(self, event):
+        """Called when the widget is shown."""
+        # Check attendance status when sidebar is shown
+        self.check_attendance_status()
+        super().showEvent(event)
+    
+    def check_attendance_status(self):
+        """Check if the user is currently checked in and update the profile image border."""
+        if not session.is_logged_in():
+            return
+            
+        try:
+            # Get current user ID from session
+            user_id = session.get_user_id()
+            if not user_id:
+                return
+                
+            # Get latest attendance record for today
+            latest_record = attendance_db.get_latest_attendance_record(user_id)
+            
+            # If record exists and has check-in time but no check-out time, user is checked in
+            if latest_record and latest_record.get('check_in_time') and not latest_record.get('check_out_time'):
+                # Update profile photo border to green to indicate checked in
+                self.profile_image.set_border_color("#4CAF50")  # Green border for checked in
+            else:
+                # Reset profile photo border to transparent for checked out
+                self.profile_image.set_border_color("transparent")
+                
+        except Exception as e:
+            print(f"Failed to check attendance status in sidebar: {e}")
+            
     def update_username(self, username):
         """Update the displayed username with fresh data from database"""
         self.username = username
@@ -472,3 +534,6 @@ class UserSidebar(QFrame):
             painter.end()
             
             self.profile_image.setPixmap(pixmap)
+            
+        # Check attendance status after updating profile image
+        self.check_attendance_status()
