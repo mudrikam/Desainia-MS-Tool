@@ -446,11 +446,12 @@ class UserSidebar(QFrame):
             if not user_id:
                 return
                 
-            # Get latest attendance record for today
-            latest_record = attendance_db.get_latest_attendance_record(user_id)
+            # Get any unclosed attendance record regardless of date
+            # This ensures consistency with the attendance page
+            unclosed_record = attendance_db.get_unclosed_attendance_record(user_id)
             
-            # If record exists and has check-in time but no check-out time, user is checked in
-            if latest_record and latest_record.get('check_in_time') and not latest_record.get('check_out_time'):
+            # If any unclosed record exists, user is considered checked in
+            if unclosed_record and unclosed_record.get('check_in_time') and not unclosed_record.get('check_out_time'):
                 # Update profile photo border to green to indicate checked in
                 self.profile_image.set_border_color("#4CAF50")  # Green border for checked in
             else:

@@ -28,23 +28,27 @@ class UserDashboardDB:
         self.logger = logging.getLogger('main')
         self.conn = None
         
-        # Get database path
+        # Get base directory
         if self.app and hasattr(self.app, 'BASE_DIR'):
             self.base_dir = self.app.BASE_DIR
-            self.config = self.app.BASE_DIR.config
-            self.db_path = self._get_db_path_from_config()
         else:
-            # Fallback if app instance not provided
+            # Fallback for base directory if app instance not provided
             self.base_dir = self._get_base_dir()
-            self.config = self._load_config()
-            self.db_path = self.config.get('database', {}).get('path', 
-                os.path.join(self.base_dir.get_path('App', 'database'), 'database.db'))
+            
+        # Always load config from config.json
+        self.config = self._load_config()
+        
+        # Get database path strictly from config - no default fallback
+        self.db_path = os.path.join(
+            self.base_dir.get_path(''),
+            self.config['database']['path']
+        )
                 
         # Profile images directory
-        if self.app and hasattr(self.app, 'BASE_DIR'):
-            self.profile_images_dir = os.path.join(self.app.BASE_DIR.get_path('UserData'), 'profile_images')
-        else:
-            self.profile_images_dir = os.path.join(self.base_dir.get_path('UserData'), 'profile_images')
+        self.profile_images_dir = os.path.join(
+            self.base_dir.get_path('UserData'), 
+            'profile_images'
+        )
             
         # Ensure profile images directory exists
         os.makedirs(self.profile_images_dir, exist_ok=True)
@@ -72,14 +76,6 @@ class UserDashboardDB:
         except Exception as e:
             self.logger.error(f"Error loading config: {e}")
             return {}
-    
-    def _get_db_path_from_config(self):
-        """Get database path from config or use default."""
-        if hasattr(self.app, 'BASE_DIR') and hasattr(self.app.BASE_DIR, 'config'):
-            db_path = self.app.BASE_DIR.config.get('database', {}).get('path', 
-                os.path.join(self.app.BASE_DIR.get_path('App', 'database'), 'database.db'))
-            return db_path
-        return os.path.join('App', 'database', 'database.db')
     
     def _connect_db(self):
         """Connect to the SQLite database."""

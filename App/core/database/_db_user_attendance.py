@@ -8,6 +8,7 @@ import datetime
 import json
 import os
 import logging
+import time
 from pathlib import Path
 from App.core.user._user_session_handler import session
 
@@ -27,7 +28,7 @@ class UserAttendanceDB:
     def _load_config(self):
         """Load application configuration from config.json."""
         try:
-            # Try to get the absolute path to the config file
+            # Get the absolute path to the config file
             base_dir = str(Path(__file__).parents[3])  # Go up 3 levels from this file
             config_path = os.path.join(base_dir, 'App', 'config', 'config.json')
             
@@ -35,35 +36,85 @@ class UserAttendanceDB:
                 return json.load(f)
         except Exception as e:
             self.logger.error(f"Error loading config in UserAttendanceDB: {e}")
-            return {}
+            raise ValueError(f"Failed to load config file: {e}")
     
     def _get_db_path(self):
-        """Get database path from config or use default."""
-        try:
-            # Get database path from config
-            db_path = self.config.get('database', {}).get('path', 'App/database/database.db')
-            
-            # Convert to absolute path if it's relative
-            if not os.path.isabs(db_path):
-                base_dir = str(Path(__file__).parents[3])  # Go up 3 levels from this file
-                db_path = os.path.join(base_dir, db_path)
-            
-            return db_path
-        except Exception as e:
-            self.logger.error(f"Error getting database path: {e}")
-            # Fallback to default path
-            base_dir = str(Path(__file__).parents[3])
-            return os.path.join(base_dir, 'App', 'database', 'database.db')
+        """Get database path from config."""
+        # Get database path directly from config
+        db_path = self.config['database']['path']
+        
+        # Convert to absolute path if it's relative
+        if not os.path.isabs(db_path):
+            base_dir = str(Path(__file__).parents[3])  # Go up 3 levels from this file
+            db_path = os.path.join(base_dir, db_path)
+        
+        return db_path
     
     def _connect_db(self):
-        """Connect to the SQLite database."""
-        try:
-            self.conn = sqlite3.connect(self.db_path)
-            self.conn.row_factory = sqlite3.Row  # Use dictionary-like rows
-            return True
-        except sqlite3.Error as e:
-            self.logger.error(f"Database connection error: {e}")
-            return False
+        """Connect to the SQLite database with retry logic."""
+        max_attempts = 3
+        attempt = 0
+        
+        while attempt < max_attempts:
+            try:
+                # Make sure the database path exists
+                db_dir = os.path.dirname(self.db_path)
+                if not os.path.exists(db_dir):
+                    os.makedirs(db_dir, exist_ok=True)
+                    
+                # Check if the database file exists and is accessible
+                if not os.path.exists(self.db_path):
+                    self.logger.error(f"Database file does not exist: {self.db_path}")
+                    return False
+                
+                # Check if journal file exists and database might be locked
+                journal_path = self.db_path + "-journal"
+                if os.path.exists(journal_path):
+                    self.logger.warning(f"Journal file exists, database might be in use: {journal_path}")
+                
+                # Try to connect with increased timeout to handle locks
+                self.conn = sqlite3.connect(self.db_path, timeout=30)
+                self.conn.row_factory = sqlite3.Row  # Use dictionary-like rows
+                
+                # Set journal mode to WAL for better concurrency
+                cursor = self.conn.cursor()
+                cursor.execute("PRAGMA journal_mode=WAL;")
+                cursor.execute("PRAGMA busy_timeout=10000;")  # 10 second busy timeout
+                
+                # Test the connection with a simple query
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+                
+                return True
+            except sqlite3.Error as e:
+                attempt += 1
+                self.logger.error(f"Database connection error (attempt {attempt}/{max_attempts}): {e}")
+                # Make sure conn is None if connection failed
+                if self.conn:
+                    try:
+                        self.conn.close()
+                    except:
+                        pass
+                self.conn = None
+                
+                if attempt < max_attempts:
+                    # Wait before retrying (exponential backoff)
+                    time.sleep(1 * attempt)
+                else:
+                    self.logger.error("Maximum connection attempts reached, giving up")
+                    return False
+            except Exception as e:
+                self.logger.error(f"Unexpected error connecting to database: {e}")
+                # Make sure conn is None if connection failed
+                if self.conn:
+                    try:
+                        self.conn.close()
+                    except:
+                        pass
+                self.conn = None
+                return False
+        
+        return False
     
     def _close_db(self):
         """Close the database connection."""
@@ -137,21 +188,40 @@ class UserAttendanceDB:
             self.logger.warning("No user ID found in session")
             return False
         
+        # Use a dedicated connection for this transaction
+        conn = None
         try:
-            if not self._connect_db():
-                return False
+            # Create direct connection to database
+            db_path = self.db_path
+            conn = sqlite3.connect(db_path, timeout=60)
+            conn.row_factory = sqlite3.Row
             
             # Get current date and time
             now = datetime.datetime.now()
             current_date = now.date()
             check_in_time = now.time().strftime("%H:%M:%S")
+            check_in_datetime = now.strftime("%Y-%m-%d %H:%M:%S")
             
             # Always create a new attendance record for each check-in
-            cursor = self.conn.cursor()
+            cursor = conn.cursor()
+            
+            # First, check if there's any unclosed record using this connection
+            cursor.execute(
+                "SELECT id FROM user_attendance "
+                "WHERE user_id = ? AND check_in_time IS NOT NULL AND check_out_time IS NULL "
+                "ORDER BY full_date DESC, check_in_time DESC LIMIT 1",
+                (user_id,)
+            )
+            unclosed_record = cursor.fetchone()
+            
+            if unclosed_record:
+                self.logger.warning(f"User {user_id} attempted to check in but has an unclosed check-in record")
+                return False
+                
             cursor.execute(
                 "INSERT INTO user_attendance "
-                "(user_id, full_date, year, month, day, check_in_time, status, is_present, created_at, updated_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                "(user_id, full_date, year, month, day, check_in_time, check_in_datetime, status, is_present, created_at, updated_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                 (
                     user_id,
                     current_date,
@@ -159,11 +229,13 @@ class UserAttendanceDB:
                     now.month,
                     now.day,
                     check_in_time,
+                    check_in_datetime,
                     "Present",  # Default status
                     1,  # is_present = True
                 )
             )
-            self.conn.commit()
+                
+            conn.commit()
             
             # Get the ID of the newly created record
             attendance_id = cursor.lastrowid
@@ -173,14 +245,30 @@ class UserAttendanceDB:
             
         except sqlite3.Error as e:
             self.logger.error(f"Database error during check-in: {e}")
+            # Try to rollback if there's a connection and transaction
+            if conn:
+                try:
+                    conn.rollback()
+                except:
+                    pass
+            return False
+        except Exception as e:
+            self.logger.error(f"Unexpected error during check-in: {e}")
+            # Try to rollback if there's a connection and transaction
+            if conn:
+                try:
+                    conn.rollback()
+                except:
+                    pass
             return False
         finally:
-            self._close_db()
+            if conn:
+                conn.close()
     
     def check_out(self):
         """
         Record a check-out event for the current user.
-        Updates the most recent check-in record for today that doesn't have a check-out time.
+        Updates the most recent unclosed check-in record for the user, regardless of date.
         
         Returns:
             bool: True if check-out was successful, False otherwise
@@ -194,39 +282,73 @@ class UserAttendanceDB:
             self.logger.warning("No user ID found in session")
             return False
         
+        # Use a dedicated connection for this transaction
+        conn = None
         try:
-            if not self._connect_db():
-                return False
+            # Create direct connection to database
+            db_path = self.db_path
+            conn = sqlite3.connect(db_path, timeout=60)
+            conn.row_factory = sqlite3.Row
             
             # Get current date and time
             now = datetime.datetime.now()
-            current_date = now.date()
             check_out_time = now.time().strftime("%H:%M:%S")
+            check_out_datetime = now.strftime("%Y-%m-%d %H:%M:%S")
             
-            # Find the most recent check-in for today that doesn't have a check-out time
-            cursor = self.conn.cursor()
+            # Find the most recent check-in record that doesn't have a check-out time
+            # regardless of date (to handle overnight shifts or forgot to check out)
+            cursor = conn.cursor()
             cursor.execute(
-                "SELECT id, check_in_time FROM user_attendance "
-                "WHERE user_id = ? AND full_date = ? AND check_out_time IS NULL "
-                "ORDER BY check_in_time DESC LIMIT 1",
-                (user_id, current_date)
+                "SELECT id, full_date, check_in_time, check_in_datetime FROM user_attendance "
+                "WHERE user_id = ? AND check_in_time IS NOT NULL AND check_out_time IS NULL "
+                "ORDER BY full_date DESC, check_in_time DESC LIMIT 1",
+                (user_id,)
             )
-            existing_record = cursor.fetchone()
+            existing_record_row = cursor.fetchone()
             
-            if not existing_record:
+            if not existing_record_row:
                 # No open check-in record found, can't check out
                 self.logger.warning(f"User {user_id} attempted to check out but has no open check-in record")
                 return False
             
-            # Calculate working hours if check-in time exists
+            # Convert sqlite3.Row to dict to properly use .get() method
+            existing_record = dict(existing_record_row)
+            
+            # Calculate working hours
             working_hours = None
-            if existing_record['check_in_time']:
-                check_in_dt = datetime.datetime.strptime(existing_record['check_in_time'], "%H:%M:%S")
-                check_out_dt = datetime.datetime.strptime(check_out_time, "%H:%M:%S")
+            
+            # If we have the full datetime field, use that for precise calculation
+            if 'check_in_datetime' in existing_record and existing_record['check_in_datetime']:
+                check_in_dt = datetime.datetime.strptime(existing_record['check_in_datetime'], "%Y-%m-%d %H:%M:%S")
+                check_out_dt = now
                 
-                # Handle case where checkout is on the next day
+                # Calculate hours as decimal, properly handling multi-day spans
+                delta = check_out_dt - check_in_dt
+                working_hours = delta.total_seconds() / 3600  # Convert to hours
+            else:
+                # Fallback to the old method if check_in_datetime is not available
+                # Get the check-in date and time
+                check_in_date = existing_record['full_date']
+                check_in_time = existing_record['check_in_time']
+                
+                # Create datetime objects for check-in and check-out
+                if isinstance(check_in_date, str):
+                    check_in_date = datetime.datetime.strptime(check_in_date, "%Y-%m-%d").date()
+                
+                check_in_time = datetime.datetime.strptime(check_in_time, "%H:%M:%S").time()
+                check_in_dt = datetime.datetime.combine(check_in_date, check_in_time)
+                
+                check_out_dt = datetime.datetime.combine(now.date(), datetime.datetime.strptime(check_out_time, "%H:%M:%S").time())
+                
+                # Calculate the difference, handling multi-day spans
                 if check_out_dt < check_in_dt:
-                    check_out_dt = check_out_dt + datetime.timedelta(days=1)
+                    days_diff = (now.date() - check_in_date).days
+                    if days_diff <= 0:
+                        # If same day but checkout time is earlier, assume next day
+                        check_out_dt += datetime.timedelta(days=1)
+                    else:
+                        # Otherwise use the actual date
+                        check_out_dt = datetime.datetime.combine(now.date(), datetime.datetime.strptime(check_out_time, "%H:%M:%S").time())
                 
                 # Calculate hours as decimal
                 delta = check_out_dt - check_in_dt
@@ -234,20 +356,37 @@ class UserAttendanceDB:
             
             # Update the existing record with check-out time
             cursor.execute(
-                "UPDATE user_attendance SET check_out_time = ?, working_hours = ?, "
+                "UPDATE user_attendance SET check_out_time = ?, check_out_datetime = ?, working_hours = ?, "
                 "updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-                (check_out_time, working_hours, existing_record['id'])
+                (check_out_time, check_out_datetime, working_hours, existing_record['id'])
             )
-            self.conn.commit()
+                
+            conn.commit()
             
             self.logger.info(f"User {user_id} checked out at {check_out_time} (Record ID: {existing_record['id']})")
             return True
             
         except sqlite3.Error as e:
             self.logger.error(f"Database error during check-out: {e}")
+            # Try to rollback if there's a connection and transaction
+            if conn:
+                try:
+                    conn.rollback()
+                except:
+                    pass
+            return False
+        except Exception as e:
+            self.logger.error(f"Unexpected error during check-out: {e}")
+            # Try to rollback if there's a connection and transaction
+            if conn:
+                try:
+                    conn.rollback()
+                except:
+                    pass
             return False
         finally:
-            self._close_db()
+            if conn:
+                conn.close()
     
     def get_today_attendance(self, user_id=None):
         """
@@ -474,6 +613,53 @@ class UserAttendanceDB:
             
         except sqlite3.Error as e:
             self.logger.error(f"Database error getting last check-out time: {e}")
+            return None
+        finally:
+            self._close_db()
+    
+    def get_unclosed_attendance_record(self, user_id=None):
+        """
+        Get the most recent attendance record with no check-out time for a user, regardless of date.
+        This is important to prevent users from checking in again when they haven't checked out
+        from a previous day.
+        
+        Args:
+            user_id (int, optional): User ID to check. Defaults to logged-in user.
+            
+        Returns:
+            dict: The most recent unclosed attendance record or None if not found
+        """
+        if user_id is None:
+            if not session.is_logged_in():
+                self.logger.warning("Attempted to get unclosed attendance record when not logged in")
+                return None
+            
+            user_id = session.get_user_id()
+            if not user_id:
+                self.logger.warning("No user ID found in session")
+                return None
+        
+        try:
+            if not self._connect_db():
+                return None
+            
+            cursor = self.conn.cursor()
+            cursor.execute(
+                "SELECT * FROM user_attendance "
+                "WHERE user_id = ? AND check_in_time IS NOT NULL AND check_out_time IS NULL "
+                "ORDER BY full_date DESC, check_in_time DESC LIMIT 1",
+                (user_id,)
+            )
+            result = cursor.fetchone()
+            
+            if not result:
+                return None
+            
+            # Convert row to dict
+            return dict(result)
+            
+        except sqlite3.Error as e:
+            self.logger.error(f"Database error getting unclosed attendance record: {e}")
             return None
         finally:
             self._close_db()

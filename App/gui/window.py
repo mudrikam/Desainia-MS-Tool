@@ -93,3 +93,17 @@ class MainWindow(QMainWindow):
             self.move(x, y)
         else:
             self.showMaximized()
+    
+    def closeEvent(self, event):
+        """Handle window close event by cleaning up resources"""
+        # Clean up session before closing
+        from App.core.user._user_session_handler import session
+        
+        # First, clean any expired sessions
+        session.clean_expired_sessions()
+        
+        # Then invalidate the current instance session
+        session.invalidate_instance_session()
+        
+        # Continue with default close behavior
+        super().closeEvent(event)

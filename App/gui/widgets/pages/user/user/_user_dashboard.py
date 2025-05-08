@@ -3,10 +3,13 @@ from PyQt6.QtWidgets import (
     QFrame, QSizePolicy, QSpacerItem, QGridLayout,
     QScrollArea, QTableWidget, QTableWidgetItem, QHeaderView
 )
-from PyQt6.QtCore import Qt, QDateTime
+from PyQt6.QtCore import Qt, QDateTime, QTimer
 from PyQt6.QtGui import QFont, QColor
 import qtawesome as qta
 import random  # For generating random percentage changes
+import datetime
+from App.core.user._user_session_handler import session
+from App.core.database._db_user_attendance import attendance_db
 
 
 class StatBox(QFrame):

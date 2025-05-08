@@ -35,9 +35,8 @@ class DatabaseMigration:
             self.base_dir = self._get_base_dir()
             self.config = self._load_config()
         
-        # Get database path from config or use default
-        self.db_path = self.config.get('database', {}).get('path', 
-            os.path.join(self.base_dir.get_path('App', 'database'), 'database.db'))
+        # Get database path strictly from config with no default
+        self.db_path = os.path.join(self.base_dir.get_path(''), self.config['database']['path'])
         
         # Ensure database directory exists
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
@@ -198,6 +197,8 @@ class DatabaseMigration:
                 day INTEGER NOT NULL,
                 check_in_time TIME,
                 check_out_time TIME,
+                check_in_datetime DATETIME,
+                check_out_datetime DATETIME,
                 working_hours FLOAT,
                 status TEXT NOT NULL,
                 is_present BOOLEAN DEFAULT 0,
@@ -293,6 +294,7 @@ class DatabaseMigration:
             # Check if all required tables exist
             missing_tables = required_tables - existing_tables
             
+            # Create any missing tables
             if missing_tables:
                 self.logger.info(f"Database exists but missing tables: {', '.join(missing_tables)}")
                 self.logger.info("Creating missing tables...")
@@ -306,13 +308,18 @@ class DatabaseMigration:
                 # This avoids duplicating default data in existing tables
                 self._initialize_missing_tables(missing_tables)
                 
+                # Ensure default admin user exists if 'users' was a missing table
+                if 'users' in missing_tables:
+                    if not self._ensure_default_admin():
+                        self.logger.error("Failed to create default admin user")
+                
                 return "updated"  # Indicate that the database was updated
             else:
                 # All tables exist, just ensure they're up to date
                 if not self._create_tables():
                     return False
                 
-                # Create default admin user if needed
+                # Always check if default admin exists, even for existing databases
                 if not self._ensure_default_admin():
                     self.logger.error("Failed to create default admin user")
             
@@ -332,7 +339,7 @@ class DatabaseMigration:
                     "allow_registration": "True",
                     "allow_password_reset": "True",
                     "remember_login": "False",
-                    "session_timeout_minutes": "60"
+                    "session_timeout_minutes": "1440"  # 24 jam
                 }
                 
                 for key, value in default_settings.items():

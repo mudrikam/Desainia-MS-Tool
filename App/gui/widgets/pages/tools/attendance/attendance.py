@@ -550,7 +550,7 @@ class AttendanceTool(QWidget):
         return indonesian_months.get(month_number, "")
 
     def showEvent(self, event):
-        """Called when the widget is shown."""
+        """Called when the widget is shown."""        
         # Force focus to PIN field when shown
         QTimer.singleShot(100, self.pin_display.setFocus)
         
@@ -652,8 +652,9 @@ class AttendanceTool(QWidget):
                 print("No user ID found in session")
                 return
                 
-            # Get latest attendance record for today for the CURRENT user
-            latest_record = attendance_db.get_latest_attendance_record(user_id)
+            # Get any unclosed attendance record (from any date)
+            # This ensures we don't prompt for check-in if the user hasn't checked out from a previous day
+            unclosed_record = attendance_db.get_unclosed_attendance_record(user_id)
             
             # Get last check-in time (from any date)
             last_checkin_record = attendance_db.get_last_check_in_time(user_id)
@@ -703,8 +704,8 @@ class AttendanceTool(QWidget):
             else:
                 self.last_checkout_value.setText("Never")
             
-            # If record exists and has check-in time but no check-out time, user is checked in
-            if latest_record and latest_record.get('check_in_time') and not latest_record.get('check_out_time'):
+            # If there is an unclosed record (check-in with no check-out), user is considered checked in
+            if unclosed_record and unclosed_record.get('check_in_time'):
                 self.is_checked_in = True
                 
                 # Update profile photo border to green to indicate checked in
@@ -728,28 +729,27 @@ class AttendanceTool(QWidget):
                 """)
                 
                 # Start work duration timer
-                if latest_record.get('check_in_time'):
-                    try:
-                        check_in_time_str = latest_record.get('check_in_time')
-                        check_in_date = latest_record.get('full_date')
+                check_in_time_str = unclosed_record.get('check_in_time')
+                check_in_date = unclosed_record.get('full_date')
+                
+                try:
+                    # Create check-in datetime object
+                    if isinstance(check_in_date, str):
+                        date_obj = datetime.datetime.strptime(check_in_date, "%Y-%m-%d").date()
+                    else:
+                        date_obj = check_in_date
                         
-                        # Create check-in datetime object
-                        if isinstance(check_in_date, str):
-                            date_obj = datetime.datetime.strptime(check_in_date, "%Y-%m-%d").date()
-                        else:
-                            date_obj = check_in_date
-                            
-                        # Combine date and time
-                        time_obj = datetime.datetime.strptime(check_in_time_str, "%H:%M:%S").time()
-                        self.check_in_time = datetime.datetime.combine(date_obj, time_obj)
-                        
-                        # Start timer to update work duration
-                        if self.work_timer is None:
-                            self.work_timer = QTimer(self)
-                            self.work_timer.timeout.connect(self.update_work_duration)
-                            self.work_timer.start(1000)  # Update every second
-                    except Exception as e:
-                        print(f"Error starting work duration timer: {e}")
+                    # Combine date and time
+                    time_obj = datetime.datetime.strptime(check_in_time_str, "%H:%M:%S").time()
+                    self.check_in_time = datetime.datetime.combine(date_obj, time_obj)
+                    
+                    # Start timer to update work duration
+                    if self.work_timer is None:
+                        self.work_timer = QTimer(self)
+                        self.work_timer.timeout.connect(self.update_work_duration)
+                        self.work_timer.start(1000)  # Update every second
+                except Exception as e:
+                    print(f"Error starting work duration timer: {e}")
                         
             else:
                 self.is_checked_in = False
@@ -853,12 +853,12 @@ class AttendanceTool(QWidget):
             minutes = (total_seconds % 3600) // 60
             seconds = total_seconds % 60
             
-            # Get today's date formatted consistently
-            today_date = now.strftime("%b %d, %Y")
+            # Get check-in date formatted consistently
+            checkin_date = self.check_in_time.strftime("%b %d, %Y")
             
-            # Update the label with today's date and current duration
+            # Update the label with check-in date and current duration
             duration_str = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-            self.work_duration_value.setText(f"{today_date}<br><span style='font-size: 11pt;'>{duration_str}</span>")
+            self.work_duration_value.setText(f"{checkin_date}<br><span style='font-size: 11pt;'>{duration_str}</span>")
         except Exception as e:
             print(f"Error updating work duration: {e}")
     
