@@ -35,12 +35,24 @@ class DatabaseMigration:
             self.base_dir = self._get_base_dir()
             self.config = self._load_config()
         
+        # Fix for cross-platform compatibility
+        db_path = self.config['database']['path']
+        # Normalize path separators (convert Windows backslashes to forward slashes)
+        db_path = db_path.replace('\\', '/')
+        
         # Get database path strictly from config with no default
-        self.db_path = os.path.join(self.base_dir.get_path(''), self.config['database']['path'])
+        self.db_path = os.path.normpath(os.path.join(self.base_dir.get_path(''), db_path))
+        
+        # Debug log
+        self.logger.debug(f"Database path: {self.db_path}")
         
         # Ensure database directory exists
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
-        
+        try:
+            os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+            self.logger.debug(f"Ensured database directory exists: {os.path.dirname(self.db_path)}")
+        except Exception as e:
+            self.logger.error(f"Error creating database directory: {e}")
+            
         # Database connection
         self.conn = None
     
@@ -71,11 +83,19 @@ class DatabaseMigration:
     def _connect_db(self):
         """Connect to the SQLite database."""
         try:
+            # Print database path to console for debugging
+            print(f"Connecting to database: {self.db_path}")
+            
             self.conn = sqlite3.connect(self.db_path)
             self.conn.row_factory = sqlite3.Row  # Use dictionary-like rows
+            
+            # Print connection status
+            print(f"Database connection successful: {self.db_path}")
             return True
         except sqlite3.Error as e:
             self.logger.error(f"Database error: {e}")
+            print(f"Database connection failed: {self.db_path}")
+            print(f"Error: {e}")
             return False
     
     def _close_db(self):

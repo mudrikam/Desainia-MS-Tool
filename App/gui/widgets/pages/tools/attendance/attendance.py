@@ -236,7 +236,7 @@ class AttendanceTool(QWidget):
         checkin_title_font = QFont()
         checkin_title_font.setPointSize(9)
         checkin_title.setFont(checkin_title_font)
-        checkin_title.setStyleSheet("color: rgba(127, 127, 127, 1);")
+        checkin_title.setStyleSheet("color: rgba(127, 127, 127, 1); background-color: transparent;")
         
         # Check-in value
         self.last_checkin_value = QLabel("Never")
@@ -244,7 +244,7 @@ class AttendanceTool(QWidget):
         checkin_value_font.setPointSize(12)
         checkin_value_font.setWeight(600)
         self.last_checkin_value.setFont(checkin_value_font)
-        self.last_checkin_value.setStyleSheet("color: #4CAF50;")
+        self.last_checkin_value.setStyleSheet("color: #4CAF50; background-color: transparent;")
         self.last_checkin_value.setTextFormat(Qt.TextFormat.RichText)  # Enable HTML formatting
         
         checkin_layout.addWidget(checkin_title)
@@ -271,7 +271,7 @@ class AttendanceTool(QWidget):
         checkout_title_font = QFont()
         checkout_title_font.setPointSize(9)
         checkout_title.setFont(checkout_title_font)
-        checkout_title.setStyleSheet("color: rgba(127, 127, 127, 1);")
+        checkout_title.setStyleSheet("color: rgba(127, 127, 127, 1); background-color: transparent;")
         
         # Check-out value
         self.last_checkout_value = QLabel("Never")
@@ -279,7 +279,7 @@ class AttendanceTool(QWidget):
         checkout_value_font.setPointSize(12)
         checkout_value_font.setWeight(600)
         self.last_checkout_value.setFont(checkout_value_font)
-        self.last_checkout_value.setStyleSheet("color: #f44336;")
+        self.last_checkout_value.setStyleSheet("color: #f44336; background-color: transparent;")
         self.last_checkout_value.setTextFormat(Qt.TextFormat.RichText)  # Enable HTML formatting
         
         checkout_layout.addWidget(checkout_title)
@@ -306,7 +306,7 @@ class AttendanceTool(QWidget):
         duration_title_font = QFont()
         duration_title_font.setPointSize(9)
         duration_title.setFont(duration_title_font)
-        duration_title.setStyleSheet("color: rgba(127, 127, 127, 1);")
+        duration_title.setStyleSheet("color: rgba(127, 127, 127, 1); background-color: transparent;")
         
         # Duration value
         self.work_duration_value = QLabel("00:00:00")
@@ -314,7 +314,7 @@ class AttendanceTool(QWidget):
         duration_value_font.setPointSize(12)
         duration_value_font.setWeight(600)
         self.work_duration_value.setFont(duration_value_font)
-        self.work_duration_value.setStyleSheet("color: palette(text);")
+        self.work_duration_value.setStyleSheet("color: palette(text); background-color: transparent;")
         
         duration_layout.addWidget(duration_title)
         duration_layout.addWidget(self.work_duration_value)

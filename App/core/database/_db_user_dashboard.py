@@ -39,10 +39,16 @@ class UserDashboardDB:
         self.config = self._load_config()
         
         # Get database path strictly from config - no default fallback
-        self.db_path = os.path.join(
-            self.base_dir.get_path(''),
-            self.config['database']['path']
-        )
+        # Fix for cross-platform compatibility: normalize path separators
+        db_path = self.config['database']['path']
+        # Convert any Windows backslashes to forward slashes for cross-platform compatibility
+        db_path = db_path.replace('\\', '/')
+        
+        # Ensure it's an absolute path by joining with base directory
+        if not os.path.isabs(db_path):
+            self.db_path = os.path.normpath(os.path.join(self.base_dir.get_path(''), db_path))
+        else:
+            self.db_path = os.path.normpath(db_path)
                 
         # Profile images directory
         self.profile_images_dir = os.path.join(
@@ -80,11 +86,18 @@ class UserDashboardDB:
     def _connect_db(self):
         """Connect to the SQLite database."""
         try:
+            # Print DB path for debugging
+            print(f"UserDashboardDB connecting to database: {self.db_path}")
+            
             self.conn = sqlite3.connect(self.db_path)
             self.conn.row_factory = sqlite3.Row  # Use dictionary-like rows
+            
+            print(f"UserDashboardDB database connection successful: {self.db_path}")
             return True
         except sqlite3.Error as e:
             self.logger.error(f"Database error: {e}")
+            print(f"UserDashboardDB database connection failed: {self.db_path}")
+            print(f"Error: {e}")
             return False
     
     def _close_db(self):

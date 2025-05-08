@@ -74,41 +74,69 @@ class UserAuth:
         try:
             # Get database path from config
             if hasattr(self, 'config'):
-                db_relative_path = self.config.get('database', {}).get('path', 'App/database/database.db')
+                db_relative_path = self.config.get('database', {}).get('path', 'UserData/database/database.db')
             elif hasattr(self.base_dir, 'config'):
-                db_relative_path = self.base_dir.config.get('database', {}).get('path', 'App/database/database.db')
+                db_relative_path = self.base_dir.config.get('database', {}).get('path', 'UserData/database/database.db')
             else:
                 # Load config directly if not available
                 config_path = os.path.join(self.base_dir.get_path('App', 'config'), 'config.json')
                 if os.path.exists(config_path):
                     with open(config_path, 'r', encoding='utf-8') as f:
                         config = json.load(f)
-                        db_relative_path = config.get('database', {}).get('path', 'App/database/database.db')
+                        db_relative_path = config.get('database', {}).get('path', 'UserData/database/database.db')
                 else:
-                    db_relative_path = 'App/database/database.db'
+                    db_relative_path = 'UserData/database/database.db'
+            
+            # Cross-platform path normalization
+            db_relative_path = db_relative_path.replace('\\', '/')
             
             # Convert relative path to absolute
             if not os.path.isabs(db_relative_path):
                 if hasattr(self.base_dir, 'get_path'):
-                    return self.base_dir.get_path(db_relative_path)
+                    full_path = os.path.normpath(os.path.join(self.base_dir.get_path(''), db_relative_path))
+                    # Ensure directory exists
+                    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+                    self.logger.debug(f"DB Path (constructed): {full_path}")
+                    return full_path
                 else:
-                    return os.path.join(self.base_dir, db_relative_path)
-            return db_relative_path
+                    full_path = os.path.normpath(os.path.join(self.base_dir, db_relative_path))
+                    # Ensure directory exists
+                    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+                    self.logger.debug(f"DB Path (fallback): {full_path}")
+                    return full_path
+            
+            # Path is already absolute
+            full_path = os.path.normpath(db_relative_path)
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(full_path), exist_ok=True)
+            self.logger.debug(f"DB Path (absolute): {full_path}")
+            return full_path
             
         except Exception as e:
             self.logger.error(f"Error getting database path from config: {e}")
             # Default path if config can't be loaded
-            return os.path.join(self.base_dir.get_path('App', 'database'), 'database.db')
+            default_path = os.path.normpath(os.path.join(self.base_dir.get_path('UserData', 'database'), 'database.db'))
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(default_path), exist_ok=True)
+            self.logger.debug(f"DB Path (default): {default_path}")
+            return default_path
     
     def _connect_db(self):
         """Connect to the SQLite database."""
         try:
             if not self.conn:
+                # Print database path for debugging
+                print(f"UserAuth connecting to database: {self.db_path}")
+                
                 self.conn = sqlite3.connect(self.db_path)
                 self.conn.row_factory = sqlite3.Row  # Use dictionary-like rows
+                
+                print(f"UserAuth database connection successful: {self.db_path}")
             return True
         except sqlite3.Error as e:
             self.logger.error(f"Database connection error: {e}")
+            print(f"UserAuth database connection failed: {self.db_path}")
+            print(f"Error: {e}")
             return False
     
     def _close_db(self):

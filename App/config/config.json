@@ -21,7 +21,7 @@
     },
     "database": {
         "type": "sqlite",
-        "path": "App/database/database.db",
+        "path": "UserData/database/database.db",
         "backup_path": "UserData/backups/database",
         "backup_interval_days": 7,
         "auto_backup": true
