@@ -377,6 +377,7 @@ class LoginRegisterWidget(QWidget):
         self.reset_email_field.setPlaceholderText(self.tr('page', 'user', 'email'))
         self.reset_email_field.setMinimumHeight(40)
         self.reset_email_field.setStyleSheet(self.STYLES["input"])
+        self.reset_email_field.returnPressed.connect(self._on_reset_password)
         
         # New password field
         self.new_password_field = QLineEdit()
@@ -384,6 +385,7 @@ class LoginRegisterWidget(QWidget):
         self.new_password_field.setEchoMode(QLineEdit.EchoMode.Password)
         self.new_password_field.setMinimumHeight(40)
         self.new_password_field.setStyleSheet(self.STYLES["input"])
+        self.new_password_field.returnPressed.connect(self._on_reset_password)
         
         # Confirm password field
         self.confirm_password_field = QLineEdit()
@@ -391,6 +393,7 @@ class LoginRegisterWidget(QWidget):
         self.confirm_password_field.setEchoMode(QLineEdit.EchoMode.Password)
         self.confirm_password_field.setMinimumHeight(40)
         self.confirm_password_field.setStyleSheet(self.STYLES["input"])
+        self.confirm_password_field.returnPressed.connect(self._on_reset_password)
         
         # Reset button
         reset_btn = QPushButton(self.tr('page', 'user', 'reset_password_button'))

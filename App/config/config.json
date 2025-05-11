@@ -20,7 +20,7 @@
         "qt_version": "6.6.1"
     },
     "database": {
-        "type": "sqlite",
+        "type": "sqlite3",
         "path": "UserData/database/database.db",
         "backup_path": "UserData/backups/database",
         "backup_interval_days": 7,

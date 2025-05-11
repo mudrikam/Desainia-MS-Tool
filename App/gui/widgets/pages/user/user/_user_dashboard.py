@@ -88,7 +88,7 @@ class IncomeBox(QFrame):
         self.setObjectName("incomeBox")
         self.setStyleSheet("""
             #incomeBox {
-                background-color: palette(light);
+                background-color: palette(mid);
                 border: none;
                 border-radius: 15px;
             }
@@ -319,7 +319,7 @@ class AttendanceRecordsTable(QTableWidget):
             row_widget.setObjectName(f"row_{i}")
             row_widget.setStyleSheet(f"""
                 #row_{i} {{
-                    background-color: palette(light);
+                    background-color: palette(dark);
                     border-radius: 10px;
                 }}
             """)
@@ -427,7 +427,7 @@ class UserDashboardWidget(QWidget):
         left_column.setObjectName("recordsPanel")
         left_column.setStyleSheet("""
             #recordsPanel {
-                background-color: palette(light);
+                background-color: palette(mid);
                 border-radius: 10px;
             }
         """)
@@ -473,7 +473,7 @@ class UserDashboardWidget(QWidget):
         right_column.setObjectName("attendancePanel")
         right_column.setStyleSheet("""
             #attendancePanel {
-                background-color: palette(light);
+                background-color: palette(mid);
                 border-radius: 10px;
             }
         """)
@@ -499,6 +499,7 @@ class UserDashboardWidget(QWidget):
         
         # Use theme-friendly colors for the bottom stats using palette colors
         total_workdays_stats = AttendanceStats("Total Workdays", 100, "fa5s.calendar-alt", "palette(text)")
+        total_workdays_stats.setStyleSheet("color: palette(text);")
         avg_hours_stats = AttendanceStats("Avg Hours/Day", 7.5, "fa5s.clock", "palette(text)")
         total_hours_stats = AttendanceStats("Total Hours", 750, "fa5s.hourglass-half", "palette(text)")
         
